@@ -1,0 +1,33 @@
+{
+  "name": "abstract-state-router",
+  "version": "0.0.0",
+  "description": "The basics of a client-side state router ala the AngularJS ui-router, but without any DOM interactions",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TehShrike/abstract-state-router.git"
+  },
+  "keywords": [
+    "router",
+    "ui-router",
+    "browserify"
+  ],
+  "author": "TehShrike",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/TehShrike/abstract-state-router/issues"
+  },
+  "homepage": "https://github.com/TehShrike/abstract-state-router",
+  "dependencies": {
+    "make-tree": "^1.0.0",
+    "path-to-regexp": "^1.0.1"
+  },
+  "devDependencies": {
+    "extend": "^1.3.0",
+    "page": "^1.3.7",
+    "tape": "^2.14.0"
+  }
+}
