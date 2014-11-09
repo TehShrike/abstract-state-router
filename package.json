@@ -23,7 +23,8 @@
   "homepage": "https://github.com/TehShrike/abstract-state-router",
   "dependencies": {
     "make-tree": "^1.0.0",
-    "path-to-regexp": "^1.0.1"
+    "path-to-regexp": "^1.0.1",
+    "hash-brown-router": "^1.3.0"
   },
   "devDependencies": {
     "extend": "^1.3.0",

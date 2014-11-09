@@ -24,8 +24,27 @@ function displayState(state, context) {
 	state.display(context.resolved)
 }
 
-module.exports = function addState(identifier, state) {
-	var hierarchy = parseStateString(identifier)
-	var newState = makeTree(hierarchy, states)
-	page(state.url, curry(resolve, state), curry(displayState, state))
+module.exports = function StateProvider(hashRouter) {
+
+	// var hierarchy = parseStateString(identifier)
+	// var newState = makeTree(hierarchy, states)
+	// page(state.url, curry(resolve, state), curry(displayState, state))
+
+	function getRoute(stateName, route) {
+		// TODO: parent state routes or whatever
+		return route
+	}
+
+	function addState(stateName, route, data, resolveFunction, callback) {
+		var routePath = getRoute(stateName, route)
+		hashRouter.add(routePath, function(parameters) {
+			var content = null // TODO: get from the resolve function
+
+			callback(data, parameters, content)
+		})
+	}
+
+	return {
+		addState: addState
+	}
 }
