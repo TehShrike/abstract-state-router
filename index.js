@@ -1,13 +1,6 @@
 var page = require('page')
-var parseStateString = require('./state-string-parser.js')
-var makeTree = require('make-tree')
+var StateState = require('./state-state')
 var extend = require('extend')
-
-var states = {}
-
-function curry(fn, arg1) {
-	return fn.bind(null, arg1)
-}
 
 function resolve(state, context, next) {
 	var params = extend(true, {}, context.params, context.query)
@@ -24,23 +17,44 @@ function displayState(state, context) {
 	state.display(context.resolved)
 }
 
-module.exports = function StateProvider(hashRouter) {
+function getFromStates(stateTree, stateIdentifierArray, property) {
+	var current = stateTree
+	return stateIdentifierArray.map(function(identifier) {
+		var child = current[identifier]
 
-	// var hierarchy = parseStateString(identifier)
-	// var newState = makeTree(hierarchy, states)
-	// page(state.url, curry(resolve, state), curry(displayState, state))
+		return child[property]
+	})
+}
 
-	function getRoute(stateName, route) {
-		// TODO: parent state routes or whatever
-		return route
+function resolveState(allStates, name, content, cb) {
+	var parentName = allStates.getParentName(name)
+	if (parentName) {
+		resolveState(allStates, parentName, content, function(parentContent) {
+			allStates.get(name).resolve(function(newContent) {
+				var inheritedContent = extend(Object.create(newContent), newContent)
+				cb(inheritedContent)
+			})
+		})
+	} else {
+		allStates.get(name).resolve(cb)
 	}
+}
 
-	function addState(stateName, route, data, resolveFunction, callback) {
-		var routePath = getRoute(stateName, route)
+module.exports = function StateProvider(hashRouter) {
+	var states = StateState()
+
+	function addState(stateName, route, data, resolveFunction, renderFunction) {
+		states.add(stateName, {
+			route: route,
+			data: data,
+			resolve: resolveFunction,
+			render: renderFunction
+		})
+
 		hashRouter.add(routePath, function(parameters) {
-			var content = null // TODO: get from the resolve function
-
-			callback(data, parameters, content)
+			resolveState(states, stateName, {}, function(content) {
+				callback(data, parameters, content)
+			})
 		})
 	}
 

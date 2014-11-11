@@ -8,8 +8,8 @@ function testParsing(t, input, output) {
 
 var TESTS = [
 	['butts', ['butts']],
-	['butts.lol', ['butts', 'lol']],
-	['butts rofl.wat.ok', ['butts rofl', 'wat', 'ok']]
+	['butts.lol', ['butts', 'butts.lol']],
+	['butts rofl.wat.ok', ['butts rofl', 'butts rofl.wat', 'butts rofl.wat.ok']]
 ]
 
 test('state string parser', function(t) {
