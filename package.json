@@ -22,9 +22,10 @@
   },
   "homepage": "https://github.com/TehShrike/abstract-state-router",
   "dependencies": {
-    "make-tree": "^1.0.0",
+    "combine-arrays": "^1.0.0",
+    "hash-brown-router": "^1.3.0",
     "path-to-regexp": "^1.0.1",
-    "hash-brown-router": "^1.3.0"
+    "promise": "^6.0.1"
   },
   "devDependencies": {
     "extend": "^2.0.0",

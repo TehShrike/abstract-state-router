@@ -26,36 +26,39 @@ function getFromStates(stateTree, stateIdentifierArray, property) {
 	})
 }
 
-function resolveState(allStates, name, content, cb) {
-	var parentName = allStates.getParentName(name)
-	if (parentName) {
-		resolveState(allStates, parentName, content, function(parentContent) {
-			allStates.get(name).resolve(function(newContent) {
-				var inheritedContent = extend(Object.create(newContent), newContent)
-				cb(inheritedContent)
-			})
-		})
-	} else {
-		allStates.get(name).resolve(cb)
-	}
+
+
+function inactiveStatesInHierarchy(state) {
+
 }
 
 module.exports = function StateProvider(hashRouter) {
-	var states = StateState()
+	var stateHolder = StateState()
 
-	function addState(stateName, route, data, resolveFunction, renderFunction) {
-		states.add(stateName, {
-			route: route,
-			data: data,
-			resolve: resolveFunction,
-			render: renderFunction
-		})
-
-		hashRouter.add(routePath, function(parameters) {
-			resolveState(states, stateName, {}, function(content) {
-				callback(data, parameters, content)
+	function resolveState(name, content, cb) {
+		var parentName = stateHolder.getParentName(name)
+		if (parentName) {
+			resolveState(stateHolder, parentName, content, function(parentContent) {
+				stateHolder.get(name).resolve(function(newContent) {
+					var inheritedContent = extend(Object.create(newContent), newContent)
+					cb(inheritedContent)
+				})
 			})
-		})
+		} else {
+			stateHolder.get(name).resolve(cb)
+		}
+	}
+
+	function onRouteChange(state, parameters) {
+
+	}
+
+	function addState(state) {
+		state = Object.create(state)
+		state.active = false
+		stateHolder.add(state.name, state)
+
+		hashRouter.add(state.route, onRouteChange.bind(null, state))
 	}
 
 	return {

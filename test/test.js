@@ -8,13 +8,19 @@ var pathtoRegexp = require('path-to-regexp')
 var hashRouterFactory = require('hash-brown-router')
 var hashLocationMockFactory = require('hash-brown-router/hash-location-mock')
 var stateRouterFactory = require('../')
+var mockRenderFn = require('./support/render-mock')
 
 function getTestState(t) {
 	var hashRouter = hashRouterFactory(hashLocationMockFactory())
-	var stateRouter = stateRouterFactory(hashRouter)
-	stateRouter.setDefault(t.fail.bind(fail, 'default route was called'))
+	var stateRouter = stateRouterFactory(hashRouter, mockRenderFn)
+	hashRouter.setDefault(t.fail.bind(fail, 'default route was called'))
 
-	stateRouter.addState('dummy', '/dummy', {}, null, t.fail.bind(fail, 'dummy route was called'))
+	stateRouter.addState({
+		name: 'dummy',
+		route: '/dummy',
+		data: {},
+		render: t.fail.bind(fail, 'dummy route was called')
+	})
 
 	return {
 		hashRouter: hashRouter,
@@ -28,10 +34,16 @@ test('activates a state, passes in a parameter from the querystring', function(t
 
 	t.plan(2)
 
-	stateRouter.addState('butts', '/routeButt', originalData, null, function(data, parameters, content) {
-		t.equal(data, originalData, 'got back the same data object')
-		t.equal(parameters.wat, 'wut', 'got the right parameter')
-		t.end()
+	stateRouter.addState({
+		name: 'butts',
+		route: '/routeButt',
+		data: originalData,
+		querystringParameters: ['wat'],
+		render: function(data, parameters, content) {
+			t.equal(data, originalData, 'got back the same data object')
+			t.equal(parameters.wat, 'wut', 'got the right parameter')
+			t.end()
+		}
 	})
 
 	state.hashRouter.go('/routeButt?wat=wut')
@@ -58,7 +70,14 @@ test('calls resolve callback, passes results to the render callback', function(t
 		t.end()
 	}
 
-	stateRouter.addState('someRoute', '/routeButt', originalData, resolve, render)
+	stateRouter.addState({
+		name: 'someRoute',
+		route: '/routeButt',
+		data: originalData,
+		querystringParameters: ['wat'],
+		resolve: resolve,
+		render: render
+	})
 
 	state.hashRouter.go('/routeButt?wat=wut')
 })
@@ -66,29 +85,53 @@ test('calls resolve callback, passes results to the render callback', function(t
 test('activates both parent and child state', function(t) {
 	var state = getTestState(t)
 
-	t.plan(8)
+	t.plan(12)
 
 	var parentData = {}
 	var childData = {}
 
+	var calledResolveFunctionForParent = false
+	var calledResolveFunctionForChild = false
+
 	var activatedParent = false
 	var activatedChild = false
 
-	state.stateRouter.addState('parent', '/routeParent', parentData, null, function(data, parameters, content) {
-		t.equal(data, parentData, 'got back the parent data object')
-		t.equal(parameters.wat, 'wut', 'got the right parameter')
-		t.notOk(activatedParent, 'have not activated the parent before')
-		t.notOk(activatedChild, 'have not activated the child yet')
-		activatedParent = true
+	state.stateRouter.addState({
+		name: 'parent',
+		route: '/routeParent',
+		data: parentData,
+		resolve: function(cb) {
+			t.notOk(calledResolveFunctionForParent, 'Called the parent\'s resolve function for the first time')
+			t.notOk(activatedParent, 'Called the resolve function before the render function')
+			calledResolveFunctionForParent = true
+		},
+		render: function(data, parameters, content) {
+			t.equal(data, parentData, 'got back the parent data object')
+			t.notOk(parameters.wat, 'wut', 'got the right parameter')
+			t.notOk(activatedParent, 'have not activated the parent before')
+			t.notOk(activatedChild, 'have not activated the child yet')
+			activatedParent = true
+		}
 	})
 
-	state.stateRouter.addState('parent.child', '/routeChild', childData, null, function(data, parameters, content) {
-		t.equal(data, childData, 'got back the child data object')
-		t.equal(parameters.wat, 'wut', 'got the right parameter')
-		t.ok(activatedParent, 'have already activated the parent')
-		t.notOk(activatedChild, 'have not activated the child before')
-		activatedChild = true
-		t.end()
+	state.stateRouter.addState({
+		name: 'parent.child',
+		route: '/routeChild',
+		querystringParameters: ['wat'],
+		data: childData,
+		resolve: function(cb) {
+			t.notOk(calledResolveFunctionForChild, 'Called the child\'s resolve function for the first time')
+			t.notOk(activatedChild, 'Called the resolve function before the render function')
+			calledResolveFunctionForChild = true
+		},
+		render: function(data, parameters, content) {
+			t.equal(data, childData, 'got back the child data object')
+			t.equal(parameters.wat, 'wut', 'got the right parameter')
+			t.ok(activatedParent, 'have already activated the parent')
+			t.notOk(activatedChild, 'have not activated the child before')
+			activatedChild = true
+			t.end()
+		}
 	})
 
 	state.hashRouter.go('/routeParent/routeChild?wat=wut')

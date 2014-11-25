@@ -1,6 +1,6 @@
 var stateStringParser = require('./state-string-parser')
 
-module.exports = StateState() {
+module.exports = function StateState() {
 	var states = {}
 
 	function getHierarchy(name) {
