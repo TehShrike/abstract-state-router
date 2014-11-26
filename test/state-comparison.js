@@ -62,7 +62,7 @@ test('only changing the grandchild', function(t) {
 test('login to a nested state', function(t) {
 	var results = setup()('login', {}, 'app.main.tab1', {})
 
-		compareAllElements(t, [{
+	compareAllElements(t, [{
 		stateNameChanged: true,
 		stateParametersChanged: false,
 		nameBefore: 'login',
