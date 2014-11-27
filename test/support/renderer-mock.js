@@ -25,13 +25,12 @@ module.exports = function renderingFunction(element, template, emitter, cb) {
 
 		cb(childElement)
 
-		emitter.on('change', function(newData) {
-			renderedTemplateApi.changeDataInView(newData)
+		emitter.on('change', function(newParameters, newData) {
+			renderedTemplateApi.changeDataInView(newParameters, newData)
 		})
 
-		emitter.on('teardown', function() {
+		emitter.on('destroy', function() {
 			renderedTemplateApi.teardown()
 		})
 	})
-
 }

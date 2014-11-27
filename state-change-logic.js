@@ -1,4 +1,4 @@
-module.exports = function(stateComparisonResults) {
+module.exports = function stateChangeLogic(stateComparisonResults) {
 	var hitChangingState = false
 	var hitDestroyedState = false
 
