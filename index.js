@@ -1,56 +1,9 @@
-var page = require('page')
 var StateState = require('./state-state')
 var extend = require('extend')
 var Promise = require('promise')
 var StateComparison = require('./state-comparison')
 var CurrentState = require('./current-state')
 var stateChangeLogic = require('./state-change-logic')
-
-function resolveSingleState(state, parameters) {
-	return new Promise(function(resolve, reject) {
-
-		function callback(err, content) {
-			if (err) {
-				reject(err)
-			} else {
-				resolve(content)
-			}
-		}
-
-		function redirectCallback(stateName, params) {
-			reject(new Error('redirect callbacks not implemented yet'))
-		}
-
-		if (typeof state.resolve === 'function') {
-			state.resolve(state.data, parameters, callback, redirectCallback)
-		}
-	})
-}
-
-function resolveParentsAndEverything(stateHolder, stateName, parameters) {
-	var parent = stateHolder.getParentName(stateName)
-
-	var parentsResolved = parent ? resolveParentsAndEverything(stateHolder, parent, parameters) : Promise.resolve({})
-
-	return parentsResolved.then(function(resolvedData) {
-		return Object.create(resolvedData)
-	}).then(function(resolvedData) {
-		return new Promise(function(resolve, reject) {
-			var state = stateHolder.get(stateName)
-			if (state.resolve) {
-				return state.resolve(parameters, function(err, whateverData) {
-					if (err) {
-						reject(err)
-					} else {
-						resolve(extend(resolvedData, whateverData))
-					}
-				})
-			} else {
-				return resolve(resolvedData)
-			}
-		})
-	})
-}
 
 function resolveAll(stateHolder, stateNames, parameters) {
 	var allResolvePromises = stateNames.map(function(stateName) {
@@ -76,6 +29,32 @@ function resolveAll(stateHolder, stateNames, parameters) {
 	})
 }
 
+function handleStateChange(stateHolder, stateChangeActions, activeStates, parameters) {
+	stateChangeActions.destroy.forEach(function(stateName) {
+		activeStates[stateName].emitter.emit('destroy')
+	})
+
+	var stateNamesToInstantiate = stateChangeActions.change.concat(stateChangeActions.create)
+
+	return resolveAll(stateHolder, stateNamesToInstantiate, parameters).then(function(resolvedValue) {
+		stateChangeActions.change.forEach(function(stateName) {
+			activeStates[stateName].emitter.emit('change', parameters, resolvedValue)
+		})
+
+		// TODO
+		createAll(stateChangeActions.create)
+
+		var instantiationPromises = stateNamesToInstantiate.map(function(stateName) {
+			return new Promise(function(resolve, reject) {
+				var state = stateHolder.get(stateName)
+				resolve(state.activate(state.data, parameters, resolvedValue))
+			})
+		})
+
+		return Promise.all(instantiationPromises)
+	})
+}
+
 function onRouteChange(stateHolder, currentState, stateComparison, activeStates, state, parameters) {
 	// originalState, originalParameters, newState, newParameters
 	var stateComparisonResults = stateComparison(currentState.get().name, currentState.get().parameters, state.name, parameters)
@@ -83,23 +62,14 @@ function onRouteChange(stateHolder, currentState, stateComparison, activeStates,
 
 	// { destroy, change, create }
 
-	stateChangeActions.destroy.forEach(function(stateName) {
-		activeStates[stateName].emitter.emit('destroy')
-	})
-
-	var stateNamesToInstantiate = stateChangeActions.change.concat(stateChangeActions.create)
-
-	resolveAll(stateNamesToInstantiate).then(function(resolvedValue) {
-		stateChangeActions.change.map(function(stateName) {
-			activeStates[stateName].emitter.emit('change', parameters, resolvedValue)
-		})
-	})
+	return handleStateChange(stateHolder, stateChangeActions, activeStates, parameters)
 
 }
 
 module.exports = function StateProvider(hashRouter, render) {
 	var stateHolder = StateState()
 	var current = CurrentState()
+	var stateComparison = StateComparison(stateHolder)
 
 	var activeDomElementsAndEmitters = {}
 
