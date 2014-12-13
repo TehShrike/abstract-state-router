@@ -4,6 +4,7 @@ var Promise = require('promise')
 var StateComparison = require('./state-comparison')
 var CurrentState = require('./current-state')
 var stateChangeLogic = require('./state-change-logic')
+var newHashBrownRouter = require('hash-brown-router')
 
 function resolveAll(stateHolder, stateNames, parameters) {
 	var allResolvePromises = stateNames.map(function(stateName) {
@@ -66,10 +67,11 @@ function onRouteChange(stateHolder, currentState, stateComparison, activeStates,
 
 }
 
-module.exports = function StateProvider(hashRouter, render) {
+module.exports = function StateProvider(render, hashRouter) {
 	var stateHolder = StateState()
 	var current = CurrentState()
 	var stateComparison = StateComparison(stateHolder)
+	hashRouter = hashRouter || newHashBrownRouter()
 
 	var activeDomElementsAndEmitters = {}
 

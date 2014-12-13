@@ -11,7 +11,7 @@ var mockRenderFn = require('./support/render-mock')
 
 function getTestState(t, renderFn) {
 	var hashRouter = hashRouterFactory(hashLocationMockFactory())
-	var stateRouter = stateRouterFactory(hashRouter, renderFn || mockRenderFn)
+	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, hashRouter)
 	hashRouter.setDefault(t.fail.bind(fail, 'default route was called'))
 
 	stateRouter.addState({
@@ -31,7 +31,7 @@ function assertingRenderFunctionFactory(t, expectedTemplates) {
 	return function(element, template, emitter, cb) {
 		t.ok(expectedTemplates.length)
 		var expected = expectedTemplates.shift()
-		t.equal(expected, template)
+		t.equal(expected, template, 'The expected template was sent to the render function')
 
 		process.nextTick(function() {
 			cb('dummy child element')
@@ -39,27 +39,77 @@ function assertingRenderFunctionFactory(t, expectedTemplates) {
 	}
 }
 
-test('activates a rendering function and a state function', function(t) {
-	var originalData = {}
-	var template = {}
-	var state = getTestState(t, assertingRenderFunctionFactory(t, [template]))
+test('normal, error-less state activation flow for two states', function(t) {
+	var parentData = {}
+	var childData = {}
+	var parentTemplate = {}
+	var childTemplate = {}
+	var parentResolveContent = {}
+	var childResolveContent = {}
 
-	t.plan(4)
+	var state = getTestState(t, assertingRenderFunctionFactory(t, [parentTemplate, childTemplate]))
+
+	t.plan(17) // 13 below plus 4 in the render function
+
+	var parentResolveFinished = false
+	var parentStateActivated = false
+	var childResolveFinished = false
+
 
 	stateRouter.addState({
-		name: 'butts',
+		name: 'rofl',
 		route: '/routeButt',
-		data: originalData,
-		template: template,
+		data: parentData,
+		template: parentTemplate,
+		resolve: function(data, parameters, cb) {
+			t.equal(data, parentData, 'got back the correct parent data object in the activate function')
+			t.equal(parameters.wat, 'wut', 'got the parameter value in the parent resolve function')
+			setTimeout(function() {
+				parentResolveFinished = true
+				cb(null, parentResolveContent)
+			}, 200)
+		},
 		querystringParameters: ['wat'],
-		activate: function(data, parameters) {
-			t.equal(data, originalData, 'got back the same data object')
-			t.equal(parameters.wat, 'wut', 'got the right parameter')
+		activate: function(data, parameters, content) {
+			t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
+			parentStateActivated = true
+
+			t.ok(parentResolveFinished, 'Parent resolve was completed before the activate')
+
+			t.equal(data, parentData, 'got back the correct data object in the activate function')
+			t.equal(content, parentResolveContent, 'got the correct parent content from the resolve function')
+			t.equal(parameters.wat, 'wut', 'got the parameter value in the parent\'s activate function')
+		}
+	})
+
+	stateRouter.addState({
+		name: 'rofl.copter',
+		route: '/lolcopter',
+		data: childData,
+		template: childTemplate,
+		resolve: function(data, parameters, cb) {
+			t.equal(data, childData, 'got back the correct child data object in the activate function')
+			t.equal(parameters.wat, 'wut', 'got the parent\'s querystring value in the child resolve function')
+			setTimeout(function() {
+				childResolveFinished = true
+				cb(null, childResolveContent)
+			}, 100)
+		},
+		activate: function(data, parameters, content) {
+			t.ok(parentStateActivated, 'Parent state was activated before the child state was')
+			t.ok(childResolveFinished, 'Child resolve was completed before the activate')
+
+			t.equal(data, childData, 'Got back the correct data object')
+			t.equal(content, childResolveContent, 'got the correct child content from the resolve function')
+			t.equal(parameters.wat, 'wut', 'got the the parent\'s parameter value in the child\'s activate function')
+
 			t.end()
 		}
 	})
 
-	state.hashRouter.go('/routeButt?wat=wut')
+	// state.hashRouter.go('/routeButt/lolcopter?wat=wut')
+
+	stateRouter.go('rofl.copter', { wat: 'wut' })
 })
 
 // test('calls resolve callback, passes results to the render callback', function(t) {
