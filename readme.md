@@ -2,19 +2,19 @@ To manage webapp states so that you don't have to deal with url paths or anythin
 
 [ui-router](https://github.com/angular-ui/ui-router/wiki) is fantastic, and I would use it in all of my projects if it wasn't tied to AngularJS.  Thus, this library!  Written to work with [browserify](https://github.com/substack/node-browserify).
 
-Construction
-=========
+# Construction
 
 	var createStateRouter = require('abstract-state-router')
 
-	var stateRouter = createStateRouter(renderFunction, router)
+	var stateRouter = createStateRouter(renderFunction, rootElement, router)
 
 renderFunction creates new elements in the dom.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
 
+The rootElement is the element where the first-generation states will be created.
+
 router defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  It's an optional argument for the purpose of passing in a mock for unit tests.
 
-addState({name, route, data, template, resolve, activate})
-========
+# stateRouter.addState({name, route, data, template, resolve, activate})
 
 The addState function takes a single object of options.
 
@@ -44,15 +44,13 @@ The activate function is called when the state becomes active.  It is passed the
 
 This is the point where you display the view for the current state!
 
-go(stateName, parameters, [options])
-=========
+# stateRouter.go(stateName, parameters, [options])
 
 Browses to the given state, with the current parameters.  Changes the url to match.
 
 The options object currently supports just one option "replace" - if it is truthy, the current state is replaced in the url history.
 
-State change flow
-============
+# State change flow
 
 - emit StateChangeStarted
 - call all resolve functions
@@ -62,7 +60,7 @@ State change flow
 - call all render functions
 - call all controller functions
 
-### What do concrete states have that prototypal states don't?
+# What do concrete states have that prototypal states don't?
 
 - dom elements
 - promises for resolve functions
