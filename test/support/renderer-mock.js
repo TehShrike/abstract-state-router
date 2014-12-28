@@ -23,7 +23,7 @@ module.exports = function renderingFunction(element, template, emitter, cb) {
 	myArbitraryRenderFunction(element, function(renderedTemplateApi) {
 		var childElement = renderedTemplateApi.getChildElement('ui-view')
 
-		cb(childElement)
+		cb(null, childElement)
 
 		emitter.on('change', function(newParameters, newData) {
 			renderedTemplateApi.changeDataInView(newParameters, newData)

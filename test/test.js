@@ -7,18 +7,18 @@ var test = require('tape')
 var hashRouterFactory = require('hash-brown-router')
 var hashLocationMockFactory = require('hash-brown-router/hash-location-mock')
 var stateRouterFactory = require('../')
-var mockRenderFn = require('./support/render-mock')
+var mockRenderFn = require('./support/renderer-mock')
 
 function getTestState(t, renderFn) {
 	var hashRouter = hashRouterFactory(hashLocationMockFactory())
 	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, 'body', hashRouter)
-	hashRouter.setDefault(t.fail.bind(fail, 'default route was called'))
+	hashRouter.setDefault(t.fail.bind(t, 'default route was called'))
 
 	stateRouter.addState({
 		name: 'dummy',
 		route: '/dummy',
 		data: {},
-		render: t.fail.bind(fail, 'dummy route was called')
+		render: t.fail.bind(t, 'dummy route was called')
 	})
 
 	return {
@@ -29,12 +29,12 @@ function getTestState(t, renderFn) {
 
 function assertingRenderFunctionFactory(t, expectedTemplates) {
 	return function(element, template, emitter, cb) {
-		t.ok(expectedTemplates.length)
+		t.ok(expectedTemplates.length, 'The render function hasn\'t been called too many times yet')
 		var expected = expectedTemplates.shift()
 		t.equal(expected, template, 'The expected template was sent to the render function')
 
 		process.nextTick(function() {
-			cb('dummy child element')
+			cb(null, 'dummy child element')
 		})
 	}
 }
@@ -44,11 +44,16 @@ test('normal, error-less state activation flow for two states', function(t) {
 	var childData = {}
 	var parentTemplate = {}
 	var childTemplate = {}
-	var parentResolveContent = {}
-	var childResolveContent = {}
+	var parentResolveContent = {
+		parentProperty: 'some string'
+	}
+	var childResolveContent = {
+		childProperty: 'a different string'
+	}
 
 	var state = getTestState(t, assertingRenderFunctionFactory(t, [parentTemplate, childTemplate]))
-	var assertsBelow = 13
+	var stateRouter = state.stateRouter
+	var assertsBelow = 16
 	var renderAsserts = 4
 
 	t.plan(assertsBelow + renderAsserts)
@@ -58,7 +63,7 @@ test('normal, error-less state activation flow for two states', function(t) {
 	var childResolveFinished = false
 
 
-	state.addState({
+	stateRouter.addState({
 		name: 'rofl',
 		route: '/routeButt',
 		data: parentData,
@@ -79,18 +84,19 @@ test('normal, error-less state activation flow for two states', function(t) {
 			t.ok(parentResolveFinished, 'Parent resolve was completed before the activate')
 
 			t.equal(data, parentData, 'got back the correct data object in the activate function')
-			t.equal(content, parentResolveContent, 'got the correct parent content from the resolve function')
+			t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The parent activate function got the parent property from the resolve function object')
+			t.notOk(content.childProperty, 'No child resolve content visible to the parent')
 			t.equal(parameters.wat, 'wut', 'got the parameter value in the parent\'s activate function')
 		}
 	})
 
-	state.addState({
+	stateRouter.addState({
 		name: 'rofl.copter',
 		route: '/lolcopter',
 		data: childData,
 		template: childTemplate,
 		resolve: function(data, parameters, cb) {
-			t.equal(data, childData, 'got back the correct child data object in the activate function')
+			t.equal(data, childData, 'got back the correct child data object in the child resolve function')
 			t.equal(parameters.wat, 'wut', 'got the parent\'s querystring value in the child resolve function')
 			setTimeout(function() {
 				childResolveFinished = true
@@ -102,7 +108,8 @@ test('normal, error-less state activation flow for two states', function(t) {
 			t.ok(childResolveFinished, 'Child resolve was completed before the activate')
 
 			t.equal(data, childData, 'Got back the correct data object')
-			t.equal(content, childResolveContent, 'got the correct child content from the resolve function')
+			t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The child activate function got the parent property from the resolve function object')
+			t.equal(content.childProperty, childResolveContent.childProperty, 'The child activate function got the child property from the resolve function')
 			t.equal(parameters.wat, 'wut', 'got the the parent\'s parameter value in the child\'s activate function')
 
 			t.end()

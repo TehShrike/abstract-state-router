@@ -7,7 +7,8 @@ var stateChangeLogic = require('./state-change-logic')
 var newHashBrownRouter = require('hash-brown-router')
 var EventEmitter = require('events').EventEmitter
 var series = require('promise-map-series')
-var parse = require('../state-string-parser')
+var parse = require('./state-string-parser')
+var combine = require('combine-arrays')
 
 function onRouteChange(stateHolder, currentState, stateComparison, activeStates, state, parameters) {
 	// originalState, originalParameters, newState, newParameters
@@ -25,7 +26,7 @@ module.exports = function StateProvider(render, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
-	// hashRouter = hashRouter || newHashBrownRouter()
+	hashRouter = hashRouter || newHashBrownRouter()
 
 	var activeDomElementsAndEmitters = {}
 
@@ -36,13 +37,13 @@ module.exports = function StateProvider(render, rootElement, hashRouter) {
 
 	function renderStateName(stateName) {
 		var state = prototypalStateHolder.get(stateName)
-		var parent = getParent(stateName)
+		var parent = prototypalStateHolder.getParent(stateName)
 		var element = parent ? parent.childElement : rootElement
 		var emitter = new EventEmitter()
 
 		activeDomElementsAndEmitters[stateName] = emitter
 
-		return render(element, parent.template, emitter)
+		return render(element, state.template, emitter)
 	}
 
 	function renderAll(stateNames) {
@@ -69,17 +70,17 @@ module.exports = function StateProvider(render, rootElement, hashRouter) {
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = function go(newStateName, parameters) {
 		stateProviderEmitter.emit('state change started', newStateName)
-		var stateComparisonResults = stateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
+		var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
 		var stateChanges = stateChangeLogic(stateComparisonResults)
 		// { destroy, change, create }
 
 		var statesToResolve = stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
 
-		resolveStates(statesToResolve).then(function afterResolves(stateResolveResultsObject) {
+		resolveStates(statesToResolve, parameters).then(function afterResolves(stateResolveResultsObject) {
 			reverse(stateChanges.destroy).forEach(destroyStateName)
 
 			renderAll(stateChanges.create).then(function() {
-				var statesToActivate = stateChange.change.concat(stateChanges.create)
+				var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
 				statesToActivate.map(prototypalStateHolder.get).forEach(function(state) {
 					try {
@@ -108,14 +109,16 @@ function getContentObject(stateResolveResultsObject, stateName) {
 }
 
 // { [stateName]: resolveResult }
-function resolveStates(states) {
+function resolveStates(states, parameters) {
 	var statesWithResolveFunctions = states.filter(isFunction('resolve'))
 	var stateNamesWithResolveFunctions = statesWithResolveFunctions.map(property('name'))
-	var resolves = Promise.all(statesWithResolveFunctions.property('resolve'))
+	var resolves = Promise.all(statesWithResolveFunctions.map(function(state) {
+		return Promise.denodeify(state.resolve)(state.data, parameters)
+	}))
 
 	return resolves.then(function(resolveResults) {
 		return combine({
-			stateName: stateNamesWithResolveFunctions
+			stateName: stateNamesWithResolveFunctions,
 			resolveResult: resolveResults
 		}).reduce(function(obj, result) {
 			obj[result.stateName] = result.resolveResult
@@ -123,7 +126,6 @@ function resolveStates(states) {
 		}, {})
 	})
 }
-
 
 function property(name) {
 	return function(obj) {
