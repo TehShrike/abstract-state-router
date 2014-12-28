@@ -28,6 +28,8 @@ The addState function takes a single object of options.
 
 `resolve` is a function called when the selected state begins to be transitioned to, allowing you to accomplish the same objective as you would with ui-router's [resolve](https://github.com/angular-ui/ui-router/wiki#resolve).
 
+`activate` is a function called when the state is made active - the equivalent of the AngularJS controller to the ui-router.
+
 ## resolve(data, parameters, callback(err, content), redirectCallback(stateName, params))
 
 The first argument is the data object you passed to the addState call.  The second argument is an object containing the parameters that were parsed out of the route params and the query string.
@@ -59,6 +61,11 @@ State change flow
 - destroy existing dom elements
 - call all render functions
 - call all controller functions
+
+### What do concrete states have that prototypal states don't?
+
+- dom elements
+- promises for resolve functions
 
 
 License

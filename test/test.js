@@ -11,7 +11,7 @@ var mockRenderFn = require('./support/render-mock')
 
 function getTestState(t, renderFn) {
 	var hashRouter = hashRouterFactory(hashLocationMockFactory())
-	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, hashRouter)
+	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, 'body', hashRouter)
 	hashRouter.setDefault(t.fail.bind(fail, 'default route was called'))
 
 	stateRouter.addState({
@@ -48,15 +48,17 @@ test('normal, error-less state activation flow for two states', function(t) {
 	var childResolveContent = {}
 
 	var state = getTestState(t, assertingRenderFunctionFactory(t, [parentTemplate, childTemplate]))
+	var assertsBelow = 13
+	var renderAsserts = 4
 
-	t.plan(17) // 13 below plus 4 in the render function
+	t.plan(assertsBelow + renderAsserts)
 
 	var parentResolveFinished = false
 	var parentStateActivated = false
 	var childResolveFinished = false
 
 
-	stateRouter.addState({
+	state.addState({
 		name: 'rofl',
 		route: '/routeButt',
 		data: parentData,
@@ -82,7 +84,7 @@ test('normal, error-less state activation flow for two states', function(t) {
 		}
 	})
 
-	stateRouter.addState({
+	state.addState({
 		name: 'rofl.copter',
 		route: '/lolcopter',
 		data: childData,
