@@ -12,7 +12,7 @@ var mockRenderFn = require('./support/renderer-mock')
 function getTestState(t, renderFn) {
 	var hashRouter = hashRouterFactory(hashLocationMockFactory())
 	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, 'body', hashRouter)
-	hashRouter.setDefault(t.fail.bind(t, 'default route was called'))
+	hashRouter.setDefault(function noop() {})
 
 	stateRouter.addState({
 		name: 'dummy',
@@ -40,86 +40,98 @@ function assertingRenderFunctionFactory(t, expectedTemplates) {
 }
 
 test('normal, error-less state activation flow for two states', function(t) {
-	var parentData = {}
-	var childData = {}
-	var parentTemplate = {}
-	var childTemplate = {}
-	var parentResolveContent = {
-		parentProperty: 'some string'
-	}
-	var childResolveContent = {
-		childProperty: 'a different string'
-	}
-
-	var state = getTestState(t, assertingRenderFunctionFactory(t, [parentTemplate, childTemplate]))
-	var stateRouter = state.stateRouter
-	var assertsBelow = 16
-	var renderAsserts = 4
-
-	t.plan(assertsBelow + renderAsserts)
-
-	var parentResolveFinished = false
-	var parentStateActivated = false
-	var childResolveFinished = false
-
-
-	stateRouter.addState({
-		name: 'rofl',
-		route: '/routeButt',
-		data: parentData,
-		template: parentTemplate,
-		resolve: function(data, parameters, cb) {
-			t.equal(data, parentData, 'got back the correct parent data object in the activate function')
-			t.equal(parameters.wat, 'wut', 'got the parameter value in the parent resolve function')
-			setTimeout(function() {
-				parentResolveFinished = true
-				cb(null, parentResolveContent)
-			}, 200)
-		},
-		querystringParameters: ['wat'],
-		activate: function(data, parameters, content) {
-			t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
-			parentStateActivated = true
-
-			t.ok(parentResolveFinished, 'Parent resolve was completed before the activate')
-
-			t.equal(data, parentData, 'got back the correct data object in the activate function')
-			t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The parent activate function got the parent property from the resolve function object')
-			t.notOk(content.childProperty, 'No child resolve content visible to the parent')
-			t.equal(parameters.wat, 'wut', 'got the parameter value in the parent\'s activate function')
+	function basicTest(t) {
+		var parentData = {}
+		var childData = {}
+		var parentTemplate = {}
+		var childTemplate = {}
+		var parentResolveContent = {
+			parentProperty: 'some string'
 		}
+		var childResolveContent = {
+			childProperty: 'a different string'
+		}
+
+		var state = getTestState(t, assertingRenderFunctionFactory(t, [parentTemplate, childTemplate]))
+		var stateRouter = state.stateRouter
+		var assertsBelow = 16
+		var renderAsserts = 4
+
+		t.plan(assertsBelow + renderAsserts)
+		console.log('Plan for', assertsBelow + renderAsserts)
+
+		var parentResolveFinished = false
+		var parentStateActivated = false
+		var childResolveFinished = false
+
+
+		stateRouter.addState({
+			name: 'rofl',
+			route: '/routeButt',
+			data: parentData,
+			template: parentTemplate,
+			resolve: function(data, parameters, cb) {
+				t.equal(data, parentData, 'got back the correct parent data object in the activate function')
+				t.equal(parameters.wat, 'wut', 'got the parameter value in the parent resolve function')
+				setTimeout(function() {
+					parentResolveFinished = true
+					cb(null, parentResolveContent)
+				}, 200)
+			},
+			querystringParameters: ['wat'],
+			activate: function(data, parameters, content) {
+				t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
+				parentStateActivated = true
+
+				t.ok(parentResolveFinished, 'Parent resolve was completed before the activate')
+
+				t.equal(data, parentData, 'got back the correct data object in the activate function')
+				t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The parent activate function got the parent property from the resolve function object')
+				t.notOk(content.childProperty, 'No child resolve content visible to the parent')
+				t.equal(parameters.wat, 'wut', 'got the parameter value in the parent\'s activate function')
+			}
+		})
+
+		stateRouter.addState({
+			name: 'rofl.copter',
+			route: '/lolcopter',
+			data: childData,
+			template: childTemplate,
+			resolve: function(data, parameters, cb) {
+				t.equal(data, childData, 'got back the correct child data object in the child resolve function')
+				t.equal(parameters.wat, 'wut', 'got the parent\'s querystring value in the child resolve function')
+				setTimeout(function() {
+					childResolveFinished = true
+					cb(null, childResolveContent)
+				}, 100)
+			},
+			activate: function(data, parameters, content) {
+				t.ok(parentStateActivated, 'Parent state was activated before the child state was')
+				t.ok(childResolveFinished, 'Child resolve was completed before the activate')
+
+				t.equal(data, childData, 'Got back the correct data object')
+				t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The child activate function got the parent property from the resolve function object')
+				t.equal(content.childProperty, childResolveContent.childProperty, 'The child activate function got the child property from the resolve function')
+				t.equal(parameters.wat, 'wut', 'got the the parent\'s parameter value in the child\'s activate function')
+
+				t.end()
+			}
+		})
+
+		return state
+	}
+
+	t.test('triggered with go()', function(t) {
+		var stateRouter = basicTest(t).stateRouter
+		stateRouter.go('rofl.copter', { wat: 'wut' })
 	})
 
-	stateRouter.addState({
-		name: 'rofl.copter',
-		route: '/lolcopter',
-		data: childData,
-		template: childTemplate,
-		resolve: function(data, parameters, cb) {
-			t.equal(data, childData, 'got back the correct child data object in the child resolve function')
-			t.equal(parameters.wat, 'wut', 'got the parent\'s querystring value in the child resolve function')
-			setTimeout(function() {
-				childResolveFinished = true
-				cb(null, childResolveContent)
-			}, 100)
-		},
-		activate: function(data, parameters, content) {
-			t.ok(parentStateActivated, 'Parent state was activated before the child state was')
-			t.ok(childResolveFinished, 'Child resolve was completed before the activate')
-
-			t.equal(data, childData, 'Got back the correct data object')
-			t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The child activate function got the parent property from the resolve function object')
-			t.equal(content.childProperty, childResolveContent.childProperty, 'The child activate function got the child property from the resolve function')
-			t.equal(parameters.wat, 'wut', 'got the the parent\'s parameter value in the child\'s activate function')
-
-			t.end()
-		}
+	t.test('triggered by the router', function(t) {
+		var hashRouter = basicTest(t).hashRouter
+		hashRouter.go('/routeButt/lolcopter?wat=wut')
 	})
-
-	// state.hashRouter.go('/routeButt/lolcopter?wat=wut')
-
-	stateRouter.go('rofl.copter', { wat: 'wut' })
 })
+
 
 // test('calls resolve callback, passes results to the render callback', function(t) {
 // 	var state = getTestState(t)

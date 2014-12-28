@@ -10,17 +10,6 @@ var series = require('promise-map-series')
 var parse = require('./state-string-parser')
 var combine = require('combine-arrays')
 
-function onRouteChange(stateHolder, currentState, stateComparison, activeStates, state, parameters) {
-	// originalState, originalParameters, newState, newParameters
-	var stateComparisonResults = stateComparison(currentState.get().name, currentState.get().parameters, state.name, parameters)
-	var stateChangeActions = stateChangeLogic(stateComparisonResults)
-
-	// { destroy, change, create }
-
-	return handleStateChange(stateHolder, stateChangeActions, activeStates, parameters)
-
-}
-
 module.exports = function StateProvider(render, rootElement, hashRouter) {
 	render = Promise.denodeify(render)
 	var prototypalStateHolder = StateState()
@@ -59,12 +48,16 @@ module.exports = function StateProvider(render, rootElement, hashRouter) {
 
 	current.set('', {})
 
+	function onRouteChange(state, parameters) {
+		stateProviderEmitter.go(state.name, parameters)
+	}
+
 	function addState(state) {
 		prototypalStateHolder.add(state.name, state)
 
 		var route = buildRoute(prototypalStateHolder, state.name)
 
-		// hashRouter.add(route, onRouteChange.bind(null, prototypalStateHolder, current, stateComparison, activeDomElementsAndEmitters, state))
+		hashRouter.add(route, onRouteChange.bind(null, state))
 	}
 
 	stateProviderEmitter.addState = addState
@@ -140,11 +133,11 @@ function isFunction(property) {
 }
 
 function buildRoute(prototypalStateHolder, stateName) {
-	return prototypalStateHolder.getHierarchy(stateName).reduce(function(route, stateRouteChunk) {
-		if (!route || route[route.length - 1] !== '/') {
+	return prototypalStateHolder.getHierarchy(stateName).reduce(function(route, state) {
+		if (route && route[route.length - 1] !== '/' && state.route[0] !== '/') {
 			route = route + '/'
 		}
-		return route + stateRouteChunk
+		return route + state.route
 	}, '')
 }
 
