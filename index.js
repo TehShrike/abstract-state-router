@@ -88,23 +88,30 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		var statesToResolve = stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
 
 		resolveStates(statesToResolve, parameters).then(function afterResolves(stateResolveResultsObject) {
-			return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
-				return renderAll(stateChanges.create).then(function() {
-					var statesToActivate = stateChanges.change.concat(stateChanges.create)
+			function activateAll() {
+				var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
-					statesToActivate.map(prototypalStateHolder.get).forEach(function(state) {
-						try {
-							state.activate(activeDomApis[state.name], state.data, parameters, getContentObject(stateResolveResultsObject, state.name))
-						} catch (e) {
-							handleError(e)
-						}
-					})
+				return activateStates(statesToActivate, stateResolveResultsObject)
+			}
+
+			function activateStates(stateNames) {
+				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
+					try {
+						state.activate(activeDomApis[state.name], state.data, parameters, getContentObject(stateResolveResultsObject, state.name))
+					} catch (e) {
+						handleError(e)
+					}
 				})
+			}
+
+			return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
+				return renderAll(stateChanges.create).then(activateAll)
 			}).then(function() {
 				stateProviderEmitter.emit('state change finished')
 			}).catch(handleError)
 
 		})
+
 	}
 
 	return stateProviderEmitter
