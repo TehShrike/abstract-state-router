@@ -35,7 +35,9 @@ function assertingRenderFunctionFactory(t, expectedTemplates) {
 			t.equal(expected, template, 'The expected template was sent to the render function')
 
 			process.nextTick(function() {
-				cb(null, 'dummy child element')
+				cb(null, {
+					template: template
+				})
 			})
 		},
 		reset: function reset(renderedTemplateApi, cb) {
@@ -46,9 +48,7 @@ function assertingRenderFunctionFactory(t, expectedTemplates) {
 		},
 		getChildElement: function getChildElement(renderedTemplateApi, cb) {
 			setTimeout(function() {
-				cb(null, {
-					whatAmI: 'a child element I guess?'
-				})
+				cb(null, 'dummy child element')
 			}, 100)
 		}
 	}
@@ -69,7 +69,7 @@ test('normal, error-less state activation flow for two states', function(t) {
 
 		var state = getTestState(t, assertingRenderFunctionFactory(t, [parentTemplate, childTemplate]))
 		var stateRouter = state.stateRouter
-		var assertsBelow = 16
+		var assertsBelow = 18
 		var renderAsserts = 4
 
 		t.plan(assertsBelow + renderAsserts)
@@ -94,12 +94,13 @@ test('normal, error-less state activation flow for two states', function(t) {
 				}, 200)
 			},
 			querystringParameters: ['wat'],
-			activate: function(data, parameters, content) {
+			activate: function(domApi, data, parameters, content) {
 				t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
 				parentStateActivated = true
 
 				t.ok(parentResolveFinished, 'Parent resolve was completed before the activate')
 
+				t.equal(domApi.template, parentTemplate, 'got back the correct DOM API')
 				t.equal(data, parentData, 'got back the correct data object in the activate function')
 				t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The parent activate function got the parent property from the resolve function object')
 				t.notOk(content.childProperty, 'No child resolve content visible to the parent')
@@ -120,10 +121,11 @@ test('normal, error-less state activation flow for two states', function(t) {
 					cb(null, childResolveContent)
 				}, 100)
 			},
-			activate: function(data, parameters, content) {
+			activate: function(domApi, data, parameters, content) {
 				t.ok(parentStateActivated, 'Parent state was activated before the child state was')
 				t.ok(childResolveFinished, 'Child resolve was completed before the activate')
 
+				t.equal(domApi.template, childTemplate, 'got back the correct DOM API')
 				t.equal(data, childData, 'Got back the correct data object')
 				t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The child activate function got the parent property from the resolve function object')
 				t.equal(content.childProperty, childResolveContent.childProperty, 'The child activate function got the child property from the resolve function')

@@ -60,14 +60,8 @@ The options object currently supports just one option "replace" - if it is truth
 - call all render functions
 - call all controller functions
 
-# What do concrete states have that prototypal states don't?
-
-- dom elements
-- promises for resolve functions
-
 # TODO
 
-- the rendered browser objects need to be passed to the activate function
 - "redirect somewhere else instead" function in the resolve
 - "redirect somewhere else instead" function during activation
 - emitting errors when trying to navigate to an invalid state
