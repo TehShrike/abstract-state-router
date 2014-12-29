@@ -6,9 +6,9 @@ To manage webapp states so that you don't have to deal with url paths or anythin
 
 	var createStateRouter = require('abstract-state-router')
 
-	var stateRouter = createStateRouter(renderFunction, rootElement, router)
+	var stateRouter = createStateRouter(renderer, rootElement, router)
 
-renderFunction creates new elements in the dom.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
+The renderer should be an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
 
 The rootElement is the element where the first-generation states will be created.
 
@@ -38,9 +38,9 @@ If you call `callback(err, content)` with a truthy err value, the state change w
 
 If you call `redirectCallback(stateName, params)`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
 
-## activate(data, parameters, content)
+## activate(domApi, data, parameters, content)
 
-The activate function is called when the state becomes active.  It is passed the data object from the addState call, the route/querystring parameters, and the content object passed into the resolveFunction's callback.
+The activate function is called when the state becomes active.  It is passed the DOM API from the rendering function, the data object from the addState call, the route/querystring parameters, and the content object passed into the resolveFunction's callback.
 
 This is the point where you display the view for the current state!
 
@@ -65,6 +65,13 @@ The options object currently supports just one option "replace" - if it is truth
 - dom elements
 - promises for resolve functions
 
+# TODO
+
+- the rendered browser objects need to be passed to the activate function
+- "redirect somewhere else instead" function in the resolve
+- "redirect somewhere else instead" function during activation
+- emitting errors when trying to navigate to an invalid state
+- the ability to set an "error" state to go to on errors
 
 License
 ======

@@ -10,38 +10,56 @@ var series = require('promise-map-series')
 var parse = require('./state-string-parser')
 var combine = require('combine-arrays')
 
-module.exports = function StateProvider(render, rootElement, hashRouter) {
-	render = Promise.denodeify(render)
+module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
 	hashRouter = hashRouter || newHashBrownRouter()
 
-	var activeDomElementsAndEmitters = {}
+	var destroyDom = Promise.denodeify(renderer.destroy)
+	var getDomChild = Promise.denodeify(renderer.getChildElement)
+	var renderDom = Promise.denodeify(renderer.render)
+
+	var activeDomApis = {}
+
+	function handleError(e) {
+		console.log(e.stack || e)
+		stateProviderEmitter.emit('error', e)
+	}
 
 	function destroyStateName(stateName) {
-		activeDomElementsAndEmitters[stateName].emit('destroy')
-		delete activeDomElementsAndEmitters[stateName]
+		return destroyDom(activeDomApis[stateName]).then(function() {
+			delete activeDomApis[stateName]
+		})
+	}
+
+	function getChildElementForStateName(stateName) {
+		return new Promise(function(resolve) {
+			var parent = prototypalStateHolder.getParent(stateName)
+			if (parent) {
+				var parentDomApi = activeDomApis[parent.name]
+				resolve(getDomChild(parentDomApi))
+			} else {
+				resolve(rootElement)
+			}
+		})
 	}
 
 	function renderStateName(stateName) {
 		var state = prototypalStateHolder.get(stateName)
-		var parent = prototypalStateHolder.getParent(stateName)
-		var element = parent ? parent.childElement : rootElement
-		var emitter = new EventEmitter()
 
-		activeDomElementsAndEmitters[stateName] = emitter
-
-		return render(element, state.template, emitter)
+		return getChildElementForStateName(stateName).then(function(childElement) {
+			return renderDom(childElement, state.template)
+		})
 	}
 
 	function renderAll(stateNames) {
-		return series(stateNames, renderStateName).then(function(childElements) {
+		return series(stateNames, renderStateName).then(function(domApis) {
 			combine({
 				name: stateNames,
-				childElement: childElements
+				domApi: domApis
 			}).forEach(function(stateAndChild) {
-				activeDomElementsAndEmitters[stateAndChild.name].childElement = stateAndChild.childElement
+				activeDomApis[stateAndChild.name] = stateAndChild.domApi
 			})
 		})
 	}
@@ -70,21 +88,22 @@ module.exports = function StateProvider(render, rootElement, hashRouter) {
 		var statesToResolve = stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
 
 		resolveStates(statesToResolve, parameters).then(function afterResolves(stateResolveResultsObject) {
-			reverse(stateChanges.destroy).forEach(destroyStateName)
+			return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
+				return renderAll(stateChanges.create).then(function() {
+					var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
-			renderAll(stateChanges.create).then(function() {
-				var statesToActivate = stateChanges.change.concat(stateChanges.create)
-
-				statesToActivate.map(prototypalStateHolder.get).forEach(function(state) {
-					try {
-						state.activate(state.data, parameters, getContentObject(stateResolveResultsObject, state.name))
-					} catch (e) {
-						console.log('Error in activate function', e)
-					}
+					statesToActivate.map(prototypalStateHolder.get).forEach(function(state) {
+						try {
+							state.activate(state.data, parameters, getContentObject(stateResolveResultsObject, state.name))
+						} catch (e) {
+							handleError(e)
+						}
+					})
 				})
-			})
+			}).then(function() {
+				stateProviderEmitter.emit('state change finished')
+			}).catch(handleError)
 
-			stateProviderEmitter.emit('state change finished')
 		})
 	}
 

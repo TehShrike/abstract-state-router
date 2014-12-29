@@ -28,14 +28,29 @@ function getTestState(t, renderFn) {
 }
 
 function assertingRenderFunctionFactory(t, expectedTemplates) {
-	return function(element, template, emitter, cb) {
-		t.ok(expectedTemplates.length, 'The render function hasn\'t been called too many times yet')
-		var expected = expectedTemplates.shift()
-		t.equal(expected, template, 'The expected template was sent to the render function')
+	return {
+		render: function render(element, template, cb) {
+			t.ok(expectedTemplates.length, 'The render function hasn\'t been called too many times yet')
+			var expected = expectedTemplates.shift()
+			t.equal(expected, template, 'The expected template was sent to the render function')
 
-		process.nextTick(function() {
-			cb(null, 'dummy child element')
-		})
+			process.nextTick(function() {
+				cb(null, 'dummy child element')
+			})
+		},
+		reset: function reset(renderedTemplateApi, cb) {
+			setTimeout(cb, 100)
+		},
+		destroy: function destroy(renderedTemplateApi, cb) {
+			setTimeout(cb, 100)
+		},
+		getChildElement: function getChildElement(renderedTemplateApi, cb) {
+			setTimeout(function() {
+				cb(null, {
+					whatAmI: 'a child element I guess?'
+				})
+			}, 100)
+		}
 	}
 }
 

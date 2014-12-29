@@ -2,35 +2,39 @@ var myArbitraryRenderFunction = function lol(parent, cb) {
 	var child = {}
 
 	var newObject = {
-		changeDataInView: function whatever() {},
+		reset: function whatever() {},
 		getChildElement: function() {
 			return child
 		},
 		teardown: function() {
 			newObject.getChildElement = null
-			newObject.changeDataInView = null
+			newObject.reset = null
 			newObject.teardown = null
 		}
 	}
 
 	setTimeout(function() {
 		cb(newObject)
-	}, 500)
+	}, 100)
 }
 
-
-module.exports = function renderingFunction(element, template, emitter, cb) {
-	myArbitraryRenderFunction(element, function(renderedTemplateApi) {
-		var childElement = renderedTemplateApi.getChildElement('ui-view')
-
-		cb(null, childElement)
-
-		emitter.on('change', function(newParameters, newData) {
-			renderedTemplateApi.changeDataInView(newParameters, newData)
+module.exports = {
+	render: function render(element, template, cb) {
+		myArbitraryRenderFunction(element, function(renderedTemplateApi) {
+			cb(null, renderedTemplateApi)
 		})
-
-		emitter.on('destroy', function() {
-			renderedTemplateApi.teardown()
-		})
-	})
+	},
+	reset: function reset(renderedTemplateApi, cb) {
+		renderedTemplateApi.reset()
+		setTimeout(cb, 100)
+	},
+	destroy: function destroy(renderedTemplateApi, cb) {
+		renderedTemplateApi.teardown()
+		setTimeout(cb, 100)
+	},
+	getChildElement: function getChildElement(renderedTemplateApi, cb) {
+		setTimeout(function() {
+			cb(null, renderedTemplateApi.getChildElement('ui-view'))
+		}, 100)
+	}
 }
