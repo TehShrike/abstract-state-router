@@ -50,18 +50,14 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 		return getChildElementForStateName(stateName).then(function(childElement) {
 			return renderDom(childElement, state.template)
+		}).then(function(domApi) {
+			activeDomApis[stateName] = domApi
+			return domApi
 		})
 	}
 
 	function renderAll(stateNames) {
-		return series(stateNames, renderStateName).then(function(domApis) {
-			combine({
-				name: stateNames,
-				domApi: domApis
-			}).forEach(function(stateAndChild) {
-				activeDomApis[stateAndChild.name] = stateAndChild.domApi
-			})
-		})
+		return series(stateNames, renderStateName)
 	}
 
 	current.set('', {})
