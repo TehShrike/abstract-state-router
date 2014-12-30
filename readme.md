@@ -66,6 +66,12 @@ The options object currently supports just one option "replace" - if it is truth
 - "redirect somewhere else instead" function during activation
 - emitting errors when trying to navigate to an invalid state
 - the ability to set an "error" state to go to on errors
+- test working without resolve
+- test working without querystring
+- test working without data
+- test working with non-objects for data/resolve
+- test changing states
+- test changing only some states
 
 License
 ======
