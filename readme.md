@@ -38,9 +38,14 @@ If you call `callback(err, content)` with a truthy err value, the state change w
 
 If you call `redirectCallback(stateName, params)`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
 
-## activate(domApi, data, parameters, content)
+## activate(context)
 
-The activate function is called when the state becomes active.  It is passed the DOM API from the rendering function, the data object from the addState call, the route/querystring parameters, and the content object passed into the resolveFunction's callback.
+The activate function is called when the state becomes active.  It is passed a context object with four properties:
+
+- `domApi`: the DOM API returned by the renderer
+- `data`: the data object given to the addState call
+- `parameters`: the route/querystring parameters
+- `content`: the object passed into the resolveFunction's callback.
 
 This is the point where you display the view for the current state!
 
@@ -62,10 +67,10 @@ The options object currently supports just one option "replace" - if it is truth
 
 # TODO
 
-- "redirect somewhere else instead" function in the resolve
-- "redirect somewhere else instead" function during activation
 - emitting errors when trying to navigate to an invalid state
 - the ability to set an "error" state to go to on errors
+- "redirect somewhere else instead" function in the resolve
+- "redirect somewhere else instead" function during activation
 - test having multiple states call replace
 - make sure that it is possible to render states without rendering their children (i.e. visiting /parent instead of /parent/child)
 - add a "destroy" emitter to be called when a state is deactivated
