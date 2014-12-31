@@ -21,6 +21,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var renderDom = Promise.denodeify(renderer.render)
 
 	var activeDomApis = {}
+	var activeStateResolveContent = {}
 
 	function handleError(e) {
 		console.log(e.stack || e)
@@ -28,6 +29,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function destroyStateName(stateName) {
+		delete activeStateResolveContent[stateName]
 		return destroyDom(activeDomApis[stateName]).then(function() {
 			delete activeDomApis[stateName]
 		})
@@ -80,10 +82,11 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
 		var stateChanges = stateChangeLogic(stateComparisonResults)
 		// { destroy, change, create }
-
 		var statesToResolve = stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
 
 		resolveStates(statesToResolve, parameters).then(function afterResolves(stateResolveResultsObject) {
+			extend(activeStateResolveContent, stateResolveResultsObject)
+
 			function activateAll() {
 				var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
@@ -97,7 +100,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 							domApi: activeDomApis[state.name],
 							data: state.data,
 							parameters: parameters,
-							content: getContentObject(stateResolveResultsObject, state.name)
+							content: getContentObject(activeStateResolveContent, state.name)
 						})
 					} catch (e) {
 						handleError(e)
@@ -108,6 +111,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
 				return renderAll(stateChanges.create).then(activateAll)
 			}).then(function() {
+				current.set(newStateName, parameters)
 				stateProviderEmitter.emit('state change finished')
 			}).catch(handleError)
 

@@ -146,3 +146,101 @@ test('undefined data, querystring, and resolve function', function(t) {
 		hashRouter.go('/routeButt?wat=wut')
 	})
 })
+
+test('normal, error-less state activation flow for two states', function(t) {
+	var parentData = {}
+	var child1Data = {}
+	var child2Data = {}
+	var parentTemplate = {}
+	var child1Template = {}
+	var child2Template = {}
+	var parentResolveContent = {
+		parentProperty: 'some string'
+	}
+	var child1ResolveContent = {
+		child1Property: 'a different string'
+	}
+	var child2ResolveContent = {
+		child2Property: 'whatever man'
+	}
+
+
+	var renderer = assertingRendererFactory(t, [parentTemplate, child1Template, child2Template])
+	var state = getTestState(t, renderer)
+	var stateRouter = state.stateRouter
+	var assertsBelow = 11
+
+	t.plan(assertsBelow + renderer.expectedAssertions)
+
+	var parentResolveCalled = false
+	var parentStateActivated = false
+	var child1ResolveCalled = false
+	var child1Activated = false
+
+	stateRouter.addState({
+		name: 'parent',
+		route: '/parent',
+		data: parentData,
+		template: parentTemplate,
+		resolve: function(data, parameters, cb) {
+			t.notOk(parentResolveCalled, 'parent resolve function hasn\'t been called before')
+			parentResolveCalled = true
+			setTimeout(function() {
+				cb(null, parentResolveContent)
+			}, 50)
+		},
+		querystringParameters: ['wat'],
+		activate: function(context) {
+			t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
+			parentStateActivated = true
+		}
+	})
+
+	stateRouter.addState({
+		name: 'parent.child1',
+		route: '/child1',
+		data: child1Data,
+		template: child1Template,
+		resolve: function(data, parameters, cb) {
+			t.notOk(child1ResolveCalled, 'child1 resolve function hasn\'t been called before')
+			child1ResolveCalled = true
+
+			setTimeout(function() {
+				cb(null, child1ResolveContent)
+			}, 50)
+		},
+		activate: function(context) {
+			t.notOk(child1Activated, 'child1 hasn\'t been activated before')
+
+			setTimeout(function() {
+				stateRouter.go('parent.child2', { wat: 'some value' })
+			})
+		}
+	})
+
+	stateRouter.addState({
+		name: 'parent.child2',
+		route: '/child2',
+		data: child2Data,
+		template: child2Template,
+		resolve: function(data, parameters, cb) {
+			t.equal(data, child2Data, 'got back the correct child2 data object in the child2 resolve function')
+			t.equal(parameters.wat, 'some value', 'got the parent\'s querystring value in the child2 resolve function')
+
+			setTimeout(function() {
+				cb(null, child2ResolveContent)
+			}, 50)
+		},
+		activate: function(context) {
+			t.equal(context.domApi.template, child2Template, 'got back the correct DOM API')
+			t.equal(context.data, child2Data, 'Got back the correct data object')
+			t.equal(context.content.parentProperty, parentResolveContent.parentProperty, 'The child2 activate function got the parent property from the resolve function object')
+			t.equal(context.content.child2Property, child2ResolveContent.child2Property, 'The child2 activate function got the child2 property from the resolve function')
+			t.equal(context.parameters.wat, 'some value', 'got the the parent\'s parameter value in the child2\'s activate function')
+
+			t.end()
+		}
+	})
+
+	stateRouter.go('parent.child1', { wat: 'some value' })
+})
