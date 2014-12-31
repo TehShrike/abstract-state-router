@@ -93,7 +93,12 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
 					try {
-						state.activate(activeDomApis[state.name], state.data, parameters, getContentObject(stateResolveResultsObject, state.name))
+						state.activate({
+							domApi: activeDomApis[state.name],
+							data: state.data,
+							parameters: parameters,
+							content: getContentObject(stateResolveResultsObject, state.name)
+						})
 					} catch (e) {
 						handleError(e)
 					}

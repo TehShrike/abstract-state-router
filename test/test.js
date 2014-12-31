@@ -41,7 +41,12 @@ test('normal, error-less state activation flow for two states', function(t) {
 				}, 200)
 			},
 			querystringParameters: ['wat'],
-			activate: function(domApi, data, parameters, content) {
+			activate: function(context) {
+				var domApi = context.domApi
+				var data = context.data
+				var parameters = context.parameters
+				var content = context.content
+
 				t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
 				parentStateActivated = true
 
@@ -68,7 +73,12 @@ test('normal, error-less state activation flow for two states', function(t) {
 					cb(null, childResolveContent)
 				}, 100)
 			},
-			activate: function(domApi, data, parameters, content) {
+			activate: function(context) {
+				var domApi = context.domApi
+				var data = context.data
+				var parameters = context.parameters
+				var content = context.content
+
 				t.ok(parentStateActivated, 'Parent state was activated before the child state was')
 				t.ok(childResolveFinished, 'Child resolve was completed before the activate')
 
@@ -111,7 +121,11 @@ test('undefined data, querystring, and resolve function', function(t) {
 			name: 'rofl',
 			route: '/routeButt',
 			template: parentTemplate,
-			activate: function(domApi, data, parameters, content) {
+			activate: function(context) {
+				var data = context.data
+				var parameters = context.parameters
+				var content = context.content
+
 				t.equal(typeof data, 'undefined', 'data is undefined')
 				t.equal(parameters.wat, 'wut', 'got the parameter value')
 				t.equal(Object.keys(content).length, 0, 'No keys on the content object')
