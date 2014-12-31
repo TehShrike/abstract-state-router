@@ -72,6 +72,9 @@ The options object currently supports just one option "replace" - if it is truth
 - test working with non-objects for data/resolve
 - test changing states
 - test changing only some states
+- test having multiple states call replace
+- make sure that it is possible to render states without rendering their children (i.e. visiting /parent instead of /parent/child)
+- add a "destroy" emitter to be called when a state is deactivated
 
 License
 ======

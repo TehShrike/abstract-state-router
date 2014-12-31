@@ -1,58 +1,6 @@
-/* Don't forget to test
-- calling go with replace=true, and then having that state also call replace, or just error out the state transition
-
-*/
-
 var test = require('tape')
-var hashRouterFactory = require('hash-brown-router')
-var hashLocationMockFactory = require('hash-brown-router/hash-location-mock')
-var stateRouterFactory = require('../')
-var mockRenderFn = require('./support/renderer-mock')
-
-function getTestState(t, renderFn) {
-	var hashRouter = hashRouterFactory(hashLocationMockFactory())
-	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, 'body', hashRouter)
-	hashRouter.setDefault(function noop() {})
-
-	stateRouter.addState({
-		name: 'dummy',
-		route: '/dummy',
-		data: {},
-		render: t.fail.bind(t, 'dummy route was called')
-	})
-
-	return {
-		hashRouter: hashRouter,
-		stateRouter: stateRouter
-	}
-}
-
-function assertingRenderFunctionFactory(t, expectedTemplates) {
-	return {
-		render: function render(element, template, cb) {
-			t.ok(expectedTemplates.length, 'The render function hasn\'t been called too many times yet')
-			var expected = expectedTemplates.shift()
-			t.equal(expected, template, 'The expected template was sent to the render function')
-
-			process.nextTick(function() {
-				cb(null, {
-					template: template
-				})
-			})
-		},
-		reset: function reset(renderedTemplateApi, cb) {
-			setTimeout(cb, 100)
-		},
-		destroy: function destroy(renderedTemplateApi, cb) {
-			setTimeout(cb, 100)
-		},
-		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			setTimeout(function() {
-				cb(null, 'dummy child element')
-			}, 100)
-		}
-	}
-}
+var assertingRendererFactory = require('./support/asserting-renderer-factory')
+var getTestState = require('./support/test-state-factory')
 
 test('normal, error-less state activation flow for two states', function(t) {
 	function basicTest(t) {
@@ -67,18 +15,17 @@ test('normal, error-less state activation flow for two states', function(t) {
 			childProperty: 'a different string'
 		}
 
-		var state = getTestState(t, assertingRenderFunctionFactory(t, [parentTemplate, childTemplate]))
+		var renderer = assertingRendererFactory(t, [parentTemplate, childTemplate])
+		var state = getTestState(t, renderer)
 		var stateRouter = state.stateRouter
 		var assertsBelow = 18
-		var renderAsserts = 4
+		var renderAsserts = renderer.expectedAssertions
 
 		t.plan(assertsBelow + renderAsserts)
-		console.log('Plan for', assertsBelow + renderAsserts)
 
 		var parentResolveFinished = false
 		var parentStateActivated = false
 		var childResolveFinished = false
-
 
 		stateRouter.addState({
 			name: 'rofl',
@@ -150,90 +97,38 @@ test('normal, error-less state activation flow for two states', function(t) {
 })
 
 
-// test('calls resolve callback, passes results to the render callback', function(t) {
-// 	var state = getTestState(t)
+test('undefined data, querystring, and resolve function', function(t) {
+	function basicTest(t) {
+		var parentTemplate = {}
 
-// 	t.plan(3)
+		var renderer = assertingRendererFactory(t, [parentTemplate])
+		var state = getTestState(t, renderer)
+		var assertsBelow = 3
 
-// 	var resolveData = {}
-// 	var originalData = {}
+		t.plan(assertsBelow + renderer.expectedAssertions)
 
-// 	function resolve(data, parameters, cb) {
-// 		t.pass('resolve function called')
-// 		t.equal(parameters.wat, 'wut', 'received the parameter from the url')
-// 		process.nextTick(function() {
-// 			cb(null, resolveData)
-// 		})
-// 	}
+		state.stateRouter.addState({
+			name: 'rofl',
+			route: '/routeButt',
+			template: parentTemplate,
+			activate: function(domApi, data, parameters, content) {
+				t.equal(typeof data, 'undefined', 'data is undefined')
+				t.equal(parameters.wat, 'wut', 'got the parameter value')
+				t.equal(Object.keys(content).length, 0, 'No keys on the content object')
+				t.end()
+			}
+		})
 
-// 	function render(data, parameters, content) {
-// 		t.equal(content, resolveData, 'received the object from the resolve function')
-// 		t.end()
-// 	}
+		return state
+	}
 
-// 	stateRouter.addState({
-// 		name: 'someRoute',
-// 		route: '/routeButt',
-// 		data: originalData,
-// 		querystringParameters: ['wat'],
-// 		resolve: resolve,
-// 		render: render
-// 	})
+	t.test('triggered with go()', function(t) {
+		var stateRouter = basicTest(t).stateRouter
+		stateRouter.go('rofl', { wat: 'wut' })
+	})
 
-// 	state.hashRouter.go('/routeButt?wat=wut')
-// })
-
-// test('activates both parent and child state', function(t) {
-// 	var state = getTestState(t)
-
-// 	t.plan(12)
-
-// 	var parentData = {}
-// 	var childData = {}
-
-// 	var calledResolveFunctionForParent = false
-// 	var calledResolveFunctionForChild = false
-
-// 	var activatedParent = false
-// 	var activatedChild = false
-
-// 	state.stateRouter.addState({
-// 		name: 'parent',
-// 		route: '/routeParent',
-// 		data: parentData,
-// 		resolve: function(cb) {
-// 			t.notOk(calledResolveFunctionForParent, 'Called the parent\'s resolve function for the first time')
-// 			t.notOk(activatedParent, 'Called the resolve function before the render function')
-// 			calledResolveFunctionForParent = true
-// 		},
-// 		render: function(data, parameters, content) {
-// 			t.equal(data, parentData, 'got back the parent data object')
-// 			t.notOk(parameters.wat, 'wut', 'got the right parameter')
-// 			t.notOk(activatedParent, 'have not activated the parent before')
-// 			t.notOk(activatedChild, 'have not activated the child yet')
-// 			activatedParent = true
-// 		}
-// 	})
-
-// 	state.stateRouter.addState({
-// 		name: 'parent.child',
-// 		route: '/routeChild',
-// 		querystringParameters: ['wat'],
-// 		data: childData,
-// 		resolve: function(cb) {
-// 			t.notOk(calledResolveFunctionForChild, 'Called the child\'s resolve function for the first time')
-// 			t.notOk(activatedChild, 'Called the resolve function before the render function')
-// 			calledResolveFunctionForChild = true
-// 		},
-// 		render: function(data, parameters, content) {
-// 			t.equal(data, childData, 'got back the child data object')
-// 			t.equal(parameters.wat, 'wut', 'got the right parameter')
-// 			t.ok(activatedParent, 'have already activated the parent')
-// 			t.notOk(activatedChild, 'have not activated the child before')
-// 			activatedChild = true
-// 			t.end()
-// 		}
-// 	})
-
-// 	state.hashRouter.go('/routeParent/routeChild?wat=wut')
-// })
+	t.test('triggered by the router', function(t) {
+		var hashRouter = basicTest(t).hashRouter
+		hashRouter.go('/routeButt?wat=wut')
+	})
+})
