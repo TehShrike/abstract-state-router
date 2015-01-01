@@ -1,6 +1,6 @@
 var test = require('tape')
-var assertingRendererFactory = require('./support/asserting-renderer-factory')
-var getTestState = require('./support/test-state-factory')
+var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
+var getTestState = require('./helpers/test-state-factory')
 
 test('normal, error-less state activation flow for two states', function(t) {
 	function basicTest(t) {
