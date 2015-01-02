@@ -24,7 +24,10 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var activeStateResolveContent = {}
 
 	function handleError(e) {
-		console.log(e.stack || e)
+		if (stateProviderEmitter.listeners('error') === 0) {
+			console.error(e)
+		}
+
 		stateProviderEmitter.emit('error', e)
 	}
 
@@ -76,50 +79,71 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		hashRouter.add(route, onRouteChange.bind(null, state))
 	}
 
+	function emit() {
+		var args = Array.prototype.slice.apply(arguments)
+		return function() {
+			stateProviderEmitter.emit(args)
+		}
+	}
+
+	function getStatesToResolve(stateChanges) {
+		return stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
+	}
+
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = function go(newStateName, parameters) {
-		stateProviderEmitter.emit('state change started', newStateName)
-		var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
-		var stateChanges = stateChangeLogic(stateComparisonResults)
-		// { destroy, change, create }
-		var statesToResolve = stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
+		return guaranteeAllStatesExist(prototypalStateHolder, newStateName)
+				.then(emit('stateChangeStarted', newStateName))
+				.then(function getStateChanges() {
 
-		resolveStates(statesToResolve, parameters).then(function afterResolves(stateResolveResultsObject) {
-			extend(activeStateResolveContent, stateResolveResultsObject)
+			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
+			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
+		}).then(function(stateChanges) {
+			return resolveStates(getStatesToResolve(stateChanges), parameters).then(function afterResolves(stateResolveResultsObject) {
 
-			function activateAll() {
-				var statesToActivate = stateChanges.change.concat(stateChanges.create)
+				function activateAll() {
+					var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
-				return activateStates(statesToActivate, stateResolveResultsObject)
-			}
+					return activateStates(statesToActivate, stateResolveResultsObject)
+				}
+
+				extend(activeStateResolveContent, stateResolveResultsObject)
+
+				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
+					return renderAll(stateChanges.create).then(activateAll)
+				}).then(function() {
+					current.set(newStateName, parameters)
+					stateProviderEmitter.emit('state change finished')
+				})
+			})
 
 			function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
-					try {
-						state.activate({
-							domApi: activeDomApis[state.name],
-							data: state.data,
-							parameters: parameters,
-							content: getContentObject(activeStateResolveContent, state.name)
-						})
-					} catch (e) {
-						handleError(e)
-					}
+					state.activate({
+						domApi: activeDomApis[state.name],
+						data: state.data,
+						parameters: parameters,
+						content: getContentObject(activeStateResolveContent, state.name)
+					})
 				})
 			}
-
-			return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
-				return renderAll(stateChanges.create).then(activateAll)
-			}).then(function() {
-				current.set(newStateName, parameters)
-				stateProviderEmitter.emit('state change finished')
-			}).catch(handleError)
-
-		})
-
+		}).catch(handleError)
 	}
 
 	return stateProviderEmitter
+}
+
+function guaranteeAllStatesExist(prototypalStateHolder, newStateName) {
+	return new Promise(function() {
+		var stateNames = parse(newStateName)
+		var statesThatDontExist = stateNames.filter(function(name) {
+			return !prototypalStateHolder.get(name)
+		})
+
+		if (statesThatDontExist.length > 0) {
+			throw new Error('State ' + statesThatDontExist[statesThatDontExist.length - 1] + ' does not exist')
+		}
+	})
 }
 
 function getContentObject(stateResolveResultsObject, stateName) {
