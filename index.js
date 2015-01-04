@@ -99,7 +99,10 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
 			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
 		}).then(function resolveDestroyAndActivateStates(stateChanges) {
-			return resolveStates(getStatesToResolve(stateChanges), parameters).then(function destroyAndActivate(stateResolveResultsObject) {
+			return resolveStates(getStatesToResolve(stateChanges), parameters).catch(function onResolveError(e) {
+				stateProviderEmitter.emit('stateChangeError', e)
+				throw e
+			}).then(function destroyAndActivate(stateResolveResultsObject) {
 
 				function activateAll() {
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)

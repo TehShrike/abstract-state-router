@@ -140,3 +140,48 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 
 	stateRouter.go('valid1.valid', firstProperties)
 })
+
+test('emitting stateChangeError', function(t) {
+	var parent1Template = {}
+	var child1Template = {}
+	var renderer = assertingRendererFactory(t, [ ])
+	var state = getTestState(t, renderer)
+	var stateRouter = state.stateRouter
+	var assertsBelow = 1
+	var renderAsserts = renderer.expectedAssertions
+	var error1 = new Error('first')
+	var error2 = new Error('second')
+
+	t.plan(assertsBelow + renderAsserts)
+
+	stateRouter.addState({
+		name: 'valid1',
+		route: '/valid1',
+		template: parent1Template,
+		resolve: function() {
+			throw error1
+		},
+		activate: function(context) {
+			t.fail('should not activate')
+		}
+	})
+
+	stateRouter.addState({
+		name: 'valid1.valid',
+		route: '/valid1',
+		template: child1Template,
+		resolve: function() {
+			throw error2
+		},
+		activate: function(context) {
+			t.fail('should not activate')
+		}
+	})
+
+	stateRouter.on('stateChangeError', function(e) {
+		t.equal(e, error1)
+		t.end()
+	})
+
+	stateRouter.go('valid1.valid')
+})
