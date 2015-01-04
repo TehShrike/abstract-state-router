@@ -41,3 +41,102 @@ test('Emitting errors when attempting to navigate to invalid states', function(t
 	testGoingTo('All states invalid', 'invalid.also-invalid')
 	testGoingTo('Only the child state invalid', 'valid.invalid')
 })
+
+test('Emitting stateChangeStart and stateChangeEnd', function(t) {
+	var parent1Template = {}
+	var child1Template = {}
+	var parent2Template = {}
+	var child2Template = {}
+	var firstProperties = {}
+	var secondProperties = {}
+	var renderer = assertingRendererFactory(t, [ parent1Template, child1Template, parent2Template, child2Template ])
+	var state = getTestState(t, renderer)
+	var stateRouter = state.stateRouter
+	var assertsBelow = 24
+	var renderAsserts = renderer.expectedAssertions
+
+	t.plan(assertsBelow + renderAsserts)
+
+	var firstParentActivate = false
+	var firstChildActivate = false
+	var secondParentActivate = false
+	var secondChildActivate = false
+
+	stateRouter.addState({
+		name: 'valid1',
+		route: '/valid1',
+		template: parent1Template,
+		activate: function(context) {
+			firstParentActivate = true
+		}
+	})
+
+	stateRouter.addState({
+		name: 'valid1.valid',
+		route: '/valid1',
+		template: child1Template,
+		activate: function(context) {
+			firstChildActivate = true
+		}
+	})
+
+	stateRouter.addState({
+		name: 'valid2',
+		route: '/valid2',
+		template: parent2Template,
+		activate: function(context) {
+			secondParentActivate = true
+		}
+	})
+
+	stateRouter.addState({
+		name: 'valid2.valid',
+		route: '/valid2',
+		template: child2Template,
+		activate: function(context) {
+			secondChildActivate = true
+		}
+	})
+
+	stateRouter.once('stateChangeStart', function(name, properties) {
+		t.equal(name, 'valid1.valid')
+		t.equal(properties, firstProperties)
+		t.notOk(firstParentActivate)
+		t.notOk(firstChildActivate)
+		t.notOk(secondParentActivate)
+		t.notOk(secondChildActivate)
+	})
+
+	stateRouter.once('stateChangeEnd', function(name, properties) {
+		t.equal(name, 'valid1.valid')
+		t.equal(properties, firstProperties)
+		t.ok(firstParentActivate)
+		t.ok(firstChildActivate)
+		t.notOk(secondParentActivate)
+		t.notOk(secondChildActivate)
+
+		stateRouter.once('stateChangeStart', function(name, properties) {
+			t.equal(name, 'valid2.valid')
+			t.equal(properties, secondProperties)
+			t.ok(firstParentActivate)
+			t.ok(firstChildActivate)
+			t.notOk(secondParentActivate)
+			t.notOk(secondChildActivate)
+		})
+
+		stateRouter.once('stateChangeEnd', function(name, properties) {
+			t.equal(name, 'valid2.valid')
+			t.equal(properties, secondProperties)
+			t.ok(firstParentActivate)
+			t.ok(firstChildActivate)
+			t.ok(secondParentActivate)
+			t.ok(secondChildActivate)
+
+			t.end()
+		})
+
+		stateRouter.go('valid2.valid', secondProperties)
+	})
+
+	stateRouter.go('valid1.valid', firstProperties)
+})

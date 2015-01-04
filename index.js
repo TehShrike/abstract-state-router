@@ -82,7 +82,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	function emit() {
 		var args = Array.prototype.slice.apply(arguments)
 		return function() {
-			stateProviderEmitter.emit(args)
+			return stateProviderEmitter.emit.apply(stateProviderEmitter, args)
 		}
 	}
 
@@ -93,13 +93,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = function go(newStateName, parameters) {
 		return guaranteeAllStatesExist(prototypalStateHolder, newStateName)
-				.then(emit('stateChangeStarted', newStateName))
-				.then(function getStateChanges() {
+		.then(emit('stateChangeStart', newStateName, parameters))
+		.then(function getStateChanges() {
 
 			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
 			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
-		}).then(function(stateChanges) {
-			return resolveStates(getStatesToResolve(stateChanges), parameters).then(function afterResolves(stateResolveResultsObject) {
+		}).then(function resolveDestroyAndActivateStates(stateChanges) {
+			return resolveStates(getStatesToResolve(stateChanges), parameters).then(function destroyAndActivate(stateResolveResultsObject) {
 
 				function activateAll() {
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)
@@ -111,9 +111,6 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
 					return renderAll(stateChanges.create).then(activateAll)
-				}).then(function() {
-					current.set(newStateName, parameters)
-					stateProviderEmitter.emit('state change finished')
 				})
 			})
 
@@ -127,6 +124,9 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 					})
 				})
 			}
+		}).then(function stateChangeComplete() {
+			current.set(newStateName, parameters)
+			stateProviderEmitter.emit('stateChangeEnd', newStateName, parameters)
 		}).catch(handleError)
 	}
 
@@ -134,7 +134,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 }
 
 function guaranteeAllStatesExist(prototypalStateHolder, newStateName) {
-	return new Promise(function() {
+	return new Promise(function(resolve) {
 		var stateNames = parse(newStateName)
 		var statesThatDontExist = stateNames.filter(function(name) {
 			return !prototypalStateHolder.get(name)
@@ -143,6 +143,8 @@ function guaranteeAllStatesExist(prototypalStateHolder, newStateName) {
 		if (statesThatDontExist.length > 0) {
 			throw new Error('State ' + statesThatDontExist[statesThatDontExist.length - 1] + ' does not exist')
 		}
+
+		resolve()
 	})
 }
 
