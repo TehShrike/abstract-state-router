@@ -133,12 +133,21 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		}).catch(handleError)
 	}
 
+	function getDestinationUrl(stateName, parameters) {
+		return new Promise(function(resolve, reject) {
+			resolve(guaranteeAllStatesExist(prototypalStateHolder, stateName).then(function() {
+				var route = buildFullStateRoute(prototypalStateHolder, stateName)
+				return buildPath(route, parameters || {})
+			}))
+		})
+	}
+
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = function go(newStateName, parameters) {
-		guaranteeAllStatesExist(prototypalStateHolder, newStateName).then(function() {
-			var route = buildFullStateRoute(prototypalStateHolder, newStateName)
-			hashRouter.go(buildPath(route, parameters || {}))
-		}, handleError)
+		getDestinationUrl(newStateName, parameters).then(hashRouter.go, handleError)
+	}
+	stateProviderEmitter.replace = function replace(newStateName, parameters) {
+		getDestinationUrl(newStateName, parameters).then(hashRouter.replace, handleError)
 	}
 
 	return stateProviderEmitter

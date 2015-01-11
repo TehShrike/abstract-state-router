@@ -68,7 +68,6 @@ The options object currently supports just one option "replace" - if it is truth
 # TODO
 
 - "default" child states that are automatically redirected to if no child state is specified
-- "redirect" function available on state manager
 - the ability to set an "error" state to go to on errors
 - "redirect somewhere else instead" function in the resolve
 - test having multiple states call replace
