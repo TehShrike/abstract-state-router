@@ -67,14 +67,12 @@ The options object currently supports just one option "replace" - if it is truth
 
 # TODO
 
-- real [stateChangeError](http://angular-ui.github.io/ui-router/site/#/api/ui.router.state.$state#events) event whenever a resolve promise is rejected
-- the ability to set an "error" state to go to on errors
-- "redirect somewhere else instead" function in the resolve
 - "default" child states that are automatically redirected to if no child state is specified
 - "redirect" function available on state manager
+- the ability to set an "error" state to go to on errors
+- "redirect somewhere else instead" function in the resolve
 - test having multiple states call replace
 - add a "destroy" emitter to be called when a state is deactivated
-- programmatic url generation
 
 License
 ======

@@ -9,6 +9,7 @@ var EventEmitter = require('events').EventEmitter
 var series = require('promise-map-series')
 var parse = require('./state-string-parser')
 var combine = require('combine-arrays')
+var buildPath = require('page-path-builder')
 
 module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
@@ -68,13 +69,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	current.set('', {})
 
 	function onRouteChange(state, parameters) {
-		stateProviderEmitter.go(state.name, parameters)
+		attemptStateChange(state.name, parameters)
 	}
 
 	function addState(state) {
 		prototypalStateHolder.add(state.name, state)
 
-		var route = buildRoute(prototypalStateHolder, state.name)
+		var route = buildFullStateRoute(prototypalStateHolder, state.name)
 
 		hashRouter.add(route, onRouteChange.bind(null, state))
 	}
@@ -90,8 +91,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		return stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
 	}
 
-	stateProviderEmitter.addState = addState
-	stateProviderEmitter.go = function go(newStateName, parameters) {
+	function attemptStateChange(newStateName, parameters) {
 		return guaranteeAllStatesExist(prototypalStateHolder, newStateName)
 		.then(emit('stateChangeStart', newStateName, parameters))
 		.then(function getStateChanges() {
@@ -131,6 +131,14 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			current.set(newStateName, parameters)
 			stateProviderEmitter.emit('stateChangeEnd', newStateName, parameters)
 		}).catch(handleError)
+	}
+
+	stateProviderEmitter.addState = addState
+	stateProviderEmitter.go = function go(newStateName, parameters) {
+		guaranteeAllStatesExist(prototypalStateHolder, newStateName).then(function() {
+			var route = buildFullStateRoute(prototypalStateHolder, newStateName)
+			hashRouter.go(buildPath(route, parameters || {}))
+		}, handleError)
 	}
 
 	return stateProviderEmitter
@@ -192,7 +200,7 @@ function isFunction(property) {
 	}
 }
 
-function buildRoute(prototypalStateHolder, stateName) {
+function buildFullStateRoute(prototypalStateHolder, stateName) {
 	return prototypalStateHolder.getHierarchy(stateName).reduce(function(route, state) {
 		if (route && route[route.length - 1] !== '/' && state.route[0] !== '/') {
 			route = route + '/'

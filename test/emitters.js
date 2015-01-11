@@ -47,8 +47,8 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 	var child1Template = {}
 	var parent2Template = {}
 	var child2Template = {}
-	var firstProperties = {}
-	var secondProperties = {}
+	var firstProperties = { one: 'wat' }
+	var secondProperties = { two: 'wat' }
 	var renderer = assertingRendererFactory(t, [ parent1Template, child1Template, parent2Template, child2Template ])
 	var state = getTestState(t, renderer)
 	var stateRouter = state.stateRouter
@@ -100,7 +100,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 
 	stateRouter.once('stateChangeStart', function(name, properties) {
 		t.equal(name, 'valid1.valid')
-		t.equal(properties, firstProperties)
+		t.deepEqual(properties, firstProperties)
 		t.notOk(firstParentActivate)
 		t.notOk(firstChildActivate)
 		t.notOk(secondParentActivate)
@@ -109,7 +109,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 
 	stateRouter.once('stateChangeEnd', function(name, properties) {
 		t.equal(name, 'valid1.valid')
-		t.equal(properties, firstProperties)
+		t.deepEqual(properties, firstProperties)
 		t.ok(firstParentActivate)
 		t.ok(firstChildActivate)
 		t.notOk(secondParentActivate)
@@ -117,7 +117,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 
 		stateRouter.once('stateChangeStart', function(name, properties) {
 			t.equal(name, 'valid2.valid')
-			t.equal(properties, secondProperties)
+			t.deepEqual(properties, secondProperties)
 			t.ok(firstParentActivate)
 			t.ok(firstChildActivate)
 			t.notOk(secondParentActivate)
@@ -126,7 +126,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 
 		stateRouter.once('stateChangeEnd', function(name, properties) {
 			t.equal(name, 'valid2.valid')
-			t.equal(properties, secondProperties)
+			t.deepEqual(properties, secondProperties)
 			t.ok(firstParentActivate)
 			t.ok(firstChildActivate)
 			t.ok(secondParentActivate)
