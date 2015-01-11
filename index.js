@@ -142,12 +142,15 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		})
 	}
 
-	stateProviderEmitter.addState = addState
-	stateProviderEmitter.go = function go(newStateName, parameters) {
-		getDestinationUrl(newStateName, parameters).then(hashRouter.go, handleError)
+	var defaultOptions = {
+		replace: false
 	}
-	stateProviderEmitter.replace = function replace(newStateName, parameters) {
-		getDestinationUrl(newStateName, parameters).then(hashRouter.replace, handleError)
+
+	stateProviderEmitter.addState = addState
+	stateProviderEmitter.go = function go(newStateName, parameters, options) {
+		options = extend({}, defaultOptions, options)
+		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
+		getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
 	}
 
 	return stateProviderEmitter

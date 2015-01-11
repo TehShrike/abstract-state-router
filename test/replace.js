@@ -37,7 +37,7 @@ test('a normal replace call against the state router itself', function(t) {
 			child1Activated = true
 
 			setTimeout(function() {
-				stateRouter.replace('valid1.valid2')
+				stateRouter.go('valid1.valid2', {}, { replace: true })
 			}, 10)
 		}
 	})
