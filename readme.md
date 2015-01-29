@@ -67,11 +67,11 @@ The options object currently supports just one option "replace" - if it is truth
 
 # TODO
 
+- optional default parameter values for each state
 - "default" child states that are automatically redirected to if no child state is specified
 - the ability to set an "error" state to go to on errors
 - "redirect somewhere else instead" function in the resolve
 - test having multiple states call replace
-- add a "destroy" emitter to be called when a state is deactivated
 
 License
 ======
