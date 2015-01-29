@@ -24,7 +24,7 @@ The addState function takes a single object of options.
 
 `data` is an object that can hold whatever you want - it will be passed in to the resolve and callback functions.
 
-`template` is a template string/object/whatever to be interpreted by the render function
+`template` is a template string/object/whatever to be interpreted by the render function.
 
 `resolve` is a function called when the selected state begins to be transitioned to, allowing you to accomplish the same objective as you would with ui-router's [resolve](https://github.com/angular-ui/ui-router/wiki#resolve).
 
@@ -45,7 +45,8 @@ The activate function is called when the state becomes active.  It is passed a c
 - `domApi`: the DOM API returned by the renderer
 - `data`: the data object given to the addState call
 - `parameters`: the route/querystring parameters
-- `content`: the object passed into the resolveFunction's callback.
+- `content`: the object passed into the resolveFunction's callback
+- `destroy`: an event emitter that emits a 'destroy' event when the state is destroyed.
 
 This is the point where you display the view for the current state!
 
