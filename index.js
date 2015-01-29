@@ -227,5 +227,5 @@ function buildFullStateRoute(prototypalStateHolder, stateName) {
 }
 
 function reverse(ary) {
-	return [].concat(ary)
+	return ary.slice().reverse()
 }
