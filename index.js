@@ -23,6 +23,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 	var activeDomApis = {}
 	var activeStateResolveContent = {}
+	var activeDestroyEmitters = {}
 
 	function handleError(e) {
 		if (stateProviderEmitter.listeners('error') === 0) {
@@ -33,6 +34,8 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function destroyStateName(stateName) {
+		activeDestroyEmitters[stateName].emit('destroy')
+		delete activeDestroyEmitters[stateName]
 		delete activeStateResolveContent[stateName]
 		return destroyDom(activeDomApis[stateName]).then(function() {
 			delete activeDomApis[stateName]
@@ -119,11 +122,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 			function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
+					activeDestroyEmitters[state.name] = new EventEmitter
 					state.activate({
 						domApi: activeDomApis[state.name],
 						data: state.data,
 						parameters: parameters,
-						content: getContentObject(activeStateResolveContent, state.name)
+						content: getContentObject(activeStateResolveContent, state.name),
+						destroy: activeDestroyEmitters[state.name]
 					})
 				})
 			}
@@ -222,5 +227,5 @@ function buildFullStateRoute(prototypalStateHolder, stateName) {
 }
 
 function reverse(ary) {
-	return [].concat(ary)
+	return ary.slice().reverse()
 }
