@@ -14,7 +14,7 @@ The rootElement is the element where the first-generation states will be created
 
 router defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  It's an optional argument for the purpose of passing in a mock for unit tests.
 
-# stateRouter.addState({name, route, data, template, resolve, activate})
+# stateRouter.addState({name, route, data, template, resolve, activate, destroy})
 
 The addState function takes a single object of options.
 
@@ -29,6 +29,8 @@ The addState function takes a single object of options.
 `resolve` is a function called when the selected state begins to be transitioned to, allowing you to accomplish the same objective as you would with ui-router's [resolve](https://github.com/angular-ui/ui-router/wiki#resolve).
 
 `activate` is a function called when the state is made active - the equivalent of the AngularJS controller to the ui-router.
+
+`destroy` is an event emitter that emits a 'destroy' event when the state is destroyed.
 
 ## resolve(data, parameters, callback(err, content), redirectCallback(stateName, params))
 
