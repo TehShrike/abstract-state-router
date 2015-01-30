@@ -62,7 +62,7 @@ The options object currently supports just one option "replace" - if it is truth
 - emit StateChangeStart
 - call all resolve functions
 - resolve functions return
-= NO LONGER AT PREVIOUS STATE
+- **NO LONGER AT PREVIOUS STATE**
 - emit "destroy" to active states
 - destroy existing dom elements
 - reset existing dom elements - still needs implemented
