@@ -51,7 +51,7 @@ The activate function is called when the state becomes active.  It is passed an 
 
 - 'destroy': emitted when the state is destroyed
 
-# stateRouter.go(stateName, parameters, [options])
+# stateRouter.go(stateName, [parameters, [options]])
 
 Browses to the given state, with the current parameters.  Changes the url to match.
 
