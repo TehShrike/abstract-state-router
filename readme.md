@@ -59,18 +59,27 @@ The options object currently supports just one option "replace" - if it is truth
 
 # State change flow
 
-- emit StateChangeStarted
-- destroy DOM elements
-- emit destroy on each context for states becoming inactive 
+- emit StateChangeStart
 - call all resolve functions
 - resolve functions return
 = NO LONGER AT PREVIOUS STATE
+- emit "destroy" to active states
 - destroy existing dom elements
+- reset existing dom elements - still needs implemented
 - call all render functions
 - call all controller functions
+- emit StateChangeEnd
+
+# Every state change does this to states
+
+- destroy: states that are no longer active at all.  The contexts are destroyed, and the DOM elements are destroyed.
+- change: states that remain around, but with different parameter values - the DOM sticks around, but the contexts are destroyed and resolve/activate are called again.
+- create: states that weren't active at all before.  The DOM elements are rendered, and resolve/activate are called.
 
 # TODO
 
+- states that are "change"ing should have reset called in the renderer, and destroy/activate called on the context, but they should NOT be destroyed in the DOM.
+- any state changes that are triggered during a state transition should be queued up and applied once the current state change is done
 - optional default parameter values for each state
 - "default" child states that are automatically redirected to if no child state is specified
 - the ability to set an "error" state to go to on errors

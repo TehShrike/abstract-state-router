@@ -20,6 +20,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var destroyDom = Promise.denodeify(renderer.destroy)
 	var getDomChild = Promise.denodeify(renderer.getChildElement)
 	var renderDom = Promise.denodeify(renderer.render)
+	var resetDom = Promise.denodeify(renderer.reset)
 
 	var activeDomApis = {}
 	var activeStateResolveContent = {}
