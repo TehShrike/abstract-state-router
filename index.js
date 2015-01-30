@@ -81,7 +81,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			defaultChild = state.name + '.' + defaultChild
 			var nextState = prototypalStateHolder.get(defaultChild)
 			if (nextState) {
-				return resolveDefaultChildren(nextState)
+				return findDefaultChild(nextState)
 			}
 		}
 		return state.name
