@@ -28,7 +28,7 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 				setTimeout(cb, 0, null)
 			},
 			activate: function(context) {
-				context.destroy.on('destroy', function () {
+				context.on('destroy', function () {
 					grandparentDestroyed = true
 					t.ok(parentDestroyed, 'grandparent gets destroyed after parent')
 					t.ok(childDestroyed, 'grandparent gets destroyed after child')
@@ -47,7 +47,7 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 			},
 			querystringParameters: ['wat'],
 			activate: function(context) {
-				context.destroy.on('destroy', function () {
+				context.on('destroy', function () {
 					t.notOk(grandparentDestroyed, 'parent gets destroyed before grandparent')
 					parentDestroyed = true
 					t.ok(childDestroyed, 'parent gets destroyed after child')
@@ -63,7 +63,7 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 				setTimeout(cb, 0, null)
 			},
 			activate: function(context) {
-				context.destroy.on('destroy', function () {
+				context.on('destroy', function () {
 					t.notOk(grandparentDestroyed, 'child gets destroyed before grandparent')
 					t.notOk(parentDestroyed, 'child gets destroyed before parent')
 					childDestroyed = true

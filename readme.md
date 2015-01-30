@@ -40,15 +40,16 @@ If you call `redirectCallback(stateName, params)`, the state router will begin t
 
 ## activate(context)
 
-The activate function is called when the state becomes active.  It is passed a context object with four properties:
+The activate function is called when the state becomes active.  It is passed an event emitter named `context` with four properties:
 
 - `domApi`: the DOM API returned by the renderer
 - `data`: the data object given to the addState call
 - `parameters`: the route/querystring parameters
 - `content`: the object passed into the resolveFunction's callback
-- `destroy`: an event emitter that emits a 'destroy' event when the state is destroyed.
 
-This is the point where you display the view for the current state!
+###events
+
+- 'destroy': emitted when the state is destroyed
 
 # stateRouter.go(stateName, parameters, [options])
 
@@ -59,6 +60,8 @@ The options object currently supports just one option "replace" - if it is truth
 # State change flow
 
 - emit StateChangeStarted
+- destroy DOM elements
+- emit destroy on each context for states becoming inactive 
 - call all resolve functions
 - resolve functions return
 = NO LONGER AT PREVIOUS STATE
