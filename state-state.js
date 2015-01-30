@@ -37,7 +37,7 @@ module.exports = function StateState() {
 			states[name] = state
 		},
 		get: function(name) {
-			return states[name]
+			return name && states[name]
 		},
 		getHierarchy: getHierarchy,
 		getParent: getParent,
