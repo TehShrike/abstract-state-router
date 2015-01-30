@@ -24,8 +24,9 @@ module.exports = function StateState() {
 		var names = stateStringParser(name)
 
 		if (names.length > 1) {
-			names.pop()
-			return names.join('')
+			var secondToLast = names.length - 2
+
+			return names[secondToLast]
 		} else {
 			return null
 		}

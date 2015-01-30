@@ -200,3 +200,26 @@ test('changing highest-level parameter', function(t) {
 
 	t.end()
 })
+
+test('changing from app.main.tab1 to just main', function(t) {
+	var results = setup()('app.main.tab1', { main1: 'wut' }, 'app', {})
+
+	compareAllElements(t, [{
+		stateNameChanged: false,
+		stateParametersChanged: false,
+		nameBefore: 'app',
+		nameAfter: 'app'
+	}, {
+		stateNameChanged: true,
+		stateParametersChanged: false,
+		nameBefore: 'app.main',
+		nameAfter: undefined
+	}, {
+		stateNameChanged: true,
+		stateParametersChanged: false,
+		nameBefore: 'app.main.tab1',
+		nameAfter: undefined
+	}], results)
+
+	t.end()
+})

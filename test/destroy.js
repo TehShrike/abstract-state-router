@@ -77,18 +77,23 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 	t.test('triggered with go()', function(t) {
 		var stateRouter = basicTest(t).stateRouter
 		stateRouter.go('hey.rofl.copter', { wat: 'wut' })
-		setTimeout(function () {
+		stateRouter.once('stateChangeEnd', function() {
 			stateRouter.go('hey')
-		}, 150)
-		setTimeout(t.end.bind(t), 300)
+			stateRouter.once('stateChangeEnd', function() {
+				t.end()
+			})
+		})
 	})
 
 	t.test('triggered by the router', function(t) {
-		var hashRouter = basicTest(t).hashRouter
+		var testState = basicTest(t)
+		var hashRouter = testState.hashRouter
 		hashRouter.go('/hay/routeButt/lolcopter?wat=wut')
-		setTimeout(function () {
+		testState.stateRouter.once('stateChangeEnd', function() {
 			hashRouter.go('/hay')
-		}, 150)
-		setTimeout(t.end.bind(t), 300)
+			testState.stateRouter.once('stateChangeEnd', function() {
+				t.end()
+			})
+		})
 	})
 })

@@ -122,14 +122,19 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 			function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
-					activeDestroyEmitters[state.name] = new EventEmitter
-					state.activate({
-						domApi: activeDomApis[state.name],
-						data: state.data,
-						parameters: parameters,
-						content: getContentObject(activeStateResolveContent, state.name),
-						destroy: activeDestroyEmitters[state.name]
-					})
+					activeDestroyEmitters[state.name] = new EventEmitter()
+
+					try {
+						state.activate({
+							domApi: activeDomApis[state.name],
+							data: state.data,
+							parameters: parameters,
+							content: getContentObject(activeStateResolveContent, state.name),
+							destroy: activeDestroyEmitters[state.name]
+						})
+					} catch (e) {
+						console.error(e)
+					}
 				})
 			}
 		}).then(function stateChangeComplete() {
