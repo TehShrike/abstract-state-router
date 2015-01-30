@@ -110,7 +110,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 				function activateAll() {
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
-					return activateStates(statesToActivate, stateResolveResultsObject)
+					return activateStates(statesToActivate)
 				}
 
 				extend(activeStateResolveContent, stateResolveResultsObject)
