@@ -63,11 +63,11 @@ The options object currently supports just one option "replace" - if it is truth
 - call all resolve functions
 - resolve functions return
 - **NO LONGER AT PREVIOUS STATE**
-- emit "destroy" to active states
-- destroy existing dom elements
-- reset existing dom elements - still needs implemented
-- call all render functions
-- call all controller functions
+- destroy the contexts of all "destroy" and "change" states
+- destroy appropriate dom elements
+- reset "change"ing dom elements - still needs implemented
+- call render functions for "create"ed states
+- call all activate functions
 - emit StateChangeEnd
 
 # Every state change does this to states
@@ -85,6 +85,7 @@ The options object currently supports just one option "replace" - if it is truth
 - the ability to set an "error" state to go to on errors
 - "redirect somewhere else instead" function in the resolve
 - test having multiple states call replace
+- abstract states that can not be activated without a child state being active (default child states count)
 
 License
 ======
