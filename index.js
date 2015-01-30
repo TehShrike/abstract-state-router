@@ -72,8 +72,24 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 	current.set('', {})
 
+	function findDefaultChild(state) {
+		if (state.defaultChild) {
+			var defaultChild = (typeof state.defaultChild === 'function') ?
+				state.defaultChild() :
+				state.defaultChild
+
+			defaultChild = state.name + '.' + defaultChild
+			var nextState = prototypalStateHolder.get(defaultChild)
+			if (nextState) {
+				return findDefaultChild(nextState)
+			}
+		}
+		return state.name
+	}
+
 	function onRouteChange(state, parameters) {
-		attemptStateChange(state.name, parameters)
+		var stateName = findDefaultChild(state)
+		attemptStateChange(stateName, parameters)
 	}
 
 	function addState(state) {
