@@ -79,3 +79,4 @@ License
 
 [WTFPL](http://wtfpl2.com)
 
+[![Build Status](https://travis-ci.org/TehShrike/abstract-state-router.svg?branch=master)](https://travis-ci.org/TehShrike/abstract-state-router)
