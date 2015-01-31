@@ -241,7 +241,6 @@ function reverse(ary) {
 }
 
 function applyDefaultChildStates(prototypalStateHolder, stateName) {
-	console.log('called with', stateName)
 	var state = prototypalStateHolder.get(stateName)
 
 	function getDefaultChildStateName() {
