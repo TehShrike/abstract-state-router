@@ -1,6 +1,5 @@
 var test = require('tape')
 var getTestState = require('./helpers/test-state-factory')
-var extend = require('extend')
 
 
 function resolve(data, parameters, cb) {
@@ -84,7 +83,8 @@ test('default grandchild', function (t) {
 
 test('bad defaults', function (t) {
 	var stateRouter = getTestState(t).stateRouter
-	var remember = RememberActivation()
+
+	t.plan(2)
 
 	stateRouter.addState({
 		name: 'hey',
@@ -92,13 +92,20 @@ test('bad defaults', function (t) {
 		defaultChild: 'nonexistent',
 		template: {},
 		resolve: resolve,
-		activate: remember.activate('hey')
+		activate: function() {
+			t.fail('Should not activate')
+		}
 	})
 
-	t.test('hey -> hey', function (tt) {
-		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'hey'))
-		stateRouter.go('hey')
+	stateRouter.on('error', function(e) {
+		t.pass('Defaulting to a nonexistent state should cause an error to be emitted')
+		t.notEqual(e.message.indexOf('nonexistent'), -1, 'the invalid state name is in the error message')
+		t.end()
 	})
+
+	stateRouter.go('hey')
+
+
 })
 
 
