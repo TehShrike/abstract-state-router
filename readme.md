@@ -85,7 +85,6 @@ The options object currently supports just one option "replace" - if it is truth
 - states that are "change"ing should have reset called in the renderer, and destroy/activate called on the context, but they should NOT be destroyed in the DOM.
 - any state changes that are triggered during a state transition should be queued up and applied once the current state change is done
 - optional default parameter values for each state
-- "default" child states that are automatically redirected to if no child state is specified
 - the ability to set an "error" state to go to on errors
 - "redirect somewhere else instead" function in the resolve
 - test having multiple states call replace
