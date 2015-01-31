@@ -27,11 +27,11 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var activeEmitters = {}
 
 	function handleError(e) {
+		stateProviderEmitter.emit('error', e)
+
 		if (stateProviderEmitter.listeners('error') === 0) {
 			console.error(e)
 		}
-
-		stateProviderEmitter.emit('error', e)
 	}
 
 	function destroyStateName(stateName) {
@@ -72,24 +72,9 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 	current.set('', {})
 
-	function findDefaultChild(state) {
-		if (state.defaultChild) {
-			var defaultChild = (typeof state.defaultChild === 'function') ?
-				state.defaultChild() :
-				state.defaultChild
-
-			defaultChild = state.name + '.' + defaultChild
-			var nextState = prototypalStateHolder.get(defaultChild)
-			if (nextState) {
-				return findDefaultChild(nextState)
-			}
-		}
-		return state.name
-	}
-
 	function onRouteChange(state, parameters) {
-		var stateName = findDefaultChild(state)
-		attemptStateChange(stateName, parameters)
+		var fullStateName = applyDefaultChildStates(prototypalStateHolder, state.name)
+		attemptStateChange(fullStateName, parameters)
 	}
 
 	function addState(state) {
@@ -180,7 +165,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
-		getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
+		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
 	}
 
 	return stateProviderEmitter
@@ -253,4 +238,24 @@ function buildFullStateRoute(prototypalStateHolder, stateName) {
 
 function reverse(ary) {
 	return ary.slice().reverse()
+}
+
+function applyDefaultChildStates(prototypalStateHolder, stateName) {
+	var state = prototypalStateHolder.get(stateName)
+
+	function getDefaultChildStateName() {
+		return state && (typeof state.defaultChild === 'function'
+			? state.defaultChild()
+			: state.defaultChild)
+	}
+
+	var defaultChildStateName = getDefaultChildStateName()
+
+	if (!defaultChildStateName) {
+		return stateName
+	}
+
+	var fullStateName = stateName + '.' + defaultChildStateName
+
+	return applyDefaultChildStates(prototypalStateHolder, fullStateName)
 }
