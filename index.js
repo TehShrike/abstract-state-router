@@ -16,6 +16,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
 	hashRouter = hashRouter || newHashBrownRouter()
+	current.set('', {})
 
 	var destroyDom = Promise.denodeify(renderer.destroy)
 	var getDomChild = Promise.denodeify(renderer.getChildElement)
@@ -69,8 +70,6 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	function renderAll(stateNames) {
 		return series(stateNames, renderStateName)
 	}
-
-	current.set('', {})
 
 	function onRouteChange(state, parameters) {
 		var fullStateName = applyDefaultChildStates(prototypalStateHolder, state.name)
@@ -160,12 +159,35 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var defaultOptions = {
 		replace: false
 	}
+	var changingState = {
+		isChanging: false,
+		queue: []
+	}
+
+	stateProviderEmitter.on('stateChangeEnd', function () {
+		if (changingState.queue.length) {
+			var next = changingState.queue.shift()
+			getDestinationUrl(next.newStateName, next.parameters).then(next.goFunction, handleError)
+		} else {
+			changingState.isChanging = false
+		}
+	})
 
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
-		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
+
+		if (changingState.isChanging) {
+			changingState.queue.push({
+				newStateName: newStateName,
+				parameters: parameters,
+				goFunction: goFunction
+			})
+		} else {
+			changingState.isChanging = true
+			return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
+		}
 	}
 
 	return stateProviderEmitter
