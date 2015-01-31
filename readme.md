@@ -14,13 +14,15 @@ The rootElement is the element where the first-generation states will be created
 
 router defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  It's an optional argument for the purpose of passing in a mock for unit tests.
 
-# stateRouter.addState({name, route, data, template, resolve, activate})
+# stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters})
 
 The addState function takes a single object of options.
 
 `name` is parsed in the same way as ui-router's [dot notation](https://github.com/angular-ui/ui-router/wiki/Nested-States-%26-Nested-Views#dot-notation), so 'contacts.list' is a child state of 'contacts'.
 
 `route` is an express-style url string that is parsed with a fork of [path-to-regexp](https://github.com/pillarjs/path-to-regexp).  If the state is a child state, this route string will be concatenated to the route string of its parent (e.g. if 'contacts' state has route ':user/contacts' and 'contacts.list' has a route of '/list', you could visit the child state by browsing to '/tehshrike/contacts/list').
+
+`defaultChild` is a string (or a function that returns a string) of the default child's name. If you attempt to go directly to a state that has a default child, you will be directed to the default child. (E.g. if 'contacts' has the defaultChild 'list', then doing `state.go('contacts')` will actually do `state.go('contacts.list')`.)
 
 `data` is an object that can hold whatever you want - it will be passed in to the resolve and callback functions.
 
@@ -29,6 +31,8 @@ The addState function takes a single object of options.
 `resolve` is a function called when the selected state begins to be transitioned to, allowing you to accomplish the same objective as you would with ui-router's [resolve](https://github.com/angular-ui/ui-router/wiki#resolve).
 
 `activate` is a function called when the state is made active - the equivalent of the AngularJS controller to the ui-router.
+
+`querystringParameters` is an array of query string parameters that will be watched by this state.
 
 ## resolve(data, parameters, callback(err, content), redirectCallback(stateName, params))
 
