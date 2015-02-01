@@ -73,14 +73,14 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	current.set('', {})
 
 	function onRouteChange(state, parameters) {
-		var fullStateName = applyDefaultChildStates(prototypalStateHolder, state.name)
+		var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 		attemptStateChange(fullStateName, parameters)
 	}
 
 	function addState(state) {
 		prototypalStateHolder.add(state.name, state)
 
-		var route = buildFullStateRoute(prototypalStateHolder, state.name)
+		var route = prototypalStateHolder.buildFullStateRoute(state.name)
 
 		hashRouter.add(route, onRouteChange.bind(null, state))
 	}
@@ -97,7 +97,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function attemptStateChange(newStateName, parameters) {
-		return guaranteeAllStatesExist(prototypalStateHolder, newStateName)
+		return prototypalStateHolder.guaranteeAllStatesExist(newStateName)
 		.then(emit('stateChangeStart', newStateName, parameters))
 		.then(function getStateChanges() {
 
@@ -150,8 +150,8 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 	function getDestinationUrl(stateName, parameters) {
 		return new Promise(function(resolve, reject) {
-			resolve(guaranteeAllStatesExist(prototypalStateHolder, stateName).then(function() {
-				var route = buildFullStateRoute(prototypalStateHolder, stateName)
+			resolve(prototypalStateHolder.guaranteeAllStatesExist(stateName).then(function() {
+				var route = prototypalStateHolder.buildFullStateRoute(stateName)
 				return buildPath(route, parameters || {})
 			}))
 		})
@@ -169,21 +169,6 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	return stateProviderEmitter
-}
-
-function guaranteeAllStatesExist(prototypalStateHolder, newStateName) {
-	return new Promise(function(resolve) {
-		var stateNames = parse(newStateName)
-		var statesThatDontExist = stateNames.filter(function(name) {
-			return !prototypalStateHolder.get(name)
-		})
-
-		if (statesThatDontExist.length > 0) {
-			throw new Error('State ' + statesThatDontExist[statesThatDontExist.length - 1] + ' does not exist')
-		}
-
-		resolve()
-	})
 }
 
 function getContentObject(stateResolveResultsObject, stateName) {
@@ -221,41 +206,12 @@ function property(name) {
 	}
 }
 
-function isFunction(property) {
-	return function(obj) {
-		return typeof obj[property] === 'function'
-	}
-}
-
-function buildFullStateRoute(prototypalStateHolder, stateName) {
-	return prototypalStateHolder.getHierarchy(stateName).reduce(function(route, state) {
-		if (route && route[route.length - 1] !== '/' && state.route[0] !== '/') {
-			route = route + '/'
-		}
-		return route + state.route
-	}, '')
-}
-
 function reverse(ary) {
 	return ary.slice().reverse()
 }
 
-function applyDefaultChildStates(prototypalStateHolder, stateName) {
-	var state = prototypalStateHolder.get(stateName)
-
-	function getDefaultChildStateName() {
-		return state && (typeof state.defaultChild === 'function'
-			? state.defaultChild()
-			: state.defaultChild)
+function isFunction(property) {
+	return function(obj) {
+		return typeof obj[property] === 'function'
 	}
-
-	var defaultChildStateName = getDefaultChildStateName()
-
-	if (!defaultChildStateName) {
-		return stateName
-	}
-
-	var fullStateName = stateName + '.' + defaultChildStateName
-
-	return applyDefaultChildStates(prototypalStateHolder, fullStateName)
 }
