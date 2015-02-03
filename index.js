@@ -76,8 +76,17 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function onRouteChange(state, parameters) {
-		var fullStateName = applyDefaultChildStates(prototypalStateHolder, state.name)
-		attemptStateChange(fullStateName, parameters)
+		function stateGo() {
+			var fullStateName = applyDefaultChildStates(prototypalStateHolder, state.name)
+			attemptStateChange(fullStateName, parameters)
+		}
+
+		if (isTransitioning()) {
+			queueUpStateGo(stateGo)
+		} else {
+			stateProviderEmitter.emit('stateChangeAttempt')
+			stateGo()
+		}
 	}
 
 	function addState(state) {
@@ -168,17 +177,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
-
-		function stateGo() {
-			return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
-		}
-
-		if (isTransitioning()) {
-			queueUpStateGo(stateGo)
-		} else {
-			stateProviderEmitter.emit('stateChangeAttempt')
-			return stateGo()
-		}
+		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
 	}
 
 	return stateProviderEmitter
