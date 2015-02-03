@@ -14,8 +14,11 @@ test('queue state.go', function(t) {
 			t.equal(x, n, n + ' === ' + x)
 		})
 	}
+	
+	var b = true
 	function next() {
-		fakeStateProvider.emit('stateChangeEnd')
+		var eventName = (b = !b) ? 'stateChangeEnd' : 'stateChangeError'
+		fakeStateProvider.emit(eventName)
 	}
 
 	next()
