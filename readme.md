@@ -4,9 +4,11 @@ To manage webapp states so that you don't have to deal with url paths or anythin
 
 # Construction
 
-	var createStateRouter = require('abstract-state-router')
+```js
+var createStateRouter = require('abstract-state-router')
 
-	var stateRouter = createStateRouter(renderer, rootElement, router)
+var stateRouter = createStateRouter(renderer, rootElement, router)
+```
 
 The renderer should be an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
 
@@ -61,6 +63,8 @@ Browses to the given state, with the current parameters.  Changes the url to mat
 
 The options object currently supports just one option "replace" - if it is truthy, the current state is replaced in the url history.
 
+If a state change is triggered during a state transition, it is queued and applied once the current state change is done.
+
 # State change flow
 
 - emit StateChangeStart
@@ -83,7 +87,6 @@ The options object currently supports just one option "replace" - if it is truth
 # TODO
 
 - states that are "change"ing should have reset called in the renderer, and destroy/activate called on the context, but they should NOT be destroyed in the DOM.
-- any state changes that are triggered during a state transition should be queued up and applied once the current state change is done
 - optional default parameter values for each state
 - the ability to set an "error" state to go to on errors
 - "redirect somewhere else instead" function in the resolve
