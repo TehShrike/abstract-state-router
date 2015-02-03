@@ -10,12 +10,17 @@ var series = require('promise-map-series')
 var parse = require('./state-string-parser')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
+var StateTransitionWatcher = require('./state-transition-watcher')
+var QueueStateChangeEnd = require('./queue-state-change-end')
 
 module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
+	var isTransitioning = StateTransitionWatcher(stateProviderEmitter)
+	var queueUpStateGo = QueueStateChangeEnd(stateProviderEmitter)
 	hashRouter = hashRouter || newHashBrownRouter()
+	current.set('', {})
 
 	var destroyDom = Promise.denodeify(renderer.destroy)
 	var getDomChild = Promise.denodeify(renderer.getChildElement)
@@ -69,8 +74,6 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	function renderAll(stateNames) {
 		return series(stateNames, renderStateName)
 	}
-
-	current.set('', {})
 
 	function onRouteChange(state, parameters) {
 		var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
@@ -165,7 +168,17 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
-		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
+
+		function stateGo() {
+			return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
+		}
+
+		if (isTransitioning()) {
+			queueUpStateGo(stateGo)
+		} else {
+			stateProviderEmitter.emit('stateChangeAttempt')
+			return stateGo()
+		}
 	}
 
 	return stateProviderEmitter
