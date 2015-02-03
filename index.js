@@ -10,12 +10,17 @@ var series = require('promise-map-series')
 var parse = require('./state-string-parser')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
+var StateTransitionWatcher = require('./state-transition-watcher')
+var QueueStateChangeEnd = require('./queue-state-change-end')
 
 module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
+	var isTransitioning = StateTransitionWatcher(stateProviderEmitter)
+	var queueUpStateGo = QueueStateChangeEnd(stateProviderEmitter)
 	hashRouter = hashRouter || newHashBrownRouter()
+	current.set('', {})
 
 	var destroyDom = Promise.denodeify(renderer.destroy)
 	var getDomChild = Promise.denodeify(renderer.getChildElement)
@@ -70,11 +75,18 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		return series(stateNames, renderStateName)
 	}
 
-	current.set('', {})
-
 	function onRouteChange(state, parameters) {
-		var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
-		attemptStateChange(fullStateName, parameters)
+		function stateGo() {
+			var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
+			attemptStateChange(fullStateName, parameters)
+		}
+
+		if (isTransitioning()) {
+			queueUpStateGo(stateGo)
+		} else {
+			stateProviderEmitter.emit('stateChangeAttempt')
+			stateGo()
+		}
 	}
 
 	function addState(state) {
