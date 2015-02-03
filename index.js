@@ -77,7 +77,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 	function onRouteChange(state, parameters) {
 		function stateGo() {
-			var fullStateName = applyDefaultChildStates(prototypalStateHolder, state.name)
+			var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 			attemptStateChange(fullStateName, parameters)
 		}
 
