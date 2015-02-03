@@ -8,7 +8,7 @@ test('test queue with a basic activate-in-order test', function(t) {
 	var n = 0
 	function activate(x) {
 		return function () {
-			t.equal(x, n+=1, 'activation #' + x)
+			t.equal(x, n+=1, 'activation number ' + x)
 		}
 	}
 
@@ -59,6 +59,67 @@ test('test queue with a basic activate-in-order test', function(t) {
 	stateRouter.go('valid.valid3')
 })
 
+
+test('test queue with a basic activate-in-order test using the hash router', function(t) {
+	var state = getTestState(t)
+	var stateRouter = state.stateRouter
+	var hashRouter = state.hashRouter
+
+	var n = 0
+	function activate(x) {
+		return function () {
+			t.equal(x, n+=1, 'activation number ' + x)
+		}
+	}
+
+	t.plan(4)
+
+	stateRouter.addState({
+		name: 'valid',
+		route: '/valid',
+		template: {},
+		resolve: function(data, params, cb) {
+			setTimeout(cb, 20)
+		},
+		activate: activate(1)
+	})
+
+	stateRouter.addState({
+		name: 'valid.valid1',
+		route: '/valid1',
+		template: {},
+		resolve: function(data, params, cb) {
+			setTimeout(cb, 10)
+		},
+		activate: activate(2)
+	})
+
+	stateRouter.addState({
+		name: 'valid.valid2',
+		route: '/valid2',
+		template: {},
+		resolve: function(data, params, cb) {
+			setTimeout(cb, 10)
+		},
+		activate: activate(3)
+	})
+
+	stateRouter.addState({
+		name: 'valid.valid3',
+		route: '/valid3',
+		template: {},
+		resolve: function(data, params, cb) {
+			setTimeout(cb, 10)
+		},
+		activate: activate(4)
+	})
+
+	hashRouter.go('/valid/valid1')
+	hashRouter.go('/valid/valid2')
+	hashRouter.go('/valid/valid3')
+})
+
+
 test('test queue with an asserting renderer', function(t) {
 	var parentTemplate = {}
 	var child1Template = {}
@@ -89,7 +150,7 @@ test('test queue with an asserting renderer', function(t) {
 		route: '/valid',
 		template: parentTemplate,
 		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
+			setTimeout(cb, 20)
 		},
 		activate: function(context) {
 			t.notOk(parentActivated, 'parent activated once')
@@ -103,7 +164,7 @@ test('test queue with an asserting renderer', function(t) {
 		route: '/valid1',
 		template: child1Template,
 		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
+			setTimeout(cb, 10)
 		},
 		activate: function(context) {
 			t.notOk(child1Activated, 'child1 activated once')
@@ -117,7 +178,7 @@ test('test queue with an asserting renderer', function(t) {
 		route: '/valid2',
 		template: child2Template,
 		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
+			setTimeout(cb, 10)
 		},
 		activate: function(context) {
 			t.notOk(child2Activated, 'child2 activated once')
@@ -131,7 +192,7 @@ test('test queue with an asserting renderer', function(t) {
 		route: '/valid3',
 		template: child3Template,
 		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
+			setTimeout(cb, 10)
 		},
 		activate: function(context) {
 			t.notOk(child3Activated, 'child3 activated once')
