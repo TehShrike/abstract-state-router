@@ -13,7 +13,9 @@ module.exports = function (emitter) {
 
 	emitter.on('stateChangeAttempt', set(true))
 	emitter.on('stateChangeStart', set(true))
+	
 	emitter.on('stateChangeError', set(false))
+	emitter.on('stateChangeCancelled', set(false))
 	emitter.on('stateChangeEnd', set(false))
 
 	return get

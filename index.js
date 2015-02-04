@@ -110,7 +110,24 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 	function attemptStateChange(newStateName, parameters) {
 		return prototypalStateHolder.guaranteeAllStatesExist(newStateName)
-		.then(emit('stateChangeStart', newStateName, parameters))
+		.then(function applyDefaultParameters() {
+			var state = prototypalStateHolder.get(newStateName)
+			var defaultParams = state.defaultQuerystringParameters || {}
+			var needToApplyDefaults = Object.keys(defaultParams).reduce(function (memo, param) {
+				return memo || (!parameters[param])
+			}, false)
+			var params = extend({}, defaultParams, parameters)
+			//console.log('\t' + needToApplyDefaults + '  | ' + Object.keys(parameters).join(',') + ' -> ' + Object.keys(params).join(','))
+			if (needToApplyDefaults) {
+				var err = new Error('redirect')
+				err.redirectTo = {
+					name: newStateName,
+					params: params
+				}
+				throw err
+			}
+			return true
+		}).then(emit('stateChangeStart', newStateName, parameters))
 		.then(function getStateChanges() {
 
 			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
@@ -157,6 +174,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		}).then(function stateChangeComplete() {
 			current.set(newStateName, parameters)
 			stateProviderEmitter.emit('stateChangeEnd', newStateName, parameters)
+		}).catch(function(err) {
+			if (err && err.redirectTo) {
+				stateProviderEmitter.emit('stateChangeCancelled')
+				stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
+			} else {
+				throw err
+			}
 		}).catch(handleError)
 	}
 
