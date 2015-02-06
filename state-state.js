@@ -34,7 +34,52 @@ module.exports = function StateState() {
 		}
 	}
 
-	var stateHolder = {
+	function guaranteeAllStatesExist(newStateName) {
+		return new Promise(function(resolve) {
+			var stateNames = parse(newStateName)
+			var statesThatDontExist = stateNames.filter(function(name) {
+				return !states[name]
+			})
+
+			if (statesThatDontExist.length > 0) {
+				throw new Error('State ' + statesThatDontExist[statesThatDontExist.length - 1] + ' does not exist')
+			}
+
+			resolve()
+		})
+	}
+
+	function buildFullStateRoute(stateName) {
+		return getHierarchy(stateName).reduce(function(route, state) {
+			if (route && route[route.length - 1] !== '/' && state.route[0] !== '/') {
+				route = route + '/'
+			}
+			return route + state.route
+		}, '')
+	}
+
+	function applyDefaultChildStates(stateName) {
+		var state = states[stateName]
+
+		function getDefaultChildStateName() {
+			return state && (typeof state.defaultChild === 'function'
+				? state.defaultChild()
+				: state.defaultChild)
+		}
+
+		var defaultChildStateName = getDefaultChildStateName()
+
+		if (!defaultChildStateName) {
+			return stateName
+		}
+
+		var fullStateName = stateName + '.' + defaultChildStateName
+
+		return applyDefaultChildStates(fullStateName)
+	}
+
+
+	return {
 		add: function(name, state) {
 			states[name] = state
 		},
@@ -43,56 +88,9 @@ module.exports = function StateState() {
 		},
 		getHierarchy: getHierarchy,
 		getParent: getParent,
-		getParentName: getParentName
+		getParentName: getParentName,
+		guaranteeAllStatesExist: guaranteeAllStatesExist,
+		buildFullStateRoute: buildFullStateRoute,
+		applyDefaultChildStates: applyDefaultChildStates
 	}
-
-	stateHolder.guaranteeAllStatesExist = guaranteeAllStatesExist.bind(null, stateHolder)
-	stateHolder.buildFullStateRoute = buildFullStateRoute.bind(null, stateHolder)
-	stateHolder.applyDefaultChildStates = applyDefaultChildStates.bind(null, stateHolder)
-
-	return stateHolder
-}
-
-function guaranteeAllStatesExist(prototypalStateHolder, newStateName) {
-	return new Promise(function(resolve) {
-		var stateNames = parse(newStateName)
-		var statesThatDontExist = stateNames.filter(function(name) {
-			return !prototypalStateHolder.get(name)
-		})
-
-		if (statesThatDontExist.length > 0) {
-			throw new Error('State ' + statesThatDontExist[statesThatDontExist.length - 1] + ' does not exist')
-		}
-
-		resolve()
-	})
-}
-
-function buildFullStateRoute(prototypalStateHolder, stateName) {
-	return prototypalStateHolder.getHierarchy(stateName).reduce(function(route, state) {
-		if (route && route[route.length - 1] !== '/' && state.route[0] !== '/') {
-			route = route + '/'
-		}
-		return route + state.route
-	}, '')
-}
-
-function applyDefaultChildStates(prototypalStateHolder, stateName) {
-	var state = prototypalStateHolder.get(stateName)
-
-	function getDefaultChildStateName() {
-		return state && (typeof state.defaultChild === 'function'
-			? state.defaultChild()
-			: state.defaultChild)
-	}
-
-	var defaultChildStateName = getDefaultChildStateName()
-
-	if (!defaultChildStateName) {
-		return stateName
-	}
-
-	var fullStateName = stateName + '.' + defaultChildStateName
-
-	return applyDefaultChildStates(prototypalStateHolder, fullStateName)
 }
