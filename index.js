@@ -10,15 +10,13 @@ var series = require('promise-map-series')
 var parse = require('./state-string-parser')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
-var StateTransitionWatcher = require('./state-transition-watcher')
-var QueueStateChangeEnd = require('./queue-state-change-end')
+var StateTransitionManager = require('./state-transition-manager')
 
 module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
-	var isTransitioning = StateTransitionWatcher(stateProviderEmitter)
-	var queueUpStateGo = QueueStateChangeEnd(stateProviderEmitter)
+	StateTransitionManager(stateProviderEmitter)
 	hashRouter = hashRouter || newHashBrownRouter()
 	current.set('', {})
 
@@ -31,11 +29,9 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var activeStateResolveContent = {}
 	var activeEmitters = {}
 
-	function handleError(e) {
-		stateProviderEmitter.emit('error', e)
-
-		if (stateProviderEmitter.listeners('error') === 0) {
-			console.error(e)
+	function handleError(event, err) {
+		if (!stateProviderEmitter.emit(event, err)) {
+			console.error(err)
 		}
 	}
 
@@ -76,17 +72,14 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function onRouteChange(state, parameters) {
-		function stateGo() {
+		function stateGo(transition) {
 			var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
-			attemptStateChange(fullStateName, parameters)
+			attemptStateChange(fullStateName, parameters, transition)
 		}
 
-		if (isTransitioning()) {
-			queueUpStateGo(stateGo)
-		} else {
-			stateProviderEmitter.emit('stateChangeAttempt')
-			stateGo()
-		}
+		console.log('route changed', state.name)
+
+		stateProviderEmitter.emit('stateChangeAttempt', stateGo)
 	}
 
 	function addState(state) {
@@ -108,7 +101,19 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		return stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
 	}
 
-	function attemptStateChange(newStateName, parameters) {
+	function attemptStateChange(newStateName, parameters, transition) {
+		function ifNotCancelled(fn) {
+			return function() {
+				if (transition.cancelled) {
+					var err = new Error('The transition to ' + newStateName + 'was cancelled')
+					err.wasCancelledBySomeoneElse = true
+					throw err
+				} else {
+					return fn.apply(null, arguments)
+				}
+			}
+		}
+
 		return prototypalStateHolder.guaranteeAllStatesExist(newStateName)
 		.then(function applyDefaultParameters() {
 			var state = prototypalStateHolder.get(newStateName)
@@ -126,16 +131,17 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 				}
 			}
 
-		}).then(emit('stateChangeStart', newStateName, parameters))
+		}).then(ifNotCancelled(emit('stateChangeStart', newStateName, parameters)))
 		.then(function getStateChanges() {
 
 			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
 			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
-		}).then(function resolveDestroyAndActivateStates(stateChanges) {
+		}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
 			return resolveStates(getStatesToResolve(stateChanges), parameters).catch(function onResolveError(e) {
-				stateProviderEmitter.emit('stateChangeError', e)
+				e.stateChangeError = true
 				throw e
-			}).then(function destroyAndActivate(stateResolveResultsObject) {
+			}).then(ifNotCancelled(function destroyAndActivate(stateResolveResultsObject) {
+				transition.cancellable = false
 
 				function activateAll() {
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)
@@ -148,7 +154,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
 					return renderAll(stateChanges.create).then(activateAll)
 				})
-			})
+			}))
 
 			function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
@@ -170,17 +176,27 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 					}
 				})
 			}
-		}).then(function stateChangeComplete() {
+		})).then(function stateChangeComplete() {
 			current.set(newStateName, parameters)
-			stateProviderEmitter.emit('stateChangeEnd', newStateName, parameters)
-		}).catch(function(err) {
-			if (err && err.redirectTo) {
-				stateProviderEmitter.emit('stateChangeCancelled')
-				stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
-			} else {
-				throw err
+			try {
+				stateProviderEmitter.emit('stateChangeEnd', newStateName, parameters)
+			} catch (e) {
+				handleError('error', e)
 			}
-		}).catch(handleError)
+		}).catch(ifNotCancelled(function handleStateChangeError(err) {
+			if (err && err.redirectTo) {
+				stateProviderEmitter.emit('stateChangeCancelled', err)
+				return stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
+			} else if (err) {
+				handleError('stateChangeError', err)
+			}
+		})).catch(function handleCancellation(err) {
+			if (err && err.wasCancelledBySomeoneElse) {
+				// we don't care, the state transition manager has already emitted the stateChangeCancelled for us
+			} else {
+				throw new Error("This probably shouldn't happen, maybe file an issue or something " + err)
+			}
+		})
 	}
 
 	function getDestinationUrl(stateName, parameters) {
@@ -201,7 +217,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
 
-		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
+		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
 	}
 
 	return stateProviderEmitter

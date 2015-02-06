@@ -1,210 +1,192 @@
 var test = require('tape')
-var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 var getTestState = require('./helpers/test-state-factory')
 
 test('test queue with a basic activate-in-order test', function(t) {
-	var stateRouter = getTestState(t).stateRouter
-	t.plan(4)
+	function startTest(t) {
+		var state = getTestState(t)
+		var stateRouter = state.stateRouter
+		t.plan(3)
 
-	var n = 0
-	function activate(x) {
-		return function () {
-			t.equal(x, n+=1, 'activation number ' + x)
-		}
+		var parentActivated = false
+		var cancelEvents = 0
+
+		stateRouter.addState({
+			name: 'valid',
+			route: '/valid',
+			template: {},
+			resolve: function(data, params, cb) {
+				setTimeout(cb, 100)
+			},
+			activate: function() {
+				t.notOk(parentActivated, 'Should only activate once')
+				parentActivated = true
+			}
+		})
+
+		stateRouter.addState({
+			name: 'valid.valid1',
+			route: '/valid1',
+			template: {},
+			resolve: function(data, params, cb) {
+				setTimeout(cb, 100)
+			},
+			activate: function() {
+				t.fail('should not activate')
+			}
+		})
+
+		stateRouter.addState({
+			name: 'valid.valid2',
+			route: '/valid2',
+			template: {},
+			resolve: function(data, params, cb) {
+				setTimeout(cb, 100)
+			},
+			activate: function() {
+				t.fail('should not activate')
+			}
+		})
+
+		stateRouter.addState({
+			name: 'valid.valid3',
+			route: '/valid3',
+			template: {},
+			resolve: function(data, params, cb) {
+				setTimeout(cb, 100)
+			},
+			activate: function() {
+				t.pass('valid.valid3 activated')
+				t.equal(cancelEvents, 2, 'Two cancel events emitted')
+				t.end()
+			}
+		})
+
+		stateRouter.on('stateChangeCancelled', function(e) {
+			cancelEvents++
+		})
+
+		return state
 	}
 
-	stateRouter.addState({
-		name: 'valid',
-		route: '/valid',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
-		},
-		activate: activate(1)
+	t.test('with state.go', function(t) {
+		var stateRouter = startTest(t).stateRouter
+		stateRouter.go('valid.valid1')
+		stateRouter.go('valid.valid2')
+		stateRouter.go('valid.valid3')
 	})
 
-	stateRouter.addState({
-		name: 'valid.valid1',
-		route: '/valid1',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
-		},
-		activate: activate(2)
+	t.test('by changing the url', function(t) {
+		var hashRouter = startTest(t).hashRouter
+		hashRouter.go('/valid/valid1')
+		hashRouter.go('/valid/valid2')
+		hashRouter.go('/valid/valid3')
 	})
 
-	stateRouter.addState({
-		name: 'valid.valid2',
-		route: '/valid2',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
-		},
-		activate: activate(3)
-	})
-
-	stateRouter.addState({
-		name: 'valid.valid3',
-		route: '/valid3',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 100)
-		},
-		activate: activate(4)
-	})
-
-	stateRouter.go('valid.valid1')
-	stateRouter.go('valid.valid2')
-	stateRouter.go('valid.valid3')
+	t.end()
 })
 
-
-test('test queue with a basic activate-in-order test using the hash router', function(t) {
+test('test queue a state.go happening during a render', function(t) {
 	var state = getTestState(t)
 	var stateRouter = state.stateRouter
-	var hashRouter = state.hashRouter
+	t.plan(3)
 
-	var n = 0
-	function activate(x) {
-		return function () {
-			t.equal(x, n+=1, 'activation number ' + x)
-		}
-	}
-
-	t.plan(4)
-
-	stateRouter.addState({
-		name: 'valid',
-		route: '/valid',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 20)
-		},
-		activate: activate(1)
-	})
-
-	stateRouter.addState({
-		name: 'valid.valid1',
-		route: '/valid1',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 10)
-		},
-		activate: activate(2)
-	})
-
-	stateRouter.addState({
-		name: 'valid.valid2',
-		route: '/valid2',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 10)
-		},
-		activate: activate(3)
-	})
-
-	stateRouter.addState({
-		name: 'valid.valid3',
-		route: '/valid3',
-		template: {},
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 10)
-		},
-		activate: activate(4)
-	})
-
-	hashRouter.go('/valid/valid1')
-	hashRouter.go('/valid/valid2')
-	hashRouter.go('/valid/valid3')
-})
-
-
-test('test queue with an asserting renderer', function(t) {
-	var parentTemplate = {}
-	var child1Template = {}
-	var child2Template = {}
-	var child3Template = {}
 	var parentActivated = false
-	var child1Activated = false
-	var child2Activated = false
-	var child3Activated = false
-
-	var renderer = assertingRendererFactory(t, [
-		parentTemplate,
-		child1Template,
-		child2Template,
-		child3Template
-	])
-
-	var state = getTestState(t, renderer)
-	var stateRouter = state.stateRouter
-	var assertsBelow = 8
-	var renderAsserts = renderer.expectedAssertions
-	var n = 0
-
-	t.plan(assertsBelow + renderAsserts)
 
 	stateRouter.addState({
 		name: 'valid',
 		route: '/valid',
-		template: parentTemplate,
+		template: {},
 		resolve: function(data, params, cb) {
-			setTimeout(cb, 20)
+			setTimeout(cb, 100)
 		},
-		activate: function(context) {
-			t.notOk(parentActivated, 'parent activated once')
+		activate: function() {
+			t.notOk(parentActivated, 'Should only activate once')
 			parentActivated = true
-			t.equal(n+=1, 1, 'first thing activated')
 		}
 	})
 
 	stateRouter.addState({
 		name: 'valid.valid1',
 		route: '/valid1',
-		template: child1Template,
+		template: {},
 		resolve: function(data, params, cb) {
-			setTimeout(cb, 10)
+			t.pass('valid.valid1 resolve called')
+			setTimeout(cb, 100)
+			process.nextTick(function() {
+				stateRouter.go('valid.valid2')
+			})
 		},
-		activate: function(context) {
-			t.notOk(child1Activated, 'child1 activated once')
-			child1Activated = true
-			t.equal(n+=1, 2, 'second thing activated')
+		activate: function() {
+			t.fail('should not activate')
 		}
 	})
 
 	stateRouter.addState({
 		name: 'valid.valid2',
 		route: '/valid2',
-		template: child2Template,
+		template: {},
 		resolve: function(data, params, cb) {
-			setTimeout(cb, 10)
+			setTimeout(cb, 100)
 		},
-		activate: function(context) {
-			t.notOk(child2Activated, 'child2 activated once')
-			child2Activated = true
-			t.equal(n+=1, 3, 'third thing activated')
-		}
-	})
-
-	stateRouter.addState({
-		name: 'valid.valid3',
-		route: '/valid3',
-		template: child3Template,
-		resolve: function(data, params, cb) {
-			setTimeout(cb, 10)
-		},
-		activate: function(context) {
-			t.notOk(child3Activated, 'child3 activated once')
-			child3Activated = true
-			t.equal(n+=1, 4, 'fourth thing activated')
-
+		activate: function() {
+			t.pass('valid.valid2 activated')
 			t.end()
 		}
 	})
 
 	stateRouter.go('valid.valid1')
-	stateRouter.go('valid.valid2')
-	stateRouter.go('valid.valid3')
+})
 
-	setTimeout(function() {}, 1000)
+test('test queue a state.go when the last transition is in the middle of activating', function(t) {
+	var state = getTestState(t)
+	var stateRouter = state.stateRouter
+	t.plan(4)
+
+	var firstTimeParentHasBeenActivated = true
+	var valid2Activated = false
+
+	stateRouter.addState({
+		name: 'valid',
+		route: '/valid',
+		template: {},
+		resolve: function(data, params, cb) {
+			setTimeout(cb, 100)
+		},
+		activate: function() {
+			if (firstTimeParentHasBeenActivated) {
+				stateRouter.go('valid.valid2')
+				firstTimeParentHasBeenActivated = false
+			}
+		}
+	})
+
+	stateRouter.addState({
+		name: 'valid.valid1',
+		route: '/valid1',
+		template: {},
+		resolve: function(data, params, cb) {
+			t.pass('valid.valid1 resolve called')
+			setTimeout(cb, 100)
+		},
+		activate: function() {
+			t.notOk(valid2Activated, 'valid2 should not be activated yet')
+			t.pass('valid.valid1 should activate')
+		}
+	})
+
+	stateRouter.addState({
+		name: 'valid.valid2',
+		route: '/valid2',
+		template: {},
+		resolve: function(data, params, cb) {
+			setTimeout(cb, 50)
+		},
+		activate: function() {
+			valid2Activated = true
+			t.pass('valid.valid2 activated')
+			t.end()
+		}
+	})
+
+	stateRouter.go('valid.valid1')
 })

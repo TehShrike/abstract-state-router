@@ -97,7 +97,7 @@ test('bad defaults', function (t) {
 		}
 	})
 
-	stateRouter.on('error', function(e) {
+	stateRouter.on('stateChangeError', function(e) {
 		t.pass('Defaulting to a nonexistent state should cause an error to be emitted')
 		t.notEqual(e.message.indexOf('nonexistent'), -1, 'the invalid state name is in the error message')
 		t.end()

@@ -29,7 +29,7 @@ test('Emitting errors when attempting to navigate to invalid states', function(t
 				}
 			})
 
-			stateRouter.on('error', function(e) {
+			stateRouter.on('stateChangeError', function(e) {
 				t.notEqual(e.message.indexOf(invalidStateName), -1, 'invalid state name is in the error message')
 				t.end()
 			})
