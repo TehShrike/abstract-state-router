@@ -110,7 +110,23 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 	function attemptStateChange(newStateName, parameters) {
 		return prototypalStateHolder.guaranteeAllStatesExist(newStateName)
-		.then(emit('stateChangeStart', newStateName, parameters))
+		.then(function applyDefaultParameters() {
+			var state = prototypalStateHolder.get(newStateName)
+			var defaultParams = state.defaultQuerystringParameters || {}
+			var needToApplyDefaults = Object.keys(defaultParams).some(function missingParameterValue(param) {
+				return !parameters[param]
+			})
+
+			if (needToApplyDefaults) {
+				throw {
+					redirectTo: {
+						name: newStateName,
+						params: extend({}, defaultParams, parameters)
+					}
+				}
+			}
+
+		}).then(emit('stateChangeStart', newStateName, parameters))
 		.then(function getStateChanges() {
 
 			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
@@ -157,6 +173,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		}).then(function stateChangeComplete() {
 			current.set(newStateName, parameters)
 			stateProviderEmitter.emit('stateChangeEnd', newStateName, parameters)
+		}).catch(function(err) {
+			if (err && err.redirectTo) {
+				stateProviderEmitter.emit('stateChangeCancelled')
+				stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
+			} else {
+				throw err
+			}
 		}).catch(handleError)
 	}
 
@@ -177,6 +200,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
+
 		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
 	}
 
