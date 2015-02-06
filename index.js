@@ -121,12 +121,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			})
 
 			if (needToApplyDefaults) {
-				throw {
-					redirectTo: {
-						name: newStateName,
-						params: extend({}, defaultParams, parameters)
-					}
-				}
+				throw redirector(newStateName, extend({}, defaultParams, parameters))
 			}
 
 		}).then(ifNotCancelled(emit('stateChangeStart', newStateName, parameters)))
@@ -231,12 +226,31 @@ function getContentObject(stateResolveResultsObject, stateName) {
 	}, {})
 }
 
+function redirector(newStateName, parameters) {
+	return {
+		redirectTo: {
+			name: newStateName,
+			params: parameters
+		}
+	}
+}
+
 // { [stateName]: resolveResult }
 function resolveStates(states, parameters) {
 	var statesWithResolveFunctions = states.filter(isFunction('resolve'))
 	var stateNamesWithResolveFunctions = statesWithResolveFunctions.map(property('name'))
 	var resolves = Promise.all(statesWithResolveFunctions.map(function(state) {
-		return Promise.denodeify(state.resolve)(state.data, parameters)
+		return new Promise(function (resolve, reject) {
+			state.resolve(state.data, parameters, resolveCb, redirect)
+
+			function resolveCb(err, content) {
+				err ? reject(err) : resolve(content)
+			}
+
+			function redirect(newStateName, parameters) {
+				reject( redirector(newStateName, parameters) )
+			}
+		})
 	}))
 
 	return resolves.then(function(resolveResults) {
