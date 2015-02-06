@@ -50,8 +50,7 @@ test('default querystring parameters', function(tt) {
 test('race conditions on redirects', function(t) {
         var state = getTestState(t)
         var stateRouter = state.stateRouter
-        var firstStateActivated = false
-        t.plan(5)
+        t.plan(4)
 
         stateRouter.addState({
             name: 'state1',
@@ -62,7 +61,8 @@ test('race conditions on redirects', function(t) {
             activate: function(context) {
                 t.deepEqual({ wat: 'lol', much: 'neat' }, context.parameters)
                 t.equal(state.location.get(), '/state1?wat=lol&much=neat')
-                firstStateActivated = true
+
+                stateRouter.go('state2', { wat: 'waycool', much: 'awesome', hi: 'world' }) //does not redirect
             }
         })
 
@@ -73,14 +73,14 @@ test('race conditions on redirects', function(t) {
             querystringParameters: [ 'wat', 'much' ],
             defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
             activate: function(context) {
-            	t.ok(firstStateActivated, 'The other state was activated first')
                 t.deepEqual({ wat: 'waycool', much: 'awesome', hi: 'world' }, context.parameters)
                 t.equal(state.location.get(), '/state2?wat=waycool&much=awesome&hi=world')
+
                 t.end()
             }
         })
 
 
         stateRouter.go('state1', {}) //redirects
-        stateRouter.go('state2', { wat: 'waycool', much: 'awesome', hi: 'world' }) //does not redirect
+
 })

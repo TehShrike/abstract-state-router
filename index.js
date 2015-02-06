@@ -113,21 +113,19 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		.then(function applyDefaultParameters() {
 			var state = prototypalStateHolder.get(newStateName)
 			var defaultParams = state.defaultQuerystringParameters || {}
-			var needToApplyDefaults = Object.keys(defaultParams).reduce(function (memo, param) {
-				return memo || (!parameters[param])
-			}, false)
-			var params = extend({}, defaultParams, parameters)
-			//console.log('\t' + needToApplyDefaults + '  | ' + Object.keys(parameters).join(',') + ' -> ' + Object.keys(params).join(','))
+			var needToApplyDefaults = Object.keys(defaultParams).some(function missingParameterValue(param) {
+				return !parameters[param]
+			})
+
 			if (needToApplyDefaults) {
-				var err = {
+				throw {
 					redirectTo: {
 						name: newStateName,
-						params: params
+						params: extend({}, defaultParams, parameters)
 					}
 				}
-				throw err
 			}
-			return true
+
 		}).then(emit('stateChangeStart', newStateName, parameters))
 		.then(function getStateChanges() {
 
@@ -202,7 +200,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
-		getDestinationUrl(newStateName, parameters).then(function(a) { console.log('going to', a) })
+
 		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
 	}
 
