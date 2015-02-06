@@ -119,10 +119,11 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			var params = extend({}, defaultParams, parameters)
 			//console.log('\t' + needToApplyDefaults + '  | ' + Object.keys(parameters).join(',') + ' -> ' + Object.keys(params).join(','))
 			if (needToApplyDefaults) {
-				var err = new Error('redirect')
-				err.redirectTo = {
-					name: newStateName,
-					params: params
+				var err = {
+					redirectTo: {
+						name: newStateName,
+						params: params
+					}
 				}
 				throw err
 			}
@@ -201,6 +202,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
+		getDestinationUrl(newStateName, parameters).then(function(a) { console.log('going to', a) })
 		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError)
 	}
 
