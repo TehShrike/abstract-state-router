@@ -87,11 +87,8 @@ If a state change is triggered during a state transition, it is queued and appli
 # TODO
 
 - states that are "change"ing should have reset called in the renderer, and destroy/activate called on the context, but they should NOT be destroyed in the DOM.
-- optional default parameter values for each state
-- the ability to set an "error" state to go to on errors
 - "redirect somewhere else instead" function in the resolve
-- test having multiple states call replace
-- abstract states that can not be activated without a child state being active (default child states count)
+- the ability to set an "error" state to go to on errors
 
 License
 ======
