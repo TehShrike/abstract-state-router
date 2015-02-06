@@ -77,8 +77,6 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			attemptStateChange(fullStateName, parameters, transition)
 		}
 
-		console.log('route changed', state.name)
-
 		stateProviderEmitter.emit('stateChangeAttempt', stateGo)
 	}
 
