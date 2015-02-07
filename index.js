@@ -202,11 +202,9 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function getDestinationUrl(stateName, parameters) {
-		return new Promise(function(resolve, reject) {
-			resolve(prototypalStateHolder.guaranteeAllStatesExist(stateName).then(function() {
-				var route = prototypalStateHolder.buildFullStateRoute(stateName)
-				return buildPath(route, parameters || {})
-			}))
+		return prototypalStateHolder.guaranteeAllStatesExist(stateName).then(function() {
+			var route = prototypalStateHolder.buildFullStateRoute(stateName)
+			return buildPath(route, parameters || {})
 		})
 	}
 
