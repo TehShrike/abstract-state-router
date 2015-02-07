@@ -97,3 +97,62 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 		})
 	})
 })
+
+test('a state with changing querystring gets destroyed', function(t) {
+	var state = getTestState(t)
+	var stateRouter = state.stateRouter
+	var parentResolveCalled = 0
+	var parentActivated = 0
+	var parentDestroyed = 0
+	var child1Destroyed = 0
+
+	t.plan(5)
+
+	stateRouter.addState({
+		name: 'parent',
+		route: '/parent',
+		querystringParameters: ['aParam'],
+		resolve: function(data, parameters, cb) {
+			parentResolveCalled++
+			if (parentResolveCalled === 2) {
+				t.equal(parameters.aParam, '3', 'parameter was set correctly in second resolve')
+			}
+
+			cb(null, {})
+		},
+		activate: function(context) {
+			parentActivated++
+			context.on('destroy', function() {
+				parentDestroyed++
+			})
+		}
+	})
+
+	stateRouter.addState({
+		name: 'parent.child1',
+		route: '/child1',
+		activate: function(context) {
+			context.on('destroy', function() {
+				child1Destroyed++
+			})
+
+			stateRouter.go('parent.child2', {
+				aParam: '3'
+			})
+		}
+	})
+
+	stateRouter.addState({
+		name: 'parent.child2',
+		route: '/child2',
+		activate: function(context) {
+			t.equal(parentResolveCalled, 2, 'parent resolve called twice')
+			t.equal(parentActivated, 2, 'parent activated twice')
+			t.equal(child1Destroyed, 1, 'child1 destroyed once')
+			t.equal(parentDestroyed, 1, 'parent destroyed once')
+			t.end()
+		}
+	})
+
+	stateRouter.go('parent.child1')
+})
