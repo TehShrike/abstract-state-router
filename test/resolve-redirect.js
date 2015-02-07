@@ -14,7 +14,7 @@ test('test redirector chain', function(t) {
 			name: 'valid',
 			route: '/valid',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
+			resolve: function(data, params, cb) {
 				setTimeout(cb, 50)
 			},
 			activate: function() {
@@ -27,8 +27,8 @@ test('test redirector chain', function(t) {
 			name: 'valid.valid1',
 			route: '/valid1',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
-				setTimeout(redirect, 100, 'valid.valid2')
+			resolve: function(data, params, cb) {
+				setTimeout(cb.redirect, 100, 'valid.valid2')
 			},
 			activate: function() {
 				t.fail('should not activate')
@@ -39,8 +39,8 @@ test('test redirector chain', function(t) {
 			name: 'valid.valid2',
 			route: '/valid2',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
-				setTimeout(redirect, 100, 'valid.valid3')
+			resolve: function(data, params, cb) {
+				setTimeout(cb.redirect, 100, 'valid.valid3')
 			},
 			activate: function() {
 				t.fail('should not activate')
@@ -51,7 +51,7 @@ test('test redirector chain', function(t) {
 			name: 'valid.valid3',
 			route: '/valid3',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
+			resolve: function(data, params, cb) {
 				setTimeout(cb, 100)
 			},
 			activate: function() {
@@ -93,7 +93,7 @@ test('test redirector chain', function(t) {
 			name: 'valid',
 			route: '/valid',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
+			resolve: function(data, params, cb) {
 				setTimeout(cb, 50)
 			},
 			activate: function() {}
@@ -103,9 +103,9 @@ test('test redirector chain', function(t) {
 			name: 'valid.valid1',
 			route: '/valid1',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
-				redirect('valid.valid3')
-				redirect('valid.valid2')
+			resolve: function(data, params, cb) {
+				cb.redirect('valid.valid3')
+				cb.redirect('valid.valid2')
 			},
 			activate: function() {
 				t.fail('should not activate')
@@ -116,7 +116,7 @@ test('test redirector chain', function(t) {
 			name: 'valid.valid2',
 			route: '/valid2',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
+			resolve: function(data, params, cb) {
 				setTimeout(cb, 100, null)
 			},
 			activate: function() {
@@ -128,7 +128,7 @@ test('test redirector chain', function(t) {
 			name: 'valid.valid3',
 			route: '/valid3',
 			template: {},
-			resolve: function(data, params, cb, redirect) {
+			resolve: function(data, params, cb) {
 				setTimeout(cb, 100)
 			},
 			activate: function() {

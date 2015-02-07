@@ -36,13 +36,13 @@ The addState function takes a single object of options.
 
 `querystringParameters` is an array of query string parameters that will be watched by this state.
 
-## resolve(data, parameters, callback(err, content), redirectCallback(stateName, params))
+## resolve(data, parameters, callback(err, content).redirect(stateName, params))
 
 The first argument is the data object you passed to the addState call.  The second argument is an object containing the parameters that were parsed out of the route params and the query string.
 
 If you call `callback(err, content)` with a truthy err value, the state change will be cancelled and the previous state will remain active.
 
-If you call `redirectCallback(stateName, params)`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
+If you call `callback.redirect(stateName, params)`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
 
 ## activate(context)
 
