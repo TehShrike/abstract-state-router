@@ -54,7 +54,7 @@ module.exports = function StateState() {
 			if (route && route[route.length - 1] !== '/' && state.route[0] !== '/') {
 				route = route + '/'
 			}
-			return route + state.route
+			return route + (state.route || '')
 		}, '')
 	}
 

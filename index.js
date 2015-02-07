@@ -44,6 +44,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		})
 	}
 
+	function resetStateName(stateName) {
+		activeEmitters[stateName]('destroy')
+		delete activeEmitters[stateName]
+		delete activeStateResolveContent[stateName]
+		return resetDom(activeDomApis[stateName])
+	}
+
 	function getChildElementForStateName(stateName) {
 		return new Promise(function(resolve) {
 			var parent = prototypalStateHolder.getParent(stateName)
@@ -145,6 +152,8 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 				extend(activeStateResolveContent, stateResolveResultsObject)
 
 				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
+					return series(reverse(stateChanges.change), resetStateName)
+				}).then(function() {
 					return renderAll(stateChanges.create).then(activateAll)
 				})
 			}))
@@ -193,11 +202,9 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function getDestinationUrl(stateName, parameters) {
-		return new Promise(function(resolve, reject) {
-			resolve(prototypalStateHolder.guaranteeAllStatesExist(stateName).then(function() {
-				var route = prototypalStateHolder.buildFullStateRoute(stateName)
-				return buildPath(route, parameters || {})
-			}))
+		return prototypalStateHolder.guaranteeAllStatesExist(stateName).then(function() {
+			var route = prototypalStateHolder.buildFullStateRoute(stateName)
+			return buildPath(route, parameters || {})
 		})
 	}
 
