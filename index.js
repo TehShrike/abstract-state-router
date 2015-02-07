@@ -241,14 +241,17 @@ function resolveStates(states, parameters) {
 	var stateNamesWithResolveFunctions = statesWithResolveFunctions.map(property('name'))
 	var resolves = Promise.all(statesWithResolveFunctions.map(function(state) {
 		return new Promise(function (resolve, reject) {
-			state.resolve(state.data, parameters, resolveCb, redirect)
-
 			function resolveCb(err, content) {
 				err ? reject(err) : resolve(content)
 			}
 
-			function redirect(newStateName, parameters) {
-				reject( redirector(newStateName, parameters) )
+			resolveCb.redirect = function redirect(newStateName, parameters) {
+				reject(redirector(newStateName, parameters))
+			}
+
+			var res = state.resolve(state.data, parameters, resolveCb)
+			if (res && (typeof res === 'object' || typeof res === 'function') && typeof res.then === 'function') {
+			  resolve(res)
 			}
 		})
 	}))
