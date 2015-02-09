@@ -65,6 +65,10 @@ The options object currently supports just one option "replace" - if it is truth
 
 If a state change is triggered during a state transition, it is queued and applied once the current state change is done.
 
+# stateRouter.evaluateCurrentRoute(defaultRoute, defaultParameters)
+
+You'll want to call this once you've added all your initial states.  It causes the current path to be evaluated, and will activate the current state.  If the current path doesn't match the route of any available states, the browser gets sent to the default route provided.
+
 # State change flow
 
 - emit StateChangeStart

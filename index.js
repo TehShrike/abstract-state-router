@@ -30,9 +30,10 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	var activeEmitters = {}
 
 	function handleError(event, err) {
-		if (!stateProviderEmitter.emit(event, err)) {
+		process.nextTick(function() {
+			stateProviderEmitter.emit(event, err)
 			console.error(err)
-		}
+		})
 	}
 
 	function destroyStateName(stateName) {
@@ -218,6 +219,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
 
 		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
+	}
+	stateProviderEmitter.evaluateCurrentRoute = function evaluateCurrentRoute(defaultRoute, defaultParams) {
+		return getDestinationUrl(defaultRoute, defaultParams).then(function(defaultPath) {
+			hashRouter.evaluateCurrent(defaultPath)
+		}).catch(function(err) {
+			handleError('error', err)
+		})
 	}
 
 	return stateProviderEmitter
