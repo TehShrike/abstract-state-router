@@ -26,7 +26,7 @@ The addState function takes a single object of options.
 
 `defaultChild` is a string (or a function that returns a string) of the default child's name. If you attempt to go directly to a state that has a default child, you will be directed to the default child. (E.g. if 'contacts' has the defaultChild 'list', then doing `state.go('contacts')` will actually do `state.go('contacts.list')`.)
 
-`data` is an object that can hold whatever you want - it will be passed in to the resolve and callback functions.
+`data` is an object that can hold whatever you want - it will be passed in to the resolve and activate functions.
 
 `template` is a template string/object/whatever to be interpreted by the render function.
 
@@ -53,9 +53,54 @@ The activate function is called when the state becomes active.  It is passed an 
 - `parameters`: the route/querystring parameters
 - `content`: the object passed into the resolveFunction's callback
 
-###events
+### events
 
 - 'destroy': emitted when the state is destroyed
+
+```js
+stateRouter.addState({
+	name: 'app',
+	data: {},
+	route: '/app',
+	template: '',
+	defaultChild: 'tab1',
+	resolve: function(data, parameters, cb) {
+		// Sync or asnyc stuff; just call the callback when you're done
+		isLoggedIn(function(err, isLoggedIn) {
+			cb(err, isLoggedIn)
+		})
+	}, activate: function(context) {
+		// Normally, you would set data in your favorite view library
+		var isLoggedIn = context.content
+		var ele = document.getElementById('status')
+		ele.innerText = isLoggedIn ? 'Logged In!' : 'Logged Out!'
+	}
+})
+
+stateRouter.addState({
+	name: 'app.tab1',
+	data: {},
+	route: '/tab_1',
+	template: '',
+	resolve: function(data, parameters, cb) {
+		getTab1Data(cb)
+	}, activate: function(context) {
+		document.getElementById('tab').innerText = context.content
+	}
+})
+
+stateRouter.addState({
+	name: 'app.tab2',
+	data: {},
+	route: '/tab_2',
+	template: '',
+	resolve: function(data, parameters, cb) {
+		getTab2Data(cb)
+	}, activate: function(context) {
+		document.getElementById('tab').innerText = context.content
+	}
+})
+```
 
 # stateRouter.go(stateName, [parameters, [options]])
 
@@ -63,11 +108,20 @@ Browses to the given state, with the current parameters.  Changes the url to mat
 
 The options object currently supports just one option "replace" - if it is truthy, the current state is replaced in the url history.
 
-If a state change is triggered during a state transition, it is queued and applied once the current state change is done.
+If a state change is triggered during a state transition, and the DOM hasn't been manipulated yet, then the current state change is discarded, and the new one replaces it. Otherwise, it is queued and applied once the current state change is done.
 
-# stateRouter.evaluateCurrentRoute(defaultRoute, defaultParameters)
+```js
+stateRouter.go('app')
+// This actually redirects to app.tab1, because the app state has the default child: 'tab1'
+```
 
-You'll want to call this once you've added all your initial states.  It causes the current path to be evaluated, and will activate the current state.  If the current path doesn't match the route of any available states, the browser gets sent to the default route provided.
+# stateRouter.evaluateCurrentRoute(fallbackRoute, [fallbackParameters])
+
+You'll want to call this once you've added all your initial states.  It causes the current path to be evaluated, and will activate the current state.  If the current path doesn't match the route of any available states, the browser gets sent to the fallback route provided.
+
+```js
+stateRouter.evaluateCurrentRoute('app.tab2')
+```
 
 # State change flow
 
@@ -77,7 +131,7 @@ You'll want to call this once you've added all your initial states.  It causes t
 - **NO LONGER AT PREVIOUS STATE**
 - destroy the contexts of all "destroy" and "change" states
 - destroy appropriate dom elements
-- reset "change"ing dom elements - still needs implemented
+- reset "change"ing dom elements
 - call render functions for "create"ed states
 - call all activate functions
 - emit StateChangeEnd
