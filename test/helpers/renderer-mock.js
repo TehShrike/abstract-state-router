@@ -36,5 +36,6 @@ module.exports = {
 		setTimeout(function() {
 			cb(null, renderedTemplateApi.getChildElement('ui-view'))
 		}, 100)
-	}
+	},
+	setUpMakePathFunction: function noop() {}
 }

@@ -120,7 +120,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			}
 		}
 
-		return prototypalStateHolder.guaranteeAllStatesExist(newStateName)
+		return promiseMe(prototypalStateHolder.guaranteeAllStatesExist, newStateName)
 		.then(function applyDefaultParameters() {
 			var state = prototypalStateHolder.get(newStateName)
 			var defaultParams = state.defaultQuerystringParameters || {}
@@ -202,11 +202,10 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		})
 	}
 
-	function getDestinationUrl(stateName, parameters) {
-		return prototypalStateHolder.guaranteeAllStatesExist(stateName).then(function() {
-			var route = prototypalStateHolder.buildFullStateRoute(stateName)
-			return buildPath(route, parameters || {})
-		})
+	function makePath(stateName, parameters) {
+		prototypalStateHolder.guaranteeAllStatesExist(stateName)
+		var route = prototypalStateHolder.buildFullStateRoute(stateName)
+		return buildPath(route, parameters || {})
 	}
 
 	var defaultOptions = {
@@ -218,14 +217,25 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		options = extend({}, defaultOptions, options)
 		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
 
-		return getDestinationUrl(newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
+		return promiseMe(makePath, newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
 	}
 	stateProviderEmitter.evaluateCurrentRoute = function evaluateCurrentRoute(defaultRoute, defaultParams) {
-		return getDestinationUrl(defaultRoute, defaultParams).then(function(defaultPath) {
+		return promiseMe(makePath, defaultRoute, defaultParams).then(function(defaultPath) {
 			hashRouter.evaluateCurrent(defaultPath)
 		}).catch(function(err) {
 			handleError('error', err)
 		})
+	}
+	stateProviderEmitter.makePath = function makePathAndPrependHash(stateName, parameters) {
+		try {
+			return '#' + makePath(stateName, parameters)
+		} catch (err) {
+			console.error(err)
+		}
+	}
+
+	if (renderer.setUpMakePathFunction) {
+		renderer.setUpMakePathFunction(stateProviderEmitter.makePath)
 	}
 
 	return stateProviderEmitter
@@ -296,4 +306,12 @@ function isFunction(property) {
 	return function(obj) {
 		return typeof obj[property] === 'function'
 	}
+}
+
+function promiseMe() {
+	var fn = Array.prototype.shift.apply(arguments)
+	var args = arguments
+	return new Promise(function(resolve) {
+		resolve(fn.apply(null, args))
+	})
 }

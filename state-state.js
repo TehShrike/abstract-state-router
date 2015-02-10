@@ -1,5 +1,4 @@
 var stateStringParser = require('./state-string-parser')
-var Promise = require('promise')
 var parse = require('./state-string-parser')
 
 module.exports = function StateState() {
@@ -35,18 +34,14 @@ module.exports = function StateState() {
 	}
 
 	function guaranteeAllStatesExist(newStateName) {
-		return new Promise(function(resolve) {
-			var stateNames = parse(newStateName)
-			var statesThatDontExist = stateNames.filter(function(name) {
-				return !states[name]
-			})
-
-			if (statesThatDontExist.length > 0) {
-				throw new Error('State ' + statesThatDontExist[statesThatDontExist.length - 1] + ' does not exist')
-			}
-
-			resolve()
+		var stateNames = parse(newStateName)
+		var statesThatDontExist = stateNames.filter(function(name) {
+			return !states[name]
 		})
+
+		if (statesThatDontExist.length > 0) {
+			throw new Error('State ' + statesThatDontExist[statesThatDontExist.length - 1] + ' does not exist')
+		}
 	}
 
 	function buildFullStateRoute(stateName) {
