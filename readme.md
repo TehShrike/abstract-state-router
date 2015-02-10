@@ -10,11 +10,11 @@ var createStateRouter = require('abstract-state-router')
 var stateRouter = createStateRouter(renderer, rootElement, router)
 ```
 
-The renderer should be an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
+The `renderer` should be an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
 
-The rootElement is the element where the first-generation states will be created.
+The `rootElement` is the element where the first-generation states will be created.
 
-router defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  It's an optional argument for the purpose of passing in a mock for unit tests.
+`router` defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  It's an optional argument for the purpose of passing in a mock for unit tests.
 
 # stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters})
 
