@@ -63,16 +63,16 @@ stateRouter.addState({
 	data: {},
 	route: '/app',
 	template: '',
-    defaultChild: 'tab1',
+	defaultChild: 'tab1',
 	resolve: function(data, parameters, cb) {
-        // Sync or asnyc stuff; just call the callback when you're done
-        isLoggedIn(function(err, isLoggedIn) {
-            cb(err, isLoggedIn)
-        })
-    }, activate: function(context) {
-        // Normally, you would set data in your favorite view library
-        var isLoggedIn = context.content
-        var ele = document.getElementById('status')
+		// Sync or asnyc stuff; just call the callback when you're done
+		isLoggedIn(function(err, isLoggedIn) {
+			cb(err, isLoggedIn)
+		})
+	}, activate: function(context) {
+		// Normally, you would set data in your favorite view library
+		var isLoggedIn = context.content
+		var ele = document.getElementById('status')
 		ele.innerText = isLoggedIn ? 'Logged In!' : 'Logged Out!'
 	}
 })
@@ -83,9 +83,9 @@ stateRouter.addState({
 	route: '/tab_1',
 	template: '',
 	resolve: function(data, parameters, cb) {
-        getTab1Data(cb)
-    }, activate: function(context) {
-        document.getElementById('tab').innerText = context.content
+		getTab1Data(cb)
+	}, activate: function(context) {
+		document.getElementById('tab').innerText = context.content
 	}
 })
 
@@ -95,9 +95,9 @@ stateRouter.addState({
 	route: '/tab_2',
 	template: '',
 	resolve: function(data, parameters, cb) {
-        getTab2Data(cb)
-    }, activate: function(context) {
-        document.getElementById('tab').innerText = context.content
+		getTab2Data(cb)
+	}, activate: function(context) {
+		document.getElementById('tab').innerText = context.content
 	}
 })
 ```
