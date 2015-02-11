@@ -18,9 +18,9 @@ router defaults to an instance of a [hash brown router](https://github.com/TehSh
 
 # stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters})
 
-The addState function takes a single object of options.
+The addState function takes a single object of options. All of them are optional, unless stated otherwise.
 
-`name` is parsed in the same way as ui-router's [dot notation](https://github.com/angular-ui/ui-router/wiki/Nested-States-%26-Nested-Views#dot-notation), so 'contacts.list' is a child state of 'contacts'.
+`name` is parsed in the same way as ui-router's [dot notation](https://github.com/angular-ui/ui-router/wiki/Nested-States-%26-Nested-Views#dot-notation), so 'contacts.list' is a child state of 'contacts'. **Required.**
 
 `route` is an express-style url string that is parsed with a fork of [path-to-regexp](https://github.com/pillarjs/path-to-regexp).  If the state is a child state, this route string will be concatenated to the route string of its parent (e.g. if 'contacts' state has route ':user/contacts' and 'contacts.list' has a route of '/list', you could visit the child state by browsing to '/tehshrike/contacts/list').
 
@@ -28,7 +28,7 @@ The addState function takes a single object of options.
 
 `data` is an object that can hold whatever you want - it will be passed in to the resolve and activate functions.
 
-`template` is a template string/object/whatever to be interpreted by the render function.
+`template` is a template string/object/whatever to be interpreted by the render function. **Required.**
 
 `resolve` is a function called when the selected state begins to be transitioned to, allowing you to accomplish the same objective as you would with ui-router's [resolve](https://github.com/angular-ui/ui-router/wiki#resolve).
 

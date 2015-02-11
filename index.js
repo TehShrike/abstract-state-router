@@ -89,6 +89,13 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function addState(state) {
+		if (typeof state === 'undefined') {
+			throw new Error('Expected \'state\' to be passed in.')
+		} else if (typeof state.name === 'undefined') {
+			throw new Error('Expected the \'name\' option to be passed in.')
+		} else if (typeof state.template === 'undefined') {
+			throw new Error('Expected the \'template\' option to be passed in.')
+		}
 		prototypalStateHolder.add(state.name, state)
 
 		var route = prototypalStateHolder.buildFullStateRoute(state.name)
@@ -173,7 +180,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 					}
 
 					try {
-						state.activate(context)
+						state.activate && state.activate(context)
 					} catch (e) {
 						console.error(e)
 					}

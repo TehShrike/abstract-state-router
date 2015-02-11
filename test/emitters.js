@@ -16,6 +16,7 @@ test('Emitting errors when attempting to navigate to invalid states', function(t
 			stateRouter.addState({
 				name: 'valid',
 				route: '/valid',
+				template: null,
 				activate: function(context) {
 					t.fail('Should never activate the parent\'s state')
 				}
@@ -24,6 +25,7 @@ test('Emitting errors when attempting to navigate to invalid states', function(t
 			stateRouter.addState({
 				name: 'valid.valid',
 				route: '/valid',
+				template: null,
 				activate: function(context) {
 					t.fail('Should never activate the child\'s state')
 				}
