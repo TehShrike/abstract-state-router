@@ -111,6 +111,7 @@ test('a state with changing querystring gets destroyed', function(t) {
 	stateRouter.addState({
 		name: 'parent',
 		route: '/parent',
+		template: null,
 		querystringParameters: ['aParam'],
 		resolve: function(data, parameters, cb) {
 			parentResolveCalled++
@@ -131,6 +132,7 @@ test('a state with changing querystring gets destroyed', function(t) {
 	stateRouter.addState({
 		name: 'parent.child1',
 		route: '/child1',
+		template: null,
 		activate: function(context) {
 			context.on('destroy', function() {
 				child1Destroyed++
@@ -145,6 +147,7 @@ test('a state with changing querystring gets destroyed', function(t) {
 	stateRouter.addState({
 		name: 'parent.child2',
 		route: '/child2',
+		template: null,
 		activate: function(context) {
 			t.equal(parentResolveCalled, 2, 'parent resolve called twice')
 			t.equal(parentActivated, 2, 'parent activated twice')
