@@ -283,7 +283,7 @@ function resolveStates(states, parameters) {
 
 			var res = state.resolve(state.data, parameters, resolveCb)
 			if (res && (typeof res === 'object' || typeof res === 'function') && typeof res.then === 'function') {
-			  resolve(res)
+				resolve(res)
 			}
 		})
 	}))
