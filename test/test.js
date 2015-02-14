@@ -244,3 +244,71 @@ test('normal, error-less state activation flow for two states', function(t) {
 
 	stateRouter.go('parent.child1', { wat: 'some value' })
 })
+
+test('makePath', function(t) {
+	var stateRouter = getTestState(t).stateRouter
+
+	t.plan(2)
+
+	stateRouter.addState({
+		name: 'parent',
+		template: '',
+		route: '/parent',
+	})
+
+	stateRouter.addState({
+		name: 'parent.child1',
+		template: '',
+		route: '/child1',
+	})
+
+	stateRouter.addState({
+		name: 'parent.child2',
+		template: '',
+		route: '/child2',
+	})
+
+	t.equal('#/parent/child1?param=value', stateRouter.makePath('parent.child1', { param: 'value' }))
+
+	stateRouter.once('error', function(e) {
+		t.notEqual(e.message.indexOf('doesnotexist'), -1, 'error message contains the non-existant state name')
+	})
+
+	stateRouter.makePath('parent.doesnotexist')
+})
+
+test('stateIsActive', function(t) {
+	var stateRouter = getTestState(t).stateRouter
+
+	t.plan(4)
+
+	stateRouter.addState({
+		name: 'parent',
+		template: '',
+		route: '/parent',
+	})
+
+	stateRouter.addState({
+		name: 'parent.child1',
+		template: '',
+		route: '/child1'
+	})
+
+	stateRouter.addState({
+		name: 'parent.child2',
+		template: '',
+		route: '/child2',
+	})
+
+	stateRouter.on('stateChangeEnd', function() {
+		t.ok(stateRouter.stateIsActive('parent'), 'parent is active')
+		t.ok(stateRouter.stateIsActive('parent.child1'), 'parent.child1 is active')
+		t.notOk(stateRouter.stateIsActive('parent.child2'), 'parent.child2 is not active')
+		t.notOk(stateRouter.stateIsActive('not a real state'), 'non-existant state is not active')
+
+		t.end()
+	})
+
+	stateRouter.go('parent.child1')
+})
+
