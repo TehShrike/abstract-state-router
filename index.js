@@ -138,9 +138,10 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 			if (needToApplyDefaults) {
 				throw redirector(newStateName, extend({}, defaultParams, parameters))
 			}
-
-		}).then(ifNotCancelled(emit('stateChangeStart', newStateName, parameters)))
-		.then(function getStateChanges() {
+			return state
+		}).then(ifNotCancelled(function(state) {
+			stateProviderEmitter.emit('stateChangeStart', state, parameters)
+		})).then(function getStateChanges() {
 
 			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
 			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
@@ -189,7 +190,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		})).then(function stateChangeComplete() {
 			current.set(newStateName, parameters)
 			try {
-				stateProviderEmitter.emit('stateChangeEnd', newStateName, parameters)
+				stateProviderEmitter.emit('stateChangeEnd', prototypalStateHolder.get(newStateName), parameters)
 			} catch (e) {
 				handleError('error', e)
 			}

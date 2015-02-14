@@ -100,8 +100,8 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 		}
 	})
 
-	stateRouter.once('stateChangeStart', function(name, properties) {
-		t.equal(name, 'valid1.valid')
+	stateRouter.once('stateChangeStart', function(state, properties) {
+		t.equal(state.name, 'valid1.valid')
 		t.deepEqual(properties, firstProperties)
 		t.notOk(firstParentActivate)
 		t.notOk(firstChildActivate)
@@ -109,16 +109,16 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 		t.notOk(secondChildActivate)
 	})
 
-	stateRouter.once('stateChangeEnd', function(name, properties) {
-		t.equal(name, 'valid1.valid')
+	stateRouter.once('stateChangeEnd', function(state, properties) {
+		t.equal(state.name, 'valid1.valid')
 		t.deepEqual(properties, firstProperties)
 		t.ok(firstParentActivate)
 		t.ok(firstChildActivate)
 		t.notOk(secondParentActivate)
 		t.notOk(secondChildActivate)
 
-		stateRouter.once('stateChangeStart', function(name, properties) {
-			t.equal(name, 'valid2.valid')
+		stateRouter.once('stateChangeStart', function(state, properties) {
+			t.equal(state.name, 'valid2.valid')
 			t.deepEqual(properties, secondProperties)
 			t.ok(firstParentActivate)
 			t.ok(firstChildActivate)
@@ -126,8 +126,8 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 			t.notOk(secondChildActivate)
 		})
 
-		stateRouter.once('stateChangeEnd', function(name, properties) {
-			t.equal(name, 'valid2.valid')
+		stateRouter.once('stateChangeEnd', function(state, properties) {
+			t.equal(state.name, 'valid2.valid')
 			t.deepEqual(properties, secondProperties)
 			t.ok(firstParentActivate)
 			t.ok(firstChildActivate)
