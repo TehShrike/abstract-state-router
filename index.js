@@ -237,12 +237,18 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		try {
 			return '#' + makePath(stateName, parameters)
 		} catch (err) {
-			console.error(err)
+			handleError('error', err)
 		}
+	}
+	stateProviderEmitter.stateIsActive = function stateIsActive(stateName) {
+		return current.get().name.indexOf(stateName) === 0
 	}
 
 	if (renderer.setUpMakePathFunction) {
 		renderer.setUpMakePathFunction(stateProviderEmitter.makePath)
+	}
+	if (renderer.setUpStateIsActiveFunction) {
+		renderer.setUpStateIsActiveFunction(stateProviderEmitter.stateIsActive)
 	}
 
 	return stateProviderEmitter
