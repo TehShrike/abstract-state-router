@@ -270,11 +270,11 @@ test('makePath', function(t) {
 
 	t.equal('#/parent/child1?param=value', stateRouter.makePath('parent.child1', { param: 'value' }))
 
-	stateRouter.once('error', function(e) {
-		t.notEqual(e.message.indexOf('doesnotexist'), -1, 'error message contains the non-existant state name')
-	})
+	t.throws(function() {
+		stateRouter.makePath('parent.doesnotexist')
+	}, /doesnotexist/)
 
-	stateRouter.makePath('parent.doesnotexist')
+	t.end()
 })
 
 test('stateIsActive', function(t) {

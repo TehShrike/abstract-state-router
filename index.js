@@ -234,11 +234,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		})
 	}
 	stateProviderEmitter.makePath = function makePathAndPrependHash(stateName, parameters) {
-		try {
-			return '#' + makePath(stateName, parameters)
-		} catch (err) {
-			handleError('error', err)
-		}
+		return '#' + makePath(stateName, parameters)
 	}
 	stateProviderEmitter.stateIsActive = function stateIsActive(stateName) {
 		return current.get().name.indexOf(stateName) === 0
