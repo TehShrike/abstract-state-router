@@ -1,14 +1,37 @@
 var stateStringParser = require('./state-string-parser')
 var combine = require('combine-arrays')
+var pathToRegexp = require('path-to-regexp-with-reversible-keys')
 
 module.exports = function StateComparison(stateState) {
-	var parametersChanged = parametersThatMatterWereChanged.bind(null, stateState)
+	var getPathParameters = pathParameters()
+
+	var parametersChanged = parametersThatMatterWereChanged.bind(null, stateState, getPathParameters)
 
 	return stateComparison.bind(null, parametersChanged)
 }
 
-function parametersThatMatterWereChanged(stateState, stateName, fromParameters, toParameters) {
-	var parameters = stateState.get(stateName).querystringParameters
+function pathParameters() {
+	var parameters = {}
+
+	return function getPathParameters(path) {
+		if (!path) {
+			return []
+		}
+
+		if (!parameters[path]) {
+			parameters[path] = pathToRegexp(path).keys.map(function(key) {
+				return key.name
+			})
+		}
+
+		return parameters[path]
+	}
+}
+
+function parametersThatMatterWereChanged(stateState, getPathParameters, stateName, fromParameters, toParameters) {
+	var state = stateState.get(stateName)
+	var querystringParameters = state.querystringParameters || []
+	var parameters = getPathParameters(state.route).concat(querystringParameters)
 
 	return Array.isArray(parameters) && parameters.some(function(key) {
 		return fromParameters[key] !== toParameters[key]

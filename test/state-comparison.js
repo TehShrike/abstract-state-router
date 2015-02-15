@@ -2,10 +2,11 @@ var test = require('tape')
 var StateState = require('../state-state.js')
 var stateComparison = require('../state-comparison.js')
 
-function simpleState(name, querystringParameters) {
+function simpleState(name, querystringParameters, route) {
 	return {
 		name: name,
-		querystringParameters: querystringParameters
+		querystringParameters: querystringParameters,
+		route: route || ''
 	}
 }
 
@@ -13,7 +14,7 @@ function setup() {
 	var stateContainer = new StateState()
 	var states = [
 		simpleState('app', ['appParam1']),
-		simpleState('app.main', ['main1']),
+		simpleState('app.main', ['main1'], '/:routeParam'),
 		simpleState('app.main.tab1', ['main1', 'main2']),
 		simpleState('app.main.tab2', ['main2', 'main3']),
 		simpleState('login'),
@@ -220,6 +221,29 @@ test('changing from app.main.tab1 to just main', function(t) {
 		nameBefore: 'app.main.tab1',
 		nameAfter: undefined
 	}], results)
+
+	t.end()
+})
+
+test('changing states by modifying only a route parameter', function(t) {
+	var compare = setup()
+
+	var expected = [{
+		stateNameChanged: false,
+		stateParametersChanged: false,
+		nameBefore: 'app',
+		nameAfter: 'app'
+	}, {
+		stateNameChanged: false,
+		stateParametersChanged: true,
+		nameBefore: 'app.main',
+		nameAfter: 'app.main'
+	}]
+
+	compareAllElements(t, expected, compare('app.main', { main1: 'nothing' }, 'app.main', { main1: 'nothing', routeParam: 'something-new' }))
+
+	compareAllElements(t, expected, compare('app.main', { routeParam: 'something' }, 'app.main', { routeParam: 'something-new' }))
+
 
 	t.end()
 })
