@@ -247,6 +247,9 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	if (renderer.setUpStateIsActiveFunction) {
 		renderer.setUpStateIsActiveFunction(stateProviderEmitter.stateIsActive)
 	}
+	if (renderer.handleStateRouter) {
+		renderer.handleStateRouter(stateProviderEmitter)
+	}
 
 	return stateProviderEmitter
 }
