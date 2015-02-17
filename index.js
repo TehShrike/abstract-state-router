@@ -37,7 +37,8 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function destroyStateName(stateName) {
-		activeEmitters[stateName]('destroy')
+		activeEmitters[stateName].emit('destroy')
+		activeEmitters[stateName].removeAllListeners()
 		delete activeEmitters[stateName]
 		delete activeStateResolveContent[stateName]
 		return destroyDom(activeDomApis[stateName]).then(function() {
@@ -46,7 +47,7 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function resetStateName(stateName) {
-		activeEmitters[stateName]('destroy')
+		activeEmitters[stateName].emit('destroy')
 		delete activeEmitters[stateName]
 		delete activeStateResolveContent[stateName]
 		return resetDom(activeDomApis[stateName])
@@ -169,16 +170,15 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 
 			function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
-					var context = new EventEmitter()
+					var emitter = new EventEmitter()
+					var context = Object.create(emitter)
 					extend(context, {
 						domApi: activeDomApis[state.name],
 						data: state.data,
 						parameters: parameters,
 						content: getContentObject(activeStateResolveContent, state.name)
 					})
-					activeEmitters[state.name] = function emit() {
-						context.emit.apply(context, arguments)
-					}
+					activeEmitters[state.name] = emitter
 
 					try {
 						state.activate && state.activate(context)
