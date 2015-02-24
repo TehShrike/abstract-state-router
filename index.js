@@ -237,8 +237,11 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	stateProviderEmitter.makePath = function makePathAndPrependHash(stateName, parameters) {
 		return '#' + makePath(stateName, parameters)
 	}
-	stateProviderEmitter.stateIsActive = function stateIsActive(stateName) {
-		return current.get().name.indexOf(stateName) === 0
+	stateProviderEmitter.stateIsActive = function stateIsActive(stateName, opts) {
+		var currentState = current.get()
+		return currentState.name.indexOf(stateName) === 0 && (typeof opts === 'undefined' || Object.keys(opts).every(function matches(key) {
+			return opts[key] === currentState.parameters[key]
+		}))
 	}
 
 	if (renderer.setUpMakePathFunction) {

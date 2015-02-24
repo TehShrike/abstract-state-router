@@ -280,7 +280,7 @@ test('makePath', function(t) {
 test('stateIsActive', function(t) {
 	var stateRouter = getTestState(t).stateRouter
 
-	t.plan(4)
+	t.plan(6)
 
 	stateRouter.addState({
 		name: 'parent',
@@ -306,9 +306,12 @@ test('stateIsActive', function(t) {
 		t.notOk(stateRouter.stateIsActive('parent.child2'), 'parent.child2 is not active')
 		t.notOk(stateRouter.stateIsActive('not a real state'), 'non-existant state is not active')
 
+		t.notOk(stateRouter.stateIsActive('parent.child1', { butts: 'no' }), 'shouldn\'t match wuth butts=no')
+		t.ok(stateRouter.stateIsActive('parent.child1', { butts: 'yes' }), 'should match with butts=yes')
+
 		t.end()
 	})
 
-	stateRouter.go('parent.child1')
+	stateRouter.go('parent.child1', { butts: 'yes' })
 })
 
