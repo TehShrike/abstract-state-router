@@ -2,17 +2,17 @@ var test = require('tape')
 var getTestState = require('./helpers/test-state-factory')
 
 test('All dom functions called in order', function(t) {
-	function noop() {}
-
 	var actions = []
 
 	var renderer = {
-		render: function render(element, template, cb) {
+		render: function render(context, cb) {
+			var element = context.element
+			var template = context.template
 			actions.push('render ' + template + ' on ' + element)
 			cb(null, template)
 		},
-		reset: function reset(renderedTemplateApi, cb) {
-			actions.push('reset ' + renderedTemplateApi)
+		reset: function reset(context, cb) {
+			actions.push('reset ' + context.domApi)
 			cb()
 		},
 		destroy: function destroy(renderedTemplateApi, cb) {

@@ -49,8 +49,11 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	function resetStateName(stateName) {
 		activeEmitters[stateName].emit('destroy')
 		delete activeEmitters[stateName]
-		delete activeStateResolveContent[stateName]
-		return resetDom(activeDomApis[stateName])
+		return resetDom({
+			domApi: activeDomApis[stateName],
+			content: getContentObject(activeStateResolveContent, stateName),
+			template: prototypalStateHolder.get(stateName).template
+		})
 	}
 
 	function getChildElementForStateName(stateName) {
@@ -66,10 +69,12 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	}
 
 	function renderStateName(stateName) {
-		var state = prototypalStateHolder.get(stateName)
-
 		return getChildElementForStateName(stateName).then(function(childElement) {
-			return renderDom(childElement, state.template)
+			return renderDom({
+				element: childElement,
+				template: prototypalStateHolder.get(stateName).template,
+				content: getContentObject(activeStateResolveContent, stateName)
+			})
 		}).then(function(domApi) {
 			activeDomApis[stateName] = domApi
 			return domApi
@@ -102,13 +107,6 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		var route = prototypalStateHolder.buildFullStateRoute(state.name)
 
 		hashRouter.add(route, onRouteChange.bind(null, state))
-	}
-
-	function emit() {
-		var args = Array.prototype.slice.apply(arguments)
-		return function() {
-			return stateProviderEmitter.emit.apply(stateProviderEmitter, args)
-		}
 	}
 
 	function getStatesToResolve(stateChanges) {
@@ -183,7 +181,9 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 					try {
 						state.activate && state.activate(context)
 					} catch (e) {
-						console.error(e)
+						process.nextTick(function() {
+							throw e
+						})
 					}
 				})
 			}

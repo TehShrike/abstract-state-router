@@ -19,12 +19,16 @@ var myArbitraryRenderFunction = function lol(parent, cb) {
 }
 
 module.exports = {
-	render: function render(element, template, cb) {
+	render: function render(context, cb) {
+		var element = context.element
+		var template = context.template
 		myArbitraryRenderFunction(element, function(renderedTemplateApi) {
 			cb(null, renderedTemplateApi)
 		})
 	},
-	reset: function reset(renderedTemplateApi, cb) {
+	reset: function reset(context, cb) {
+		var renderedTemplateApi = context.domApi
+		var template = context.template
 		renderedTemplateApi.reset()
 		setTimeout(cb, 100)
 	},
