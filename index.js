@@ -12,7 +12,7 @@ var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
 var StateTransitionManager = require('./state-transition-manager')
 
-module.exports = function StateProvider(renderer, rootElement, hashRouter) {
+module.exports = function StateProvider(makeRenderer, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
@@ -20,10 +20,10 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 	hashRouter = hashRouter || newHashBrownRouter()
 	current.set('', {})
 
-	var destroyDom = Promise.denodeify(renderer.destroy)
-	var getDomChild = Promise.denodeify(renderer.getChildElement)
-	var renderDom = Promise.denodeify(renderer.render)
-	var resetDom = Promise.denodeify(renderer.reset)
+	var destroyDom = null
+	var getDomChild = null
+	var renderDom = null
+	var resetDom = null
 
 	var activeDomApis = {}
 	var activeStateResolveContent = {}
@@ -244,15 +244,12 @@ module.exports = function StateProvider(renderer, rootElement, hashRouter) {
 		}))
 	}
 
-	if (renderer.setUpMakePathFunction) {
-		renderer.setUpMakePathFunction(stateProviderEmitter.makePath)
-	}
-	if (renderer.setUpStateIsActiveFunction) {
-		renderer.setUpStateIsActiveFunction(stateProviderEmitter.stateIsActive)
-	}
-	if (renderer.handleStateRouter) {
-		renderer.handleStateRouter(stateProviderEmitter)
-	}
+	var renderer = makeRenderer(stateProviderEmitter)
+
+	destroyDom = Promise.denodeify(renderer.destroy)
+	getDomChild = Promise.denodeify(renderer.getChildElement)
+	renderDom = Promise.denodeify(renderer.render)
+	resetDom = Promise.denodeify(renderer.reset)
 
 	return stateProviderEmitter
 }

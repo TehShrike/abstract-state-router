@@ -4,24 +4,26 @@ var getTestState = require('./helpers/test-state-factory')
 test('All dom functions called in order', function(t) {
 	var actions = []
 
-	var renderer = {
-		render: function render(context, cb) {
-			var element = context.element
-			var template = context.template
-			actions.push('render ' + template + ' on ' + element)
-			cb(null, template)
-		},
-		reset: function reset(context, cb) {
-			actions.push('reset ' + context.domApi)
-			cb()
-		},
-		destroy: function destroy(renderedTemplateApi, cb) {
-			actions.push('destroy ' + renderedTemplateApi)
-			cb()
-		},
-		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			actions.push('getChild ' + renderedTemplateApi)
-			cb(null, renderedTemplateApi + ' child')
+	var renderer = function makeRenderer() {
+		return {
+			render: function render(context, cb) {
+				var element = context.element
+				var template = context.template
+				actions.push('render ' + template + ' on ' + element)
+				cb(null, template)
+			},
+			reset: function reset(context, cb) {
+				actions.push('reset ' + context.domApi)
+				cb()
+			},
+			destroy: function destroy(renderedTemplateApi, cb) {
+				actions.push('destroy ' + renderedTemplateApi)
+				cb()
+			},
+			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+				actions.push('getChild ' + renderedTemplateApi)
+				cb(null, renderedTemplateApi + ' child')
+			}
 		}
 	}
 
