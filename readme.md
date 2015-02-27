@@ -7,10 +7,10 @@ To manage webapp states so that you don't have to deal with url paths or anythin
 ```js
 var createStateRouter = require('abstract-state-router')
 
-var stateRouter = createStateRouter(renderer, rootElement, router)
+var stateRouter = createStateRouter(makeRenderer, rootElement, router)
 ```
 
-The `renderer` should be an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
+The `makeRenderer` should be a function that returns an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
 
 The `rootElement` is the element where the first-generation states will be created.
 
