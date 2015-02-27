@@ -12,13 +12,15 @@ var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
 var StateTransitionManager = require('./state-transition-manager')
 
-module.exports = function StateProvider(renderer, rootElement, hashRouter) {
+module.exports = function StateProvider(Renderer, rootElement, hashRouter) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
 	StateTransitionManager(stateProviderEmitter)
 	hashRouter = hashRouter || newHashBrownRouter()
 	current.set('', {})
+
+	var renderer = Renderer(stateProviderEmitter)
 
 	var destroyDom = Promise.denodeify(renderer.destroy)
 	var getDomChild = Promise.denodeify(renderer.getChildElement)
