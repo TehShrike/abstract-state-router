@@ -1,8 +1,14 @@
-To manage webapp states so that you don't have to deal with url paths or anything.
+[ui-router](https://github.com/angular-ui/ui-router/wiki) is fantastic, and I would use it in all of my projects if it wasn't tied to AngularJS.
 
-[ui-router](https://github.com/angular-ui/ui-router/wiki) is fantastic, and I would use it in all of my projects if it wasn't tied to AngularJS.  Thus, this library!  Written to work with [browserify](https://github.com/substack/node-browserify).
+But I don't want to use AngularJS - I want to use *[my favorite templating/dom manipulation libraries here]*.
 
-# Construction
+Thus, this library!  Written to work with [browserify](https://github.com/substack/node-browserify), it lets you create nested "states" that correspond to different parts of the url path.
+
+For example: if your "user profile" state contains "contact settings" and "profile image" sub-states, browsing from /profile/contact to /profile/image will change the content to display the "profile image" state without touching any of the DOM elements in the user profile page template.
+
+To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](http://tehshrike.github.io/state-router-example).
+
+# API
 
 ```js
 var createStateRouter = require('abstract-state-router')
@@ -16,7 +22,7 @@ The `rootElement` is the element where the first-generation states will be creat
 
 `router` defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  It's an optional argument for the purpose of passing in a mock for unit tests.
 
-# stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters})
+## stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters})
 
 The addState function takes a single object of options. All of them are optional, unless stated otherwise.
 
@@ -36,7 +42,7 @@ The addState function takes a single object of options. All of them are optional
 
 `querystringParameters` is an array of query string parameters that will be watched by this state.
 
-## resolve(data, parameters, callback(err, content).redirect(stateName, params))
+### resolve(data, parameters, callback(err, content).redirect(stateName, params))
 
 The first argument is the data object you passed to the addState call.  The second argument is an object containing the parameters that were parsed out of the route params and the query string.
 
@@ -44,7 +50,7 @@ If you call `callback(err, content)` with a truthy err value, the state change w
 
 If you call `callback.redirect(stateName, params)`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
 
-## activate(context)
+### activate(context)
 
 The activate function is called when the state becomes active.  It is passed an event emitter named `context` with four properties:
 
@@ -53,7 +59,7 @@ The activate function is called when the state becomes active.  It is passed an 
 - `parameters`: the route/querystring parameters
 - `content`: the object passed into the resolveFunction's callback
 
-### events
+#### context events
 
 - 'destroy': emitted when the state is destroyed
 
@@ -102,7 +108,7 @@ stateRouter.addState({
 })
 ```
 
-# stateRouter.go(stateName, [parameters, [options]])
+## stateRouter.go(stateName, [parameters, [options]])
 
 Browses to the given state, with the current parameters.  Changes the url to match.
 
@@ -115,7 +121,7 @@ stateRouter.go('app')
 // This actually redirects to app.tab1, because the app state has the default child: 'tab1'
 ```
 
-# stateRouter.evaluateCurrentRoute(fallbackRoute, [fallbackParameters])
+## stateRouter.evaluateCurrentRoute(fallbackRoute, [fallbackParameters])
 
 You'll want to call this once you've added all your initial states.  It causes the current path to be evaluated, and will activate the current state.  If the current path doesn't match the route of any available states, the browser gets sent to the fallback route provided.
 
@@ -145,9 +151,14 @@ stateRouter.evaluateCurrentRoute('app.tab2')
 # TODO
 
 - the ability to set an "error" state to go to on errors
+- help somebody else set up the state router with their favorite rendering image
 
-License
-======
+# Maintainers
+
+- [TehShrike](https://github.com/TehShrike)
+- [ArtskydJ](https://github.com/ArtskydJ)
+
+# License
 
 [WTFPL](http://wtfpl2.com)
 
