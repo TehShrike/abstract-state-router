@@ -46,11 +46,8 @@ module.exports = function StateState() {
 
 	function buildFullStateRoute(stateName) {
 		return getHierarchy(stateName).reduce(function(route, state) {
-			if (route && route[route.length - 1] !== '/' && state.route[0] !== '/') {
-				route = route + '/'
-			}
-			return route + (state.route || '')
-		}, '')
+			return route + '/' + (state.route || '')
+		}, '').replace(/\/(?=\/)/g, '')
 	}
 
 	function applyDefaultChildStates(stateName) {
