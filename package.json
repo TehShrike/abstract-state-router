@@ -4,8 +4,8 @@
   "description": "The basics of a client-side state router ala the AngularJS ui-router, but without any DOM interactions",
   "main": "index.js",
   "scripts": {
-    "zuul": "zuul -- test/*.js",
-    "test": "tape test/*.js | faucet"
+    "test": "zuul -- test/*.js",
+    "localtest": "tape test/*.js | faucet"
   },
   "repository": {
     "type": "git",
