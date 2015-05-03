@@ -8,6 +8,14 @@ For example: if your "user profile" state contains "contact settings" and "profi
 
 To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](http://tehshrike.github.io/state-router-example).
 
+# Current renderer implementations
+
+- [RactiveJS](https://github.com/TehShrike/ractive-state-router)
+- [Riot](https://github.com/TehShrike/riot-state-renderer)
+- [virtual-dom](https://github.com/ArtskydJ/virtualdom-state-renderer)
+
+If you want to use the state router with some other templating/dom manipulation library, it's pretty easy to set up!  Check out the code for the above libraries and/or ping me if you'd like help getting it working.
+
 # API
 
 ```js
