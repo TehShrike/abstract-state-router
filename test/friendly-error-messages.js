@@ -51,7 +51,7 @@ test('name and template are the only required options', function(t) {
 
 	process.on('uncaughtException', failure('uncaught'))
 	stateRouter.on('stateChangeError', failure('stateChangeError') )
-	stateRouter.on('error', failure('error'))
+	stateRouter.on('stateError', failure('stateError'))
 
 	stateRouter.addState({ name: 'hello', template: 'hello' })
 	stateRouter.go('hello')

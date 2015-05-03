@@ -11,13 +11,21 @@ var parse = require('./state-string-parser')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
 var StateTransitionManager = require('./state-transition-manager')
+var debug = require('debug')('abstract-state-router')
 
-module.exports = function StateProvider(makeRenderer, rootElement, hashRouter) {
+module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
 	StateTransitionManager(stateProviderEmitter)
-	hashRouter = hashRouter || newHashBrownRouter()
+	stateRouterOptions = extend({
+		throwOnError: true
+	}, stateRouterOptions)
+
+	if (!stateRouterOptions.router) {
+		stateRouterOptions.router = newHashBrownRouter()
+	}
+
 	current.set('', {})
 
 	var destroyDom = null
@@ -32,7 +40,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, hashRouter) {
 	function handleError(event, err) {
 		process.nextTick(function() {
 			stateProviderEmitter.emit(event, err)
-			console.error(err)
+			debug(event + ' - ' + err.message)
+			if (stateRouterOptions.throwOnError) {
+				throw err
+			}
 		})
 	}
 
@@ -106,7 +117,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, hashRouter) {
 
 		var route = prototypalStateHolder.buildFullStateRoute(state.name)
 
-		hashRouter.add(route, onRouteChange.bind(null, state))
+		stateRouterOptions.router.add(route, onRouteChange.bind(null, state))
 	}
 
 	function getStatesToResolve(stateChanges) {
@@ -192,7 +203,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, hashRouter) {
 			try {
 				stateProviderEmitter.emit('stateChangeEnd', prototypalStateHolder.get(newStateName), parameters)
 			} catch (e) {
-				handleError('error', e)
+				handleError('stateError', e)
 			}
 		}).catch(ifNotCancelled(function handleStateChangeError(err) {
 			if (err && err.redirectTo) {
@@ -223,15 +234,15 @@ module.exports = function StateProvider(makeRenderer, rootElement, hashRouter) {
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend({}, defaultOptions, options)
-		var goFunction = options.replace ? hashRouter.replace : hashRouter.go
+		var goFunction = options.replace ? stateRouterOptions.router.replace : stateRouterOptions.router.go
 
 		return promiseMe(makePath, newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
 	}
 	stateProviderEmitter.evaluateCurrentRoute = function evaluateCurrentRoute(defaultRoute, defaultParams) {
 		return promiseMe(makePath, defaultRoute, defaultParams).then(function(defaultPath) {
-			hashRouter.evaluateCurrent(defaultPath)
+			stateRouterOptions.router.evaluateCurrent(defaultPath)
 		}).catch(function(err) {
-			handleError('error', err)
+			handleError('stateError', err)
 		})
 	}
 	stateProviderEmitter.makePath = function makePathAndPrependHash(stateName, parameters) {

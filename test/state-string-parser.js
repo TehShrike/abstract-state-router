@@ -2,7 +2,6 @@ var test = require('tape')
 var parse = require('../state-string-parser')
 
 function testParsing(t, input, output) {
-	//	console.log(t, t.deepEqual, parse)
 	t.deepEqual(parse(input), output, input + ' produces ' + output.length + ' results')
 }
 

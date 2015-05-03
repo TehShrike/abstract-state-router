@@ -6,7 +6,10 @@ var mockRenderFn = require('./renderer-mock')
 module.exports = function getTestState(t, renderFn) {
 	var location = hashLocationMockFactory()
 	var hashRouter = hashRouterFactory(location)
-	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, 'body', hashRouter)
+	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, 'body', {
+		router: hashRouter,
+		throwOnError: false
+	})
 	hashRouter.setDefault(function noop() {})
 
 	stateRouter.addState({

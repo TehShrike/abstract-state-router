@@ -13,14 +13,17 @@ To see an example app implemented with a couple of different browser rendering l
 ```js
 var createStateRouter = require('abstract-state-router')
 
-var stateRouter = createStateRouter(makeRenderer, rootElement, router)
+var stateRouter = createStateRouter(makeRenderer, rootElement, options)
 ```
 
 The `makeRenderer` should be a function that returns an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
 
 The `rootElement` is the element where the first-generation states will be created.
 
-`router` defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  It's an optional argument for the purpose of passing in a mock for unit tests.
+`options` are mostly to override some defaults while testing.  You shouldn't need to change any of the defaults while developing.  Possible properties are:
+
+- `router` defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  The abstract-state-router unit tests use the [hash brown router stub](https://github.com/TehShrike/hash-brown-router/#testability).
+- `throwOnError` defaults to true, because you get way better stack traces in Chrome when you throw than if you `console.log(err)` or emit `'error'` events.  The unit tests disable this.
 
 ## stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters})
 
