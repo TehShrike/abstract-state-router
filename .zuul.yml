@@ -8,7 +8,3 @@ browsers:
     version: latest
   - name: ie
     version: latest
-  - name: iphone
-    version: latest
-  - name: ipad
-    version: latest
