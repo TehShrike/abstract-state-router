@@ -41,7 +41,7 @@ The addState function takes a single object of options. All of them are optional
 
 `route` is an express-style url string that is parsed with a fork of [path-to-regexp](https://github.com/pillarjs/path-to-regexp).  If the state is a child state, this route string will be concatenated to the route string of its parent (e.g. if 'contacts' state has route ':user/contacts' and 'contacts.list' has a route of '/list', you could visit the child state by browsing to '/tehshrike/contacts/list').
 
-`defaultChild` is a string (or a function that returns a string) of the default child's name. If you attempt to go directly to a state that has a default child, you will be directed to the default child. (E.g. if 'contacts' has the defaultChild 'list', then doing `state.go('contacts')` will actually do `state.go('contacts.list')`.)
+`defaultChild` is a string (or a function that returns a string) of the default child's name. If you attempt to go directly to a state that has a default child, you will be directed to the default child. (For example, you could set 'list' to be the default child of 'contacts'. Then doing `state.go('contacts')` will actually do `state.go('contacts.list')`. Likewise, browsing to '/tehshrike/contacts' would bring you to '/tehshrike/contacts/list'.)
 
 `data` is an object that can hold whatever you want - it will be passed in to the resolve and activate functions.
 
