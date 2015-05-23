@@ -6,15 +6,19 @@ function resolve(data, parameters, cb) {
 	setTimeout(cb, 5, null)
 }
 
-function RememberActivation() {
+function RememberActivation(location) {
 	var last = ''
+	var lastLocation = ''
 	function set(str) {
-		return function s() { last = str }
+		return function s() {
+			last = str
+			lastLocation = location.get()
+		}
 	}
-	function get(tt, str) {
+	function get(tt, str, url) {
 		return function g() {
-			var msg = 'last activated state should be "' + str + '"'
-			tt.equal(str, last, msg)
+			tt.equal(last, str, 'last activated state should be "' + str + '"')
+			tt.equal(lastLocation, url, 'last observed url should be "' + lastLocation + '"')
 			tt.end()
 		}
 	}
@@ -26,8 +30,9 @@ function RememberActivation() {
 
 
 test('default grandchild', function (t) {
-	var stateRouter = getTestState(t).stateRouter
-	var remember = RememberActivation()
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var remember = RememberActivation(testState.location)
 
 	stateRouter.addState({
 		name: 'hey',
@@ -65,17 +70,17 @@ test('default grandchild', function (t) {
 	})
 
 	t.test('hey -> hey.rofl.copter', function (tt) {
-		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'copter'))
+		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'copter', '/hay/routeButt/lolcopter'))
 		stateRouter.go('hey')
 	})
 
 	t.test('hey.rofl -> hey.rofl.copter', function (tt) {
-		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'copter'))
+		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'copter', '/hay/routeButt/lolcopter'))
 		stateRouter.go('hey.rofl')
 	})
 
 	t.test('hey.rofl.cat -> hey.rofl.cat', function (tt) {
-		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'cat'))
+		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'cat', '/hay/routeButt/lolcat'))
 		stateRouter.go('hey.rofl.cat')
 	})
 })
@@ -110,8 +115,9 @@ test('bad defaults', function (t) {
 
 
 test('functions as parameters', function (t) {
-	var stateRouter = getTestState(t).stateRouter
-	var remember = RememberActivation()
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var remember = RememberActivation(testState.location)
 
 	stateRouter.addState({
 		name: 'hey',
@@ -132,7 +138,7 @@ test('functions as parameters', function (t) {
 	})
 
 	t.test('hey -> hey', function (tt) {
-		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'rofl'))
+		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'rofl', '/hay/routeButt'))
 		stateRouter.go('hey')
 	})
 })
