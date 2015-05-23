@@ -97,12 +97,15 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function onRouteChange(state, parameters) {
-		function stateGo(transition) {
-			var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
-			attemptStateChange(fullStateName, parameters, transition)
-		}
+		var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
-		stateProviderEmitter.emit('stateChangeAttempt', stateGo)
+		if (fullStateName !== state.name) {
+			stateProviderEmitter.go(fullStateName, parameters, { replace: true })
+		} else {
+			stateProviderEmitter.emit('stateChangeAttempt', function stateGo(transition) {
+				attemptStateChange(fullStateName, parameters, transition)
+			})
+		}
 	}
 
 	function addState(state) {
