@@ -1,6 +1,6 @@
 {
   "name": "abstract-state-router",
-  "version": "5.1.1",
+  "version": "5.2.0",
   "description": "The basics of a client-side state router ala the AngularJS ui-router, but without any DOM interactions",
   "main": "index.js",
   "scripts": {
