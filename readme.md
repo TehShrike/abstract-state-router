@@ -10,6 +10,8 @@ To see an example app implemented with a couple of different browser rendering l
 
 # Current renderer implementations
 
+[![Join the chat at https://gitter.im/TehShrike/abstract-state-router](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TehShrike/abstract-state-router?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 - [RactiveJS](https://github.com/TehShrike/ractive-state-router)
 - [Riot](https://github.com/TehShrike/riot-state-renderer)
 - [virtual-dom](https://github.com/ArtskydJ/virtualdom-state-renderer)
