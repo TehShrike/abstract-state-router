@@ -23,7 +23,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}, stateRouterOptions)
 
 	if (!stateRouterOptions.router) {
-		stateRouterOptions.router = newHashBrownRouter()
+		stateRouterOptions.router = newHashBrownRouter({ reverse: true })
 	}
 
 	current.set('', {})
