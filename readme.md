@@ -4,13 +4,11 @@ But I don't want to use AngularJS - I want to use *[my favorite templating/dom m
 
 Thus, this library!  Written to work with [browserify](https://github.com/substack/node-browserify), it lets you create nested "states" that correspond to different parts of the url path.
 
-For example: if your "user profile" state contains "contact settings" and "profile image" sub-states, browsing from /profile/contact to /profile/image will change the content to display the "profile image" state without touching any of the DOM elements in the user profile page template.
+If you've never used AngularJS's ui-router before, check out this post: [Why your webapp needs a state-based router](http://joshduff.com/#!/post/2015-06-why-you-need-a-state-router.md).
 
 To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](http://tehshrike.github.io/state-router-example).
 
-If you have any questions at all, [ask me on Gitter](https://gitter.im/TehShrike/abstract-state-router).
-
-[![Join the chat at https://gitter.im/TehShrike/abstract-state-router](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TehShrike/abstract-state-router)
+If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstract-state-router)! [![Join the chat at https://gitter.im/TehShrike/abstract-state-router](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TehShrike/abstract-state-router)
 
 # Current renderer implementations
 
