@@ -1,16 +1,16 @@
-var StateState = require('./state-state')
+var StateState = require('./lib/state-state')
 var extend = require('extend')
 var Promise = require('promise')
-var StateComparison = require('./state-comparison')
-var CurrentState = require('./current-state')
-var stateChangeLogic = require('./state-change-logic')
+var StateComparison = require('./lib/state-comparison')
+var CurrentState = require('./lib/current-state')
+var stateChangeLogic = require('./lib/state-change-logic')
 var newHashBrownRouter = require('hash-brown-router')
 var EventEmitter = require('events').EventEmitter
 var series = require('promise-map-series')
-var parse = require('./state-string-parser')
+var parse = require('./lib/state-string-parser')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
-var StateTransitionManager = require('./state-transition-manager')
+var StateTransitionManager = require('./lib/state-transition-manager')
 var debug = require('debug')('abstract-state-router')
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {

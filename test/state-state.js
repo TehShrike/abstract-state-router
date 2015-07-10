@@ -1,5 +1,5 @@
 var test = require('tape')
-var StateState = require('../state-state')
+var StateState = require('../lib/state-state')
 
 /*
 stateState.add

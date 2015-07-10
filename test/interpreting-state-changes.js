@@ -1,6 +1,6 @@
 var test = require('tape')
 
-var interpretStateChange = require('../state-change-logic')
+var interpretStateChange = require('../lib/state-change-logic')
 
 test('State change logic', function(t) {
 	function check(description, input, expected) {

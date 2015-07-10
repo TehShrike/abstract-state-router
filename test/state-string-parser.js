@@ -1,5 +1,5 @@
 var test = require('tape')
-var parse = require('../state-string-parser')
+var parse = require('../lib/state-string-parser')
 
 function testParsing(t, input, output) {
 	t.deepEqual(parse(input), output, input + ' produces ' + output.length + ' results')

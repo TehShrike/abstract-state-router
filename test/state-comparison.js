@@ -1,6 +1,6 @@
 var test = require('tape')
-var StateState = require('../state-state.js')
-var stateComparison = require('../state-comparison.js')
+var StateState = require('../lib/state-state.js')
+var stateComparison = require('../lib/state-comparison.js')
 
 function simpleState(name, querystringParameters, route) {
 	return {
