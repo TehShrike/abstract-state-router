@@ -16,7 +16,7 @@ If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstra
 - [Riot](https://github.com/TehShrike/riot-state-renderer)
 - [virtual-dom](https://github.com/ArtskydJ/virtualdom-state-renderer)
 
-If you want to use the state router with some other templating/dom manipulation library, it's pretty easy to set up!  Check out the code for the above libraries and/or ping me if you'd like help getting it working.
+If you want to use the state router with some other templating/dom manipulation library, [read these docs](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md)!  It's not too bad to get started.
 
 # API
 
@@ -26,7 +26,7 @@ var createStateRouter = require('abstract-state-router')
 var stateRouter = createStateRouter(makeRenderer, rootElement, options)
 ```
 
-The `makeRenderer` should be a function that returns an object with four properties: render, destroy, getChildElement, and reset.  Still needs to be documented, see test/support/renderer-mock.js for an implementation.
+The `makeRenderer` should be a function that returns an object with four properties: render, destroy, getChildElement, and reset.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
 
 The `rootElement` is the element where the first-generation states will be created.
 
@@ -140,6 +140,22 @@ You'll want to call this once you've added all your initial states.  It causes t
 
 ```js
 stateRouter.evaluateCurrentRoute('app.tab2')
+```
+
+## stateRouter.stateIsActive(stateName, [stateParameters])
+
+Returns true if the state name matches the current active state, and all the properties of the state parameters object match exactly the current state parameter values.
+
+```js
+stateRouter.stateIsActive('app.tab1', { fancy: 'yes' })
+```
+
+## stateRouter.makePath(stateName, [stateParameters])
+
+Returns a path to the state, starting with an octothorpe `#`, suitable for inserting straight into the `href` attribute of a link.
+
+```js
+stateRouter.makePath('app.tab2', { pants: 'no' })
 ```
 
 # State change flow
