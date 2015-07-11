@@ -177,10 +177,9 @@ stateRouter.makePath('app.tab2', { pants: 'no' })
 - change: states that remain around, but with different parameter values - the DOM sticks around, but the contexts are destroyed and resolve/activate are called again.
 - create: states that weren't active at all before.  The DOM elements are rendered, and resolve/activate are called.
 
-# TODO
+# Questions/discussion/future development
 
-- the ability to set an "error" state to go to on errors
-- help somebody else set up the state router with their favorite rendering image
+- [Support for hash-less paths using HTML5/pushState?](https://github.com/TehShrike/abstract-state-router/issues/39)
 
 # Maintainers
 
