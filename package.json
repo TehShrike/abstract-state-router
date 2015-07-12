@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "zuul": "zuul -- test/*.js",
-    "test": "tape test/*.js | faucet"
+    "test": "tape test/*.js | faucet",
+    "coverage": "covert test/*.js"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "promise-map-series": "^0.2.1"
   },
   "devDependencies": {
+    "covert": "^1.1.0",
     "faucet": "0.0.1",
     "tape": "^4.0.0",
     "zuul": "^3.0.0"
