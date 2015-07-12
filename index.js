@@ -241,8 +241,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 		return promiseMe(makePath, newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
 	}
-	stateProviderEmitter.evaluateCurrentRoute = function evaluateCurrentRoute(defaultRoute, defaultParams) {
-		return promiseMe(makePath, defaultRoute, defaultParams).then(function(defaultPath) {
+	stateProviderEmitter.evaluateCurrentRoute = function evaluateCurrentRoute(defaultState, defaultParams) {
+		return promiseMe(makePath, defaultState, defaultParams).then(function(defaultPath) {
 			stateRouterOptions.router.evaluateCurrent(defaultPath)
 		}).catch(function(err) {
 			handleError('stateError', err)
