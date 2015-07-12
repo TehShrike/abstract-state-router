@@ -1,6 +1,7 @@
 var test = require('tape')
 var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 var getTestState = require('./helpers/test-state-factory')
+var Promise = require('promise')
 
 test('normal, error-less state activation flow for two states', function(t) {
 	function basicTest(t) {
@@ -414,4 +415,30 @@ test('evaluateCurrentRoute with no current route should go to the default', func
 	t.notOk(correctRouteCalled)
 
 	stateRouter.evaluateCurrentRoute('correct', { parameterName: 'wrong' })
+})
+
+test('resolve that returns a promise', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var hashRouter = testState.hashRouter
+
+	t.plan(1)
+
+	stateRouter.addState({
+		name: 'some-state',
+		template: null,
+		resolve: function() {
+			return new Promise(function(resolve, reject) {
+				resolve({
+					value: 'this is it!'
+				})
+			})
+		},
+		activate: function(context) {
+			t.equal(context.content.value, 'this is it!')
+			t.end()
+		}
+	})
+
+	stateRouter.go('some-state')
 })
