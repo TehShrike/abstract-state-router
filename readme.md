@@ -72,9 +72,9 @@ The activate function is called when the state becomes active.  It is passed an 
 - `parameters`: the route/querystring parameters
 - `content`: the object passed into the resolveFunction's callback
 
-#### context events
+The `context` object is also an event emitter that emits a `'destroy'` event when the state is being transitioned away from.  You should listen to this event to clean up any workers that may be ongoing.
 
-- 'destroy': emitted when the state is destroyed
+### addState examples
 
 ```js
 stateRouter.addState({
@@ -105,6 +105,14 @@ stateRouter.addState({
 		getTab1Data(cb)
 	}, activate: function(context) {
 		document.getElementById('tab').innerText = context.content
+
+		var intervalId = setInterval(function() {
+			document.getElementById('tab').innerText = 'MORE CONTENT!'
+		}, 1000)
+
+		context.on('destroy', function() {
+			clearInterval(intervalId)
+		})
 	}
 })
 
