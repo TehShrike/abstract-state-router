@@ -53,27 +53,10 @@ var parentTests = (function () {
 			t.equal(apparently, set.parent, msg)
 		}
 	}
-	function GetParent(t, ss) {
-		return function (set) {
-			var unique = Math.random().toString().slice(2)
-			ss.add(set.parent, unique)
-			ss.add(set.child, 'child state')
-
-			var apparentState = ss.getParent(set.child)
-			var parentState = ss.get(set.parent)
-
-			var msg = 'found parent state of ' + set.child
-			t.equal(parentState, apparentState, msg)
-		}
-	}
 	return {
 		sets: childParentSets,
 		fn: GetParentName,
 		name: 'stateState.getParentName'
-	}, {
-		sets: childParentSets,
-		fn: GetParent,
-		name: 'stateState.getParent'
 	}
 })()
 
