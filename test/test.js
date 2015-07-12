@@ -342,3 +342,76 @@ test('propertiesInRoute', function(t) {
 
 	stateRouter.go('only', { param: 'firstTime' })
 })
+
+test('evaluateCurrentRoute with url set', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var hashRouter = testState.hashRouter
+
+	var correctRouteCalled = false
+
+	t.plan(3)
+
+	hashRouter.go('/theUrlWhenThePageIsFirstOpened')
+
+	stateRouter.addState({
+		name: 'whatever',
+		route: '/ignored',
+		template: null,
+		activate: function() {
+			t.fail()
+		}
+	})
+
+	stateRouter.addState({
+		name: 'correct',
+		route: '/theUrlWhenThePageIsFirstOpened',
+		template: null,
+		activate: function(context) {
+			t.notOk(correctRouteCalled)
+			correctRouteCalled = true
+			t.notOk(context.parameters.parameterName)
+			t.end()
+		}
+	})
+
+	t.notOk(correctRouteCalled)
+
+	stateRouter.evaluateCurrentRoute('whatever', { parameterName: 'wrong' })
+})
+
+test('evaluateCurrentRoute with no current route should go to the default', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var hashRouter = testState.hashRouter
+
+	var correctRouteCalled = false
+
+	t.plan(3)
+
+	stateRouter.addState({
+		name: 'whatever',
+		route: '/ignored',
+		template: null,
+		activate: function() {
+			t.fail()
+		}
+	})
+
+	stateRouter.addState({
+		name: 'correct',
+		route: '/default',
+		template: null,
+		activate: function(context) {
+			t.notOk(correctRouteCalled)
+
+			t.equal(context.parameters.parameterName, 'wrong')
+			correctRouteCalled = true
+			t.end()
+		}
+	})
+
+	t.notOk(correctRouteCalled)
+
+	stateRouter.evaluateCurrentRoute('correct', { parameterName: 'wrong' })
+})
