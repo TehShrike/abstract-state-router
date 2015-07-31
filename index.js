@@ -97,14 +97,27 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function onRouteChange(state, parameters) {
-		var fullStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
+		try {
+			var finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
-		if (fullStateName !== state.name) {
-			stateProviderEmitter.go(fullStateName, parameters, { replace: true })
-		} else {
-			stateProviderEmitter.emit('stateChangeAttempt', function stateGo(transition) {
-				attemptStateChange(fullStateName, parameters, transition)
-			})
+			if (finalDestinationStateName === state.name) {
+				emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
+			} else {
+				// There are default child states that need to be applied
+
+				var theRouteWeNeedToEndUpAt = makePath(finalDestinationStateName, parameters)
+				var currentRoute = stateRouterOptions.router.location.get()
+
+				if (theRouteWeNeedToEndUpAt === currentRoute) {
+					// the child state has the same route as the current one, just start navigating there
+					emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
+				} else {
+					// change the url to match the full default child state route
+					stateProviderEmitter.go(finalDestinationStateName, parameters, { replace: true })
+				}
+			}
+		} catch (err) {
+			handleError('stateError', err)
 		}
 	}
 
@@ -125,6 +138,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 	function getStatesToResolve(stateChanges) {
 		return stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
+	}
+
+	function emitEventAndAttemptStateChange(newStateName, parameters) {
+		stateProviderEmitter.emit('stateChangeAttempt', function stateGo(transition) {
+			attemptStateChange(newStateName, parameters, transition)
+		})
 	}
 
 	function attemptStateChange(newStateName, parameters, transition) {

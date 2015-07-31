@@ -1,4 +1,4 @@
-var test = require('tape')
+var test = require('tape-catch')
 var getTestState = require('./helpers/test-state-factory')
 
 
@@ -91,6 +91,8 @@ test('bad defaults', function (t) {
 
 	t.plan(2)
 
+	t.timeoutAfter(3000)
+
 	stateRouter.addState({
 		name: 'hey',
 		route: '/hay',
@@ -102,15 +104,13 @@ test('bad defaults', function (t) {
 		}
 	})
 
-	stateRouter.on('stateChangeError', function(e) {
+	stateRouter.on('stateError', function(e) {
 		t.pass('Defaulting to a nonexistent state should cause an error to be emitted')
 		t.notEqual(e.message.indexOf('nonexistent'), -1, 'the invalid state name is in the error message')
 		t.end()
 	})
 
 	stateRouter.go('hey')
-
-
 })
 
 
@@ -122,7 +122,7 @@ test('functions as parameters', function (t) {
 	stateRouter.addState({
 		name: 'hey',
 		route: '/hay',
-		defaultChild: function () {return 'rofl'},
+		defaultChild: function () { return 'rofl' },
 		template: {},
 		resolve: resolve,
 		activate: remember.activate('hey')
@@ -139,6 +139,63 @@ test('functions as parameters', function (t) {
 
 	t.test('hey -> hey', function (tt) {
 		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'rofl', '/hay/routeButt'))
+		stateRouter.go('hey')
+	})
+})
+
+test('the default child should activate even if it has an empty route string', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var remember = RememberActivation(testState.location)
+
+	t.timeoutAfter(5000)
+
+	stateRouter.addState({
+		name: 'hey',
+		route: '/hay',
+		defaultChild: 'rofl',
+		template: {},
+		activate: remember.activate('hey')
+	})
+
+	stateRouter.addState({
+		name: 'hey.rofl',
+		route: '',
+		template: {},
+		activate: remember.activate('rofl')
+	})
+
+	t.test('hey -> hey', function (tt) {
+		tt.timeoutAfter(5000)
+		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'rofl', '/hay/'))
+		stateRouter.go('hey')
+	})
+})
+
+test('the default child should activate even if it doesn\'t have a route string', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var remember = RememberActivation(testState.location)
+
+	t.timeoutAfter(5000)
+
+	stateRouter.addState({
+		name: 'hey',
+		route: '/hay',
+		defaultChild: 'rofl',
+		template: {},
+		activate: remember.activate('hey')
+	})
+
+	stateRouter.addState({
+		name: 'hey.rofl',
+		template: {},
+		activate: remember.activate('rofl')
+	})
+
+	t.test('hey -> hey', function (tt) {
+		tt.timeoutAfter(5000)
+		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'rofl', '/hay/'))
 		stateRouter.go('hey')
 	})
 })
