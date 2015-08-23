@@ -187,7 +187,15 @@ stateRouter.makePath('app.tab2', { pants: 'no' })
 
 # Questions/discussion/future development
 
-- [Support for hash-less paths using HTML5/pushState?](https://github.com/TehShrike/abstract-state-router/issues/39)
+- [Support for hash-less paths using HTML5/pushState](https://github.com/TehShrike/abstract-state-router/issues/39)
+
+## "Universal JavaScript"
+
+A future goal is to make it possible to generate HTML for routes on the server-side, at least for the templating libraries like Ractive that do not require a DOM to generate HTML.
+
+This requires supporting HTML5 routing (see issue linked above), and some way for the results of the initial `resolve` values to be included with JSONP so that when the client-side abstract-state-router code does eventually start running, it doesn't have to re-fetch all the initial state.
+
+I don't think this should be a huge change, but I haven't gotten around to it yet.  Feel free to check out the issue above if you want to get started on it yourself.
 
 # Maintainers
 
