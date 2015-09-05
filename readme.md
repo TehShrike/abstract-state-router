@@ -167,6 +167,21 @@ Returns a path to the state, starting with an octothorpe `#`, suitable for inser
 stateRouter.makePath('app.tab2', { pants: 'no' })
 ```
 
+# Testing/development
+
+To run the unit tests:
+
+- clone this repository
+- run `npm install`
+- run `npm test`
+
+Automated browser testing provided by [Browserstack](https://www.browserstack.com/).
+
+Tested in Chrome, Firefox, Safari, and IE10+ (IE9 doesn't support [replace](https://developer.mozilla.org/en-US/docs/Web/API/Location/replace)).
+
+[![Build Status](https://travis-ci.org/TehShrike/abstract-state-router.svg?branch=master)](https://travis-ci.org/TehShrike/abstract-state-router)
+
+
 # State change flow
 
 - emit StateChangeStart
@@ -206,5 +221,3 @@ I don't think this should be a huge change, but I haven't gotten around to it ye
 # License
 
 [WTFPL](http://wtfpl2.com)
-
-[![Build Status](https://travis-ci.org/TehShrike/abstract-state-router.svg?branch=master)](https://travis-ci.org/TehShrike/abstract-state-router)
