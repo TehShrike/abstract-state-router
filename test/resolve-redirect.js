@@ -116,9 +116,6 @@ test('test redirector chain', function(t) {
 			name: 'valid.valid2',
 			route: '/valid2',
 			template: {},
-			resolve: function(data, params, cb) {
-				setTimeout(cb, 100, null)
-			},
 			activate: function() {
 				t.fail('should not activate')
 			}

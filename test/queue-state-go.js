@@ -39,9 +39,6 @@ test('test queue with a basic activate-in-order test', function(t) {
 			name: 'valid.valid2',
 			route: '/valid2',
 			template: {},
-			resolve: function(data, params, cb) {
-				setTimeout(cb, 100)
-			},
 			activate: function() {
 				t.fail('should not activate')
 			}

@@ -11,14 +11,13 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 		var renderer = assertingRendererFactory(t, [grandparentTemplate, parentTemplate, childTemplate])
 		var state = getTestState(t, renderer)
 		var stateRouter = state.stateRouter
-		var assertsBelow = 4
+		var assertsBelow = 2
 		var renderAsserts = renderer.expectedAssertions
 
 		t.plan(assertsBelow + renderAsserts)
 
 		var childDestroyed = false
 		var parentDestroyed = false
-		var grandparentDestroyed = false
 
 		stateRouter.addState({
 			name: 'hey',
@@ -29,10 +28,6 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 			},
 			activate: function(context) {
 				context.on('destroy', function () {
-					grandparentDestroyed = true
-					t.ok(parentDestroyed, 'grandparent gets destroyed after parent')
-					t.ok(childDestroyed, 'grandparent gets destroyed after child')
-
 					t.fail('grandparent should not be destroyed')
 				})
 			}
@@ -48,7 +43,6 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 			querystringParameters: ['wat'],
 			activate: function(context) {
 				context.on('destroy', function () {
-					t.notOk(grandparentDestroyed, 'parent gets destroyed before grandparent')
 					parentDestroyed = true
 					t.ok(childDestroyed, 'parent gets destroyed after child')
 				})
@@ -64,7 +58,6 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 			},
 			activate: function(context) {
 				context.on('destroy', function () {
-					t.notOk(grandparentDestroyed, 'child gets destroyed before grandparent')
 					t.notOk(parentDestroyed, 'child gets destroyed before parent')
 					childDestroyed = true
 				})
