@@ -30,6 +30,8 @@ The `makeRenderer` should be a function that returns an object with four propert
 
 The `rootElement` is the element where the first-generation states will be created.
 
+## options
+
 Possible properties of the `options` object are:
 
 - `pathPrefix` defaults to `'#'`.  If you're using HTML5 routing/pushState, you'll most likely want to set this to an empty string.
@@ -161,7 +163,7 @@ stateRouter.stateIsActive('app.tab1', { fancy: 'yes' })
 
 ## stateRouter.makePath(stateName, [stateParameters])
 
-Returns a path to the state, starting with an octothorpe `#`, suitable for inserting straight into the `href` attribute of a link.
+Returns a path to the state, starting with an [optional](#options) octothorpe `#`, suitable for inserting straight into the `href` attribute of a link.
 
 ```js
 stateRouter.makePath('app.tab2', { pants: 'no' })
