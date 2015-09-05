@@ -201,17 +201,37 @@ Tested in Chrome, Firefox, Safari, and IE10+ (IE9 doesn't support [replace](http
 - change: states that remain around, but with different parameter values - the DOM sticks around, but the contexts are destroyed and resolve/activate are called again.
 - create: states that weren't active at all before.  The DOM elements are rendered, and resolve/activate are called.
 
-# Questions/discussion/future development
+# HTML5/pushState routing
 
-- [Support for hash-less paths using HTML5/pushState](https://github.com/TehShrike/abstract-state-router/issues/39)
+pushState routing is technically supported.  To use it, pass in an optinos object with a `router` hash-brown-router constructed with a [sausage-router](https://github.com/TehShrike/sausage-router), and then set the `pathPrefix` option to an empty string.
 
-## "Universal JavaScript"
+However to use it in the real world, there are two things you probably want to do:
 
-A future goal is to make it possible to generate HTML for routes on the server-side, at least for the templating libraries like Ractive that do not require a DOM to generate HTML.
+## Intercept link clicks
 
-This requires supporting HTML5 routing (see issue linked above), and some way for the results of the initial `resolve` values to be included with JSONP so that when the client-side abstract-state-router code does eventually start running, it doesn't have to re-fetch all the initial state.
+To get all the benefits of navigating around nested states, you'll need to intercept every click on a link and block the link navigation, calling `go(path)` on the sausage-router instead.
 
-I don't think this should be a huge change, but I haven't gotten around to it yet.  Feel free to check out the issue above if you want to get started on it yourself.
+You would need to add these click handlers whenever a state change happened.
+
+## server-side rendering
+
+You would also need to be able to render the correct HTML on the server-side.
+
+For this to even possible, your chosen rendering library needs to be able to work on the server-side to generate static HTML.  I know at least Ractive.js and Riot support this.
+
+The abstract-state-router would need to be changed to supply the list of nested DOM API objects for your chosen renderer.
+
+Then to generate the static HTML for the current route, you would create an abstract-state-router, tell it to navigate to that route, collect all the nested DOM API objects, render them as HTML strings, embedding the children inside of the parents.
+
+You would probably also want to send the client the data that was returned by the `resolve` functions, so that when the JavaScript app code started running the abstract-state-router on the client-side, it wouldn't hit the server to fetch all the data that had already been fetched on the server to generate the original HTML.
+
+## Who's adding this?
+
+It could be me, but probably not in the near future, since I will mostly be using this for form-heavy business apps where generating static HTML isn't really any benefit.
+
+If I use the abstract-state-router on an app where I want to support clients without JS, then I'll start working on the functionality.
+
+If anyone else has need of this functionality and wants to get started on it, I'd be happy to help.  Stop by the [chat room](https://gitter.im/TehShrike/abstract-state-router) to ask any questions.
 
 # Maintainers
 
