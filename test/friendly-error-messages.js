@@ -1,4 +1,4 @@
-var test = require('tape')
+var test = require('tape-catch')
 var getTestState = require('./helpers/test-state-factory')
 
 function noop() {}

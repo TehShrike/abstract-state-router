@@ -1,4 +1,4 @@
-var test = require('tape')
+var test = require('tape-catch')
 var StateState = require('../lib/state-state.js')
 var stateComparison = require('../lib/state-comparison.js')
 

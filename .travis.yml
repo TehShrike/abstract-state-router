@@ -1,7 +1,11 @@
 language: node_js
 node_js:
 - iojs
+sudo: false
+script:
+  - npm test
+  - npm run browserstack
 env:
   global:
-  - secure: XGmEtfp5o2i/gQ7A3YZrcG4Os1WTGIdp1C4+c0mVRSU8mHpS8MgltnTAgHn+cdbMMT0Tcv7fPPTWLXWlFyIYqVhbYy6HxPmR5GFCErE45yZWocxMGJoWzxj+5JImM/rBRbDA8zeIor+D9dobPcWd5s8VEXFsEO3L4f33xnIIE3Y=
-  - secure: Ghs5I0bIDZK7PON0lmCMugQUxqnolKcoxiygp+ie0cn/10plgLPL34WN2QIEXWzrwZ0H3huFGeT8pnP1USZqXnkvsHqB96LKMznlf/WUEWFG1yEJIfJOKmKlg/F0V45MUU7Q1CKjXVJsrKTbIavvGpJtG4pkgXbKQ3y5O7cL//s=
+  - secure: A86CL+EBtITETRILi3mE2O5G2JLGdzWQ0hB8oIamIx36qZyfbSO69klBwoiOr5xvnh7iWuCakARG738cg9k7umrYsN+a1YSxCJwB8A33xrX+8/BroKElIV8M58WluHokYB+TZh/SLJ1CpCAZobc3B1YKzdeTZQiQSOJ8d9jB+Mw=
+  - secure: eK5CZ8MuBVLjlu5yH/9v9FPDnyxLb/fvOdFevXADmnh+vWRMKh/BanBx544ry487/VnG1qd/m8f8J9QD86a70hQemQF2fokI6gwvTMjZU15Kv9e+i/WZRqB18AdNbiGT3Nflg+EN/+df1Z3w4XkVskBiMlrN1khhITWKl2Q5AO0=

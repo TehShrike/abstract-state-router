@@ -1,4 +1,4 @@
-var test = require('tape')
+var test = require('tape-catch')
 var parse = require('../lib/state-string-parser')
 
 function testParsing(t, input, output) {

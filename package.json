@@ -4,9 +4,10 @@
   "description": "The basics of a client-side state router ala the AngularJS ui-router, but without any DOM interactions",
   "main": "index.js",
   "scripts": {
-    "zuul": "zuul -- test/*.js",
     "test": "tape test/*.js | faucet",
-    "coverage": "covert test/*.js"
+    "coverage": "covert test/*.js",
+    "browserstackbuild": "browserify test-browser/add-color.js test/*.js node_modules/browserstack-tape-reporter/index.js -o test-browser/build.js -d",
+    "browserstack": "npm run browserstackbuild && browserstack-runner"
   },
   "repository": {
     "type": "git",
@@ -34,10 +35,12 @@
     "promise-map-series": "~0.2.1"
   },
   "devDependencies": {
+    "browserstack-runner": "0.3.7",
+    "browserstack-tape-reporter": "1.0.2",
     "covert": "^1.1.0",
     "faucet": "0.0.1",
-    "tape": "^4.0.0",
-    "tape-catch": "^1.0.4",
-    "zuul": "^3.0.0"
+    "tap-browser-color": "0.1.2",
+    "tape": "^4.1.0",
+    "tape-catch": "1.0.4"
   }
 }
