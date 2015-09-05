@@ -6,7 +6,7 @@
   "scripts": {
     "test": "tape test/*.js | faucet",
     "coverage": "covert test/*.js",
-    "browserwatch": "watchify test-browser/add-color.js test/*.js node_modules/browserstack-tape-reporter/index.js -o test-browser/build.js -d",
+    "browserwatch": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d",
     "browserstackbuild": "browserify test-browser/add-color.js test/*.js node_modules/browserstack-tape-reporter/index.js -o test-browser/build.js",
     "browserstack": "npm run browserstackbuild && browserstack-runner"
   },
