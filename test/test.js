@@ -246,38 +246,6 @@ test('normal, error-less state activation flow for two states', function(t) {
 	stateRouter.go('parent.child1', { wat: 'some value' })
 })
 
-test('makePath', function(t) {
-	var stateRouter = getTestState(t).stateRouter
-
-	t.plan(2)
-
-	stateRouter.addState({
-		name: 'parent',
-		template: '',
-		route: '/parent',
-	})
-
-	stateRouter.addState({
-		name: 'parent.child1',
-		template: '',
-		route: '/child1',
-	})
-
-	stateRouter.addState({
-		name: 'parent.child2',
-		template: '',
-		route: '/child2',
-	})
-
-	t.equal('#/parent/child1?param=value', stateRouter.makePath('parent.child1', { param: 'value' }))
-
-	t.throws(function() {
-		stateRouter.makePath('parent.doesnotexist')
-	}, /doesnotexist/)
-
-	t.end()
-})
-
 test('stateIsActive', function(t) {
 	var stateRouter = getTestState(t).stateRouter
 

@@ -19,7 +19,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	var stateProviderEmitter = new EventEmitter()
 	StateTransitionManager(stateProviderEmitter)
 	stateRouterOptions = extend({
-		throwOnError: true
+		throwOnError: true,
+		pathPrefix: '#'
 	}, stateRouterOptions)
 
 	if (!stateRouterOptions.router) {
@@ -268,7 +269,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 	stateProviderEmitter.makePath = function makePathAndPrependHash(stateName, parameters) {
-		return '#' + makePath(stateName, parameters)
+		return stateRouterOptions.pathPrefix + makePath(stateName, parameters)
 	}
 	stateProviderEmitter.stateIsActive = function stateIsActive(stateName, opts) {
 		var currentState = current.get()
