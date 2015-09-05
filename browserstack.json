@@ -1,7 +1,12 @@
 {
-	"test_path": [ "test.html" ],
+	"test_path": [ "test-browser/index.html" ],
 	"timeout": 900,
 	"browsers": [
-		"chrome_latest"
+		"chrome_latest",
+		"firefox_latest",
+		"safari_latest",
+		"chrome_latest",
+		"ie_10",
+		"ie_11"
 	]
 }

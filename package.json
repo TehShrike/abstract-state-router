@@ -6,7 +6,8 @@
   "scripts": {
     "test": "tape test/*.js | faucet",
     "coverage": "covert test/*.js",
-    "browserstackbuild": "browserify test-browser/add-color.js test/*.js node_modules/browserstack-tape-reporter/index.js -o test-browser/build.js -d",
+    "browserwatch": "watchify test-browser/add-color.js test/*.js node_modules/browserstack-tape-reporter/index.js -o test-browser/build.js -d",
+    "browserstackbuild": "browserify test-browser/add-color.js test/*.js node_modules/browserstack-tape-reporter/index.js -o test-browser/build.js",
     "browserstack": "npm run browserstackbuild && browserstack-runner"
   },
   "repository": {
@@ -42,6 +43,7 @@
     "faucet": "0.0.1",
     "tap-browser-color": "0.1.2",
     "tape": "^4.1.0",
-    "tape-catch": "1.0.4"
+    "tape-catch": "1.0.4",
+    "watchify": "3.4.0"
   }
 }
