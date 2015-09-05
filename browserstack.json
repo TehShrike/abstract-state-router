@@ -1,5 +1,5 @@
 {
-	"test_path": [ "test-browser/index.html" ],
+	"test_path": [ "test.html" ],
 	"timeout": 900,
 	"browsers": [
 		"chrome_latest"
