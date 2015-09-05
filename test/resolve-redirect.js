@@ -1,7 +1,7 @@
 var test = require('tape-catch')
 var getTestState = require('./helpers/test-state-factory')
 
-test('test redirector chain', function(t) {
+test('test redirecting activating the correct states', function(t) {
 	function startTest(t) {
 		var state = getTestState(t)
 		var stateRouter = state.stateRouter
@@ -18,7 +18,7 @@ test('test redirector chain', function(t) {
 				setTimeout(cb, 50)
 			},
 			activate: function() {
-				t.notOk(parentActivated, 'Should only activate once')
+				t.notOk(parentActivated, 'The parent should only activate once')
 				parentActivated = true
 			}
 		})
@@ -81,7 +81,7 @@ test('test redirector chain', function(t) {
 	t.end()
 })
 
-test('test redirector chain', function(t) {
+test('only one cancel happens if multiple redirects are called', function(t) {
 	function startTest(t) {
 		var state = getTestState(t)
 		var stateRouter = state.stateRouter
