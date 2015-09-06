@@ -207,6 +207,17 @@ Tested in Chrome, Firefox, Safari, and IE10+ (IE9 doesn't support [replace](http
 
 pushState routing is technically supported.  To use it, pass in an options object with a `router` hash-brown-router constructed with a [sausage-router](https://github.com/TehShrike/sausage-router), and then set the `pathPrefix` option to an empty string.
 
+```js
+var makeStateRouter = require('abstract-state-router')
+var sausage = require('sausage-router')
+var makeRouter = require('hash-brown-router')
+
+var stateRouter = makeStateRouter(makeRenderer, rootElement, {
+	pathPrefix: '',
+	router: makeRouter(sausage())
+})
+```
+
 However to use it in the real world, there are two things you probably want to do:
 
 ## Intercept link clicks
