@@ -5,6 +5,7 @@ var CurrentState = require('./lib/current-state')
 var stateChangeLogic = require('./lib/state-change-logic')
 var newHashBrownRouter = require('hash-brown-router')
 var EventEmitter = require('events').EventEmitter
+var Promise = require('pinkie-promise')
 var series = require('promise-map-series')
 var parse = require('./lib/state-string-parser')
 var combine = require('combine-arrays')
