@@ -1,6 +1,5 @@
 var StateState = require('./lib/state-state')
 var extend = require('extend')
-var Promise = require('promise')
 var StateComparison = require('./lib/state-comparison')
 var CurrentState = require('./lib/current-state')
 var stateChangeLogic = require('./lib/state-change-logic')
@@ -12,6 +11,7 @@ var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
 var StateTransitionManager = require('./lib/state-transition-manager')
 var debug = require('debug')('abstract-state-router')
+var denodeify = require('./lib/denodeify')
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
@@ -280,10 +280,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 	var renderer = makeRenderer(stateProviderEmitter)
 
-	destroyDom = Promise.denodeify(renderer.destroy)
-	getDomChild = Promise.denodeify(renderer.getChildElement)
-	renderDom = Promise.denodeify(renderer.render)
-	resetDom = Promise.denodeify(renderer.reset)
+	destroyDom = denodeify(renderer.destroy)
+	getDomChild = denodeify(renderer.getChildElement)
+	renderDom = denodeify(renderer.render)
+	resetDom = denodeify(renderer.reset)
 
 	return stateProviderEmitter
 }

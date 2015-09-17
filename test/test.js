@@ -1,7 +1,7 @@
 var test = require('tape-catch')
 var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 var getTestState = require('./helpers/test-state-factory')
-var Promise = require('promise')
+var Promise = require('pinkie-promise')
 
 test('normal, error-less state activation flow for two states', function(t) {
 	function basicTest(t) {
