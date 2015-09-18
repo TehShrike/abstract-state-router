@@ -15,6 +15,7 @@ If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstra
 - [RactiveJS](https://github.com/TehShrike/ractive-state-router)
 - [Riot](https://github.com/TehShrike/riot-state-renderer)
 - [virtual-dom](https://github.com/ArtskydJ/virtualdom-state-renderer)
+- [knockout](https://github.com/crissdev/knockout-state-renderer)
 
 If you want to use the state router with some other templating/dom manipulation library, [read these docs](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md)!  It's not too bad to get started.
 
