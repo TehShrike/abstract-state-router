@@ -101,6 +101,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function onRouteChange(state, parameters) {
+		Object.freeze(parameters)
 		try {
 			var finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
