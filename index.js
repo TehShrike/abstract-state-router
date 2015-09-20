@@ -14,7 +14,6 @@ var newHashBrownRouter = require('hash-brown-router')
 var Promise = require('native-promise-only/npo')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
-var debug = require('debug')('abstract-state-router')
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
@@ -44,7 +43,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	function handleError(event, err) {
 		process.nextTick(function() {
 			stateProviderEmitter.emit(event, err)
-			debug(event + ' - ' + err.message)
+			console.error(event + ' - ' + err.message)
 			if (stateRouterOptions.throwOnError) {
 				throw err
 			}
