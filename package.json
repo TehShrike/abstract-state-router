@@ -32,8 +32,7 @@
     "hash-brown-router": "~1.5.0",
     "native-promise-only": "0.8.1",
     "page-path-builder": "~1.0.2",
-    "path-to-regexp-with-reversible-keys": "~1.0.3",
-    "promise-map-series": "~0.2.1"
+    "path-to-regexp-with-reversible-keys": "~1.0.3"
   },
   "devDependencies": {
     "browserify": "11.0.1",

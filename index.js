@@ -1,18 +1,20 @@
 var StateState = require('./lib/state-state')
-var extend = require('extend')
 var StateComparison = require('./lib/state-comparison')
 var CurrentState = require('./lib/current-state')
 var stateChangeLogic = require('./lib/state-change-logic')
-var newHashBrownRouter = require('hash-brown-router')
-var EventEmitter = require('events').EventEmitter
-var Promise = require('native-promise-only/npo')
-var series = require('promise-map-series')
 var parse = require('./lib/state-string-parser')
+var StateTransitionManager = require('./lib/state-transition-manager')
+
+var series = require('./lib/promise-map-series')
+var denodeify = require('./lib/denodeify')
+
+var EventEmitter = require('events').EventEmitter
+var extend = require('extend')
+var newHashBrownRouter = require('hash-brown-router')
+var Promise = require('native-promise-only/npo')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
-var StateTransitionManager = require('./lib/state-transition-manager')
 var debug = require('debug')('abstract-state-router')
-var denodeify = require('./lib/denodeify')
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
