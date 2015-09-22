@@ -6,7 +6,7 @@ var parse = require('./lib/state-string-parser')
 var StateTransitionManager = require('./lib/state-transition-manager')
 
 var series = require('./lib/promise-map-series')
-var denodeify = require('./lib/denodeify')
+var denodeify = require('then-denodeify')
 
 var EventEmitter = require('events').EventEmitter
 var extend = require('extend')
