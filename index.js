@@ -9,7 +9,7 @@ var series = require('./lib/promise-map-series')
 var denodeify = require('then-denodeify')
 
 var EventEmitter = require('events').EventEmitter
-var extend = require('extend')
+var extend = require('xtend/mutable')
 var newHashBrownRouter = require('hash-brown-router')
 var Promise = require('native-promise-only/npo')
 var combine = require('combine-arrays')

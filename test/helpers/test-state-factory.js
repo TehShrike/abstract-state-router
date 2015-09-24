@@ -2,7 +2,7 @@ var hashRouterFactory = require('hash-brown-router')
 var hashLocationMockFactory = require('hash-brown-router/hash-location-mock')
 var stateRouterFactory = require('../../')
 var mockRenderFn = require('./renderer-mock')
-var extend = require('extend')
+var extend = require('xtend')
 
 module.exports = function getTestState(t, renderFn, options) {
 	var location = hashLocationMockFactory()
