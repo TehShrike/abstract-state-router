@@ -9,7 +9,7 @@ var series = require('./lib/promise-map-series')
 var denodeify = require('then-denodeify')
 
 var EventEmitter = require('events').EventEmitter
-var extend = require('xtend/mutable')
+var extend = require('xtend')
 var newHashBrownRouter = require('hash-brown-router')
 var Promise = require('native-promise-only/npo')
 var combine = require('combine-arrays')
@@ -171,7 +171,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			})
 
 			if (needToApplyDefaults) {
-				throw redirector(newStateName, extend({}, defaultParams, parameters))
+				throw redirector(newStateName, extend(defaultParams, parameters))
 			}
 			return state
 		}).then(ifNotCancelled(function(state) {
@@ -193,7 +193,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					return activateStates(statesToActivate)
 				}
 
-				extend(activeStateResolveContent, stateResolveResultsObject)
+				activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
 
 				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
 					return series(reverse(stateChanges.change), resetStateName)
@@ -206,12 +206,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
 					var emitter = new EventEmitter()
 					var context = Object.create(emitter)
-					extend(context, {
-						domApi: activeDomApis[state.name],
-						data: state.data,
-						parameters: parameters,
-						content: getContentObject(activeStateResolveContent, state.name)
-					})
+					context.domApi = activeDomApis[state.name]
+					context.data = state.data
+					context.parameters = parameters
+					context.content = getContentObject(activeStateResolveContent, state.name)
 					activeEmitters[state.name] = emitter
 
 					try {
@@ -258,7 +256,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
-		options = extend({}, defaultOptions, options)
+		options = extend(defaultOptions, options)
 		var goFunction = options.replace ? stateRouterOptions.router.replace : stateRouterOptions.router.go
 
 		return promiseMe(makePath, newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
