@@ -312,20 +312,25 @@ function resolveStates(states, parameters) {
 	var statesWithResolveFunctions = states.filter(isFunction('resolve'))
 	var stateNamesWithResolveFunctions = statesWithResolveFunctions.map(property('name'))
 	var resolves = Promise.all(statesWithResolveFunctions.map(function(state) {
-		return new Promise(function (resolve, reject) {
-			function resolveCb(err, content) {
-				err ? reject(err) : resolve(content)
-			}
+		var preloadedStateResolveData = typeof abstractStateRouterPreLoadedResolveDataMap === 'undefined' ? false : abstractStateRouterPreLoadedResolveDataMap[state.name]
+		if (preloadedStateResolveData) {
+			return Promise.resolve(preloadedStateResolveData)
+		} else {
+			return new Promise(function (resolve, reject) {
+				function resolveCb(err, content) {
+					err ? reject(err) : resolve(content)
+				}
 
-			resolveCb.redirect = function redirect(newStateName, parameters) {
-				reject(redirector(newStateName, parameters))
-			}
+				resolveCb.redirect = function redirect(newStateName, parameters) {
+					reject(redirector(newStateName, parameters))
+				}
 
-			var res = state.resolve(state.data, parameters, resolveCb)
-			if (res && (typeof res === 'object' || typeof res === 'function') && typeof res.then === 'function') {
-				resolve(res)
-			}
-		})
+				var res = state.resolve(state.data, parameters, resolveCb)
+				if (res && (typeof res === 'object' || typeof res === 'function') && typeof res.then === 'function') {
+					resolve(res)
+				}
+			})
+		}
 	}))
 
 	return resolves.then(function(resolveResults) {
