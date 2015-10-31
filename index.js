@@ -312,8 +312,9 @@ function resolveStates(states, parameters) {
 	var statesWithResolveFunctions = states.filter(isFunction('resolve'))
 	var stateNamesWithResolveFunctions = statesWithResolveFunctions.map(property('name'))
 	var resolves = Promise.all(statesWithResolveFunctions.map(function(state) {
-		var preloadedStateResolveData = typeof abstractStateRouterPreLoadedResolveDataMap === 'undefined' ? false : abstractStateRouterPreLoadedResolveDataMap[state.name]
-		if (preloadedStateResolveData) {
+		if (typeof abstractStateRouterPreLoadedResolveDataMap !== 'undefined' && abstractStateRouterPreLoadedResolveDataMap[state.name]) {
+			var preloadedStateResolveData = abstractStateRouterPreLoadedResolveDataMap[state.name]
+			delete abstractStateRouterPreLoadedResolveDataMap[state.name]
 			return Promise.resolve(preloadedStateResolveData)
 		} else {
 			return new Promise(function (resolve, reject) {
