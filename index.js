@@ -102,7 +102,6 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function onRouteChange(state, parameters) {
-		Object.freeze(parameters)
 		try {
 			var finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
@@ -184,7 +183,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
 			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
 		}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
-			return resolveStates(getStatesToResolve(stateChanges), parameters).catch(function onResolveError(e) {
+			return resolveStates(getStatesToResolve(stateChanges), extend(parameters)).catch(function onResolveError(e) {
 				e.stateChangeError = true
 				throw e
 			}).then(ifNotCancelled(function destroyAndActivate(stateResolveResultsObject) {
@@ -199,9 +198,9 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
 
 				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
-					return series(reverse(stateChanges.change), resetStateName.bind(null, parameters))
+					return series(reverse(stateChanges.change), resetStateName.bind(null, extend(parameters)))
 				}).then(function() {
-					return renderAll(stateChanges.create, parameters).then(activateAll)
+					return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
 				})
 			}))
 
