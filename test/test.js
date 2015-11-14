@@ -410,3 +410,43 @@ test('resolve that returns a promise', function(t) {
 
 	stateRouter.go('some-state')
 })
+
+test('render fn receives parameters', function(t) {
+	t.plan(1)
+	var stateRouter = getTestState(t, function() {
+		return {
+			render: function(context) {
+				t.deepEqual(context.parameters, {foo: 'abc'})
+			}
+		}
+	}).stateRouter
+	stateRouter.addState({
+		name: 'x',
+		route: '/x/:foo',
+		template: ''
+	})
+	stateRouter.go('x', {foo: 'abc'})
+});
+
+test('reset fn receives parameters', function(t) {
+	t.plan(1)
+	var stateRouter = getTestState(t, function() {
+		return {
+			render: function(context, cb) {
+				cb()
+			},
+			reset: function(context) {
+				t.deepEqual(context.parameters, {foo: 'def'})
+			}
+		}
+	}).stateRouter
+	stateRouter.addState({
+		name: 'x',
+		route: '/x/:foo',
+		template: ''
+	})
+	stateRouter.on('stateChangeEnd', function() {
+		stateRouter.go('x', {foo: 'def'})
+	});
+	stateRouter.go('x', {foo: 'abc'})
+});

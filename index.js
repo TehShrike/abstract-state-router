@@ -60,13 +60,14 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 
-	function resetStateName(stateName) {
+	function resetStateName(parameters, stateName) {
 		activeEmitters[stateName].emit('destroy')
 		delete activeEmitters[stateName]
 		return resetDom({
 			domApi: activeDomApis[stateName],
 			content: getContentObject(activeStateResolveContent, stateName),
-			template: prototypalStateHolder.get(stateName).template
+			template: prototypalStateHolder.get(stateName).template,
+			parameters: parameters
 		})
 	}
 
@@ -82,12 +83,13 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 
-	function renderStateName(stateName) {
+	function renderStateName(parameters, stateName) {
 		return getChildElementForStateName(stateName).then(function(childElement) {
 			return renderDom({
 				element: childElement,
 				template: prototypalStateHolder.get(stateName).template,
-				content: getContentObject(activeStateResolveContent, stateName)
+				content: getContentObject(activeStateResolveContent, stateName),
+				parameters: parameters
 			})
 		}).then(function(domApi) {
 			activeDomApis[stateName] = domApi
@@ -95,11 +97,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 
-	function renderAll(stateNames) {
-		return series(stateNames, renderStateName)
+	function renderAll(stateNames, parameters) {
+		return series(stateNames, renderStateName.bind(null, parameters))
 	}
 
 	function onRouteChange(state, parameters) {
+		Object.freeze(parameters)
 		try {
 			var finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
@@ -196,9 +199,9 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
 
 				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
-					return series(reverse(stateChanges.change), resetStateName)
+					return series(reverse(stateChanges.change), resetStateName.bind(null, parameters))
 				}).then(function() {
-					return renderAll(stateChanges.create).then(activateAll)
+					return renderAll(stateChanges.create, parameters).then(activateAll)
 				})
 			}))
 
