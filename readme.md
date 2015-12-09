@@ -59,13 +59,13 @@ The addState function takes a single object of options. All of them are optional
 
 `querystringParameters` is an array of query string parameters that will be watched by this state.
 
-### resolve(data, parameters, callback(err, content).redirect(stateName, params))
+### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
 
-The first argument is the data object you passed to the addState call.  The second argument is an object containing the parameters that were parsed out of the route params and the query string.
+The first argument is the data object you passed to the addState call.  The second argument is an object containing the parameters that were parsed out of the route and the query string.
 
 If you call `callback(err, content)` with a truthy err value, the state change will be cancelled and the previous state will remain active.
 
-If you call `callback.redirect(stateName, params)`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
+If you call `callback.redirect(stateName, [stateParameters])`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
 
 ### activate(context)
 
@@ -133,7 +133,7 @@ stateRouter.addState({
 })
 ```
 
-## stateRouter.go(stateName, [parameters, [options]])
+## stateRouter.go(stateName, [stateParameters, [options]])
 
 Browses to the given state, with the current parameters.  Changes the url to match.
 
@@ -146,9 +146,9 @@ stateRouter.go('app')
 // This actually redirects to app.tab1, because the app state has the default child: 'tab1'
 ```
 
-## stateRouter.evaluateCurrentRoute(fallbackRoute, [fallbackParameters])
+## stateRouter.evaluateCurrentRoute(fallbackStateName, [fallbackStateParameters])
 
-You'll want to call this once you've added all your initial states.  It causes the current path to be evaluated, and will activate the current state.  If the current path doesn't match the route of any available states, the browser gets sent to the fallback route provided.
+You'll want to call this once you've added all your initial states.  It causes the current path to be evaluated, and will activate the current state.  If the current path doesn't match the route of any available states, the browser gets sent to the fallback state provided.
 
 ```js
 stateRouter.evaluateCurrentRoute('app.tab2')
