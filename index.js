@@ -15,6 +15,8 @@ var Promise = require('native-promise-only/npo')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
 
+var expectedPropertiesOfAddState = ['name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters']
+
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
 	var current = CurrentState()
@@ -134,6 +136,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		} else if (typeof state.template === 'undefined') {
 			throw new Error('Expected the \'template\' option to be passed in.')
 		}
+		Object.keys(state).filter(function(key) {
+			return expectedPropertiesOfAddState.indexOf(key) === -1
+		}).forEach(function(key) {
+			console.warn('Unexpected property passed to addState:', key)
+		})
+
 		prototypalStateHolder.add(state.name, state)
 
 		var route = prototypalStateHolder.buildFullStateRoute(state.name)
