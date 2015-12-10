@@ -8,7 +8,7 @@ function basicRouterSetup(t, options) {
 		name: 'parent',
 		template: '',
 		route: '/parent',
-		parameters: [ 'thingy', 'thinger' ]
+		querystringParameters: [ 'thingy', 'thinger' ]
 	})
 
 	stateRouter.addState({

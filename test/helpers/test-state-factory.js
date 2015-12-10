@@ -18,7 +18,7 @@ module.exports = function getTestState(t, renderFn, options) {
 		route: '/dummy',
 		data: {},
 		template: null,
-		render: t.fail.bind(t, 'dummy route was called')
+		activate: t.fail.bind(t, 'dummy route was called')
 	})
 
 	return {
