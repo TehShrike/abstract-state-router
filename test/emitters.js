@@ -230,3 +230,51 @@ test('emitting state create', function(t) {
 
 	stateRouter.go('state', {})
 })
+
+test('emitting state destroy', function(t) {
+	var originalDomApi = {}
+	var state = getTestState(t, function() {
+		return {
+			render: function(context, cb) {
+				cb(null, originalDomApi)
+			},
+			reset: function(context, cb) {
+				cb(null)
+			},
+			destroy: function(renderedTemplateApi, cb) {
+				cb(null)
+			},
+			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+				cb(null, {})
+			}
+		}
+	})
+	var stateRouter = state.stateRouter
+	t.plan(2)
+
+	var originalStateObject = {
+		name: 'state',
+		route: '/state',
+		template: {},
+		activate: function() {
+			stateRouter.go('second-state', {})
+		}
+	}
+
+	stateRouter.addState(originalStateObject)
+	stateRouter.addState({
+		name: 'second-state',
+		route: '/second',
+		template: {},
+		activate: function(context) {
+			t.end()
+		}
+	})
+
+	stateRouter.on('destroy state', function(state, domApi) {
+		t.equal(originalStateObject, state)
+		t.equal(originalDomApi, domApi)
+	})
+
+	stateRouter.go('state', {})
+})

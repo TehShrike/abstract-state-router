@@ -57,6 +57,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		activeEmitters[stateName].removeAllListeners()
 		delete activeEmitters[stateName]
 		delete activeStateResolveContent[stateName]
+		stateProviderEmitter.emit('destroy state', prototypalStateHolder.get(stateName), activeDomApis[stateName])
+
 		return destroyDom(activeDomApis[stateName]).then(function() {
 			delete activeDomApis[stateName]
 		})
