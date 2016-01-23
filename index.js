@@ -87,15 +87,18 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 	function renderStateName(parameters, stateName) {
 		return getChildElementForStateName(stateName).then(function(childElement) {
+			var state = prototypalStateHolder.get(stateName)
+
 			return renderDom({
 				element: childElement,
-				template: prototypalStateHolder.get(stateName).template,
+				template: state.template,
 				content: getContentObject(activeStateResolveContent, stateName),
 				parameters: parameters
+			}).then(function(domApi) {
+				activeDomApis[stateName] = domApi
+				stateProviderEmitter.emit('create state', state, domApi)
+				return domApi
 			})
-		}).then(function(domApi) {
-			activeDomApis[stateName] = domApi
-			return domApi
 		})
 	}
 

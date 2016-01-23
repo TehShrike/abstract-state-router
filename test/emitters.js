@@ -1,6 +1,7 @@
 var test = require('tape-catch')
 var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 var getTestState = require('./helpers/test-state-factory')
+var mockRendererFacotry = require('./helpers/renderer-mock')
 
 test('Emitting errors when attempting to navigate to invalid states', function(t) {
 	function testGoingTo(description, invalidStateName) {
@@ -186,4 +187,46 @@ test('emitting stateChangeError', function(t) {
 	})
 
 	stateRouter.go('valid1.valid')
+})
+
+test('emitting state create', function(t) {
+	var originalDomApi = {}
+	var state = getTestState(t, function() {
+		return {
+			render: function(context, cb) {
+				cb(null, originalDomApi)
+			},
+			reset: function(context, cb) {
+				cb(null)
+			},
+			destroy: function(renderedTemplateApi, cb) {
+				cb(null)
+			},
+			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+				cb(null, {})
+			}
+		}
+	})
+	var stateRouter = state.stateRouter
+	t.plan(2)
+
+	var originalStateObject = {
+		name: 'state',
+		route: '/state',
+		template: {},
+		querystringParameters: [ 'wat', 'much' ],
+		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
+		activate: function(context) {
+			t.end()
+		}
+	}
+
+	stateRouter.addState(originalStateObject)
+
+	stateRouter.on('create state', function(state, domApi) {
+		t.equal(originalStateObject, state)
+		t.equal(originalDomApi, domApi)
+	})
+
+	stateRouter.go('state', {})
 })
