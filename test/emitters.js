@@ -191,9 +191,18 @@ test('emitting stateChangeError', function(t) {
 
 test('emitting state create', function(t) {
 	var originalDomApi = {}
+	var renderCalled = false
+	var beforeEventFired = false
+	var afterEventFired = false
+
+	t.plan(14)
+
 	var state = getTestState(t, function() {
 		return {
 			render: function(context, cb) {
+				t.ok(beforeEventFired)
+				renderCalled = true
+				t.notOk(afterEventFired)
 				cb(null, originalDomApi)
 			},
 			reset: function(context, cb) {
@@ -207,8 +216,8 @@ test('emitting state create', function(t) {
 			}
 		}
 	})
+
 	var stateRouter = state.stateRouter
-	t.plan(2)
 
 	var originalStateObject = {
 		name: 'state',
@@ -216,16 +225,36 @@ test('emitting state create', function(t) {
 		template: {},
 		querystringParameters: [ 'wat', 'much' ],
 		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
-		activate: function(context) {
-			t.end()
+		resolve: function(data, params, cb) {
+			cb(null, {
+				value: 'legit'
+			})
 		}
 	}
 
 	stateRouter.addState(originalStateObject)
 
-	stateRouter.on('create state', function(state, domApi) {
-		t.equal(originalStateObject, state)
-		t.equal(originalDomApi, domApi)
+	stateRouter.on('before create state', function(context) {
+		t.notOk(renderCalled)
+		t.notOk(afterEventFired)
+		t.notOk(beforeEventFired)
+		beforeEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.content.value, 'legit')
+		t.notOk(context.domApi)
+	})
+	stateRouter.on('after create state', function(context) {
+		t.ok(beforeEventFired)
+		t.ok(renderCalled)
+		t.notOk(afterEventFired)
+		afterEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.content.value, 'legit')
+		t.equal(context.domApi, originalDomApi)
+
+		t.end()
 	})
 
 	stateRouter.go('state', {})
@@ -233,6 +262,10 @@ test('emitting state create', function(t) {
 
 test('emitting state destroy', function(t) {
 	var originalDomApi = {}
+	var beforeEventFired = false
+	var afterEventFired = false
+	var destroyCalled = false
+
 	var state = getTestState(t, function() {
 		return {
 			render: function(context, cb) {
@@ -242,6 +275,10 @@ test('emitting state destroy', function(t) {
 				cb(null)
 			},
 			destroy: function(renderedTemplateApi, cb) {
+				t.ok(beforeEventFired)
+				t.notOk(afterEventFired)
+				destroyCalled = true
+
 				cb(null)
 			},
 			getChildElement: function getChildElement(renderedTemplateApi, cb) {
@@ -250,7 +287,7 @@ test('emitting state destroy', function(t) {
 		}
 	})
 	var stateRouter = state.stateRouter
-	t.plan(2)
+	t.plan(11)
 
 	var originalStateObject = {
 		name: 'state',
@@ -267,13 +304,27 @@ test('emitting state destroy', function(t) {
 		route: '/second',
 		template: {},
 		activate: function(context) {
+			t.ok(afterEventFired)
 			t.end()
 		}
 	})
 
-	stateRouter.on('destroy state', function(state, domApi) {
-		t.equal(originalStateObject, state)
-		t.equal(originalDomApi, domApi)
+	stateRouter.on('before destroy state', function(context) {
+		t.notOk(destroyCalled)
+		t.notOk(afterEventFired)
+		beforeEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.domApi, originalDomApi)
+	})
+
+	stateRouter.on('after destroy state', function(context) {
+		t.ok(beforeEventFired)
+		t.ok(destroyCalled)
+		afterEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.notOk(context.domApi)
 	})
 
 	stateRouter.go('state', {})
@@ -283,6 +334,11 @@ test('emitting state change', function(t) {
 	var originalDomApi = {}
 	var secondDomApi = {}
 	var domApis = [originalDomApi, secondDomApi]
+	var beforeEventFired = false
+	var afterEventFired = false
+	var resetCalled = false
+
+	t.plan(14)
 
 	var state = getTestState(t, function() {
 		return {
@@ -290,6 +346,12 @@ test('emitting state change', function(t) {
 				cb(null, domApis.shift())
 			},
 			reset: function(context, cb) {
+				if (!resetCalled) {
+					t.ok(beforeEventFired)
+					t.notOk(afterEventFired)
+					resetCalled = true
+				}
+
 				cb(null)
 			},
 			destroy: function(renderedTemplateApi, cb) {
@@ -301,13 +363,17 @@ test('emitting state change', function(t) {
 		}
 	})
 	var stateRouter = state.stateRouter
-	t.plan(4)
 
 	var originalStateObject = {
 		name: 'state',
 		route: '/state',
 		template: {},
 		querystringParameters: [ 'wat' ],
+		resolve: function(data, params, cb) {
+			cb(null, {
+				value: 'legit'
+			})
+		},
 		activate: function() {
 			setTimeout(function() {
 				stateRouter.go('state', { wat: 20 })
@@ -317,16 +383,26 @@ test('emitting state change', function(t) {
 
 	stateRouter.addState(originalStateObject)
 
-	stateRouter.on('create state', function(state, domApi) {
-		console.log('create')
-		t.equal(originalStateObject, state)
-		t.equal(originalDomApi, domApi)
+	stateRouter.on('before reset state', function(context) {
+		t.notOk(beforeEventFired)
+		t.notOk(resetCalled)
+		t.notOk(afterEventFired)
+		beforeEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.domApi, originalDomApi)
+		t.equal(context.content.value, 'legit')
 	})
 
-	stateRouter.on('change state', function(state, domApi) {
-		console.log('change')
-		t.equal(originalStateObject, state)
-		t.equal(secondDomApi, domApi)
+	stateRouter.on('after reset state', function(context) {
+		t.ok(beforeEventFired)
+		t.ok(resetCalled)
+		t.notOk(afterEventFired)
+		afterEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.domApi, originalDomApi)
+		t.equal(context.content.value, 'legit')
 		t.end()
 	})
 

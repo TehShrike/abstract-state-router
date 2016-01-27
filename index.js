@@ -57,21 +57,45 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		activeEmitters[stateName].removeAllListeners()
 		delete activeEmitters[stateName]
 		delete activeStateResolveContent[stateName]
-		stateProviderEmitter.emit('destroy state', prototypalStateHolder.get(stateName), activeDomApis[stateName])
+		var state = prototypalStateHolder.get(stateName)
+		stateProviderEmitter.emit('before destroy state', {
+			state: state,
+			domApi: activeDomApis[stateName]
+		})
 
 		return destroyDom(activeDomApis[stateName]).then(function() {
 			delete activeDomApis[stateName]
+			stateProviderEmitter.emit('after destroy state', {
+				state: state
+			})
 		})
 	}
 
 	function resetStateName(parameters, stateName) {
 		activeEmitters[stateName].emit('destroy')
 		delete activeEmitters[stateName]
+
+		var domApi = activeDomApis[stateName]
+		var content = getContentObject(activeStateResolveContent, stateName)
+		var state = prototypalStateHolder.get(stateName)
+
+		stateProviderEmitter.emit('before reset state', {
+			domApi: domApi,
+			content: content,
+			state: state
+		})
+
 		return resetDom({
-			domApi: activeDomApis[stateName],
-			content: getContentObject(activeStateResolveContent, stateName),
-			template: prototypalStateHolder.get(stateName).template,
+			domApi: domApi,
+			content: content,
+			template: state.template,
 			parameters: parameters
+		}).then(function() {
+			stateProviderEmitter.emit('after reset state', {
+				domApi: domApi,
+				content: content,
+				state: state
+			})
 		})
 	}
 
@@ -90,15 +114,25 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	function renderStateName(parameters, stateName) {
 		return getChildElementForStateName(stateName).then(function(childElement) {
 			var state = prototypalStateHolder.get(stateName)
+			var content = getContentObject(activeStateResolveContent, stateName)
+
+			stateProviderEmitter.emit('before create state', {
+				state: state,
+				content: content
+			})
 
 			return renderDom({
 				element: childElement,
 				template: state.template,
-				content: getContentObject(activeStateResolveContent, stateName),
+				content: content,
 				parameters: parameters
 			}).then(function(domApi) {
 				activeDomApis[stateName] = domApi
-				stateProviderEmitter.emit('create state', state, domApi)
+				stateProviderEmitter.emit('after create state', {
+					state: state,
+					domApi: domApi,
+					content: content
+				})
 				return domApi
 			})
 		})
