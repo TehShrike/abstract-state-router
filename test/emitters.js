@@ -189,7 +189,7 @@ test('emitting stateChangeError', function(t) {
 	stateRouter.go('valid1.valid')
 })
 
-test('emitting state create', function(t) {
+test('emitting dom api create', function(t) {
 	var originalDomApi = {}
 	var renderCalled = false
 	var beforeEventFired = false
@@ -260,7 +260,7 @@ test('emitting state create', function(t) {
 	stateRouter.go('state', {})
 })
 
-test('emitting state destroy', function(t) {
+test('emitting dom api destroy', function(t) {
 	var originalDomApi = {}
 	var beforeEventFired = false
 	var afterEventFired = false
@@ -330,7 +330,7 @@ test('emitting state destroy', function(t) {
 	stateRouter.go('state', {})
 })
 
-test('emitting state change', function(t) {
+test('emitting dom api reset', function(t) {
 	var originalDomApi = {}
 	var secondDomApi = {}
 	var domApis = [originalDomApi, secondDomApi]
