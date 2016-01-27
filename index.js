@@ -58,14 +58,14 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		delete activeEmitters[stateName]
 		delete activeStateResolveContent[stateName]
 		var state = prototypalStateHolder.get(stateName)
-		stateProviderEmitter.emit('before destroy state', {
+		stateProviderEmitter.emit('beforeDestroyState', {
 			state: state,
 			domApi: activeDomApis[stateName]
 		})
 
 		return destroyDom(activeDomApis[stateName]).then(function() {
 			delete activeDomApis[stateName]
-			stateProviderEmitter.emit('after destroy state', {
+			stateProviderEmitter.emit('afterDestroyState', {
 				state: state
 			})
 		})
@@ -79,7 +79,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		var content = getContentObject(activeStateResolveContent, stateName)
 		var state = prototypalStateHolder.get(stateName)
 
-		stateProviderEmitter.emit('before reset state', {
+		stateProviderEmitter.emit('beforeResetState', {
 			domApi: domApi,
 			content: content,
 			state: state
@@ -91,7 +91,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			template: state.template,
 			parameters: parameters
 		}).then(function() {
-			stateProviderEmitter.emit('after reset state', {
+			stateProviderEmitter.emit('afterResetState', {
 				domApi: domApi,
 				content: content,
 				state: state
@@ -116,7 +116,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			var state = prototypalStateHolder.get(stateName)
 			var content = getContentObject(activeStateResolveContent, stateName)
 
-			stateProviderEmitter.emit('before create state', {
+			stateProviderEmitter.emit('beforeCreateState', {
 				state: state,
 				content: content
 			})
@@ -128,7 +128,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				parameters: parameters
 			}).then(function(domApi) {
 				activeDomApis[stateName] = domApi
-				stateProviderEmitter.emit('after create state', {
+				stateProviderEmitter.emit('afterCreateState', {
 					state: state,
 					domApi: domApi,
 					content: content

@@ -234,7 +234,7 @@ test('emitting dom api create', function(t) {
 
 	stateRouter.addState(originalStateObject)
 
-	stateRouter.on('before create state', function(context) {
+	stateRouter.on('beforeCreateState', function(context) {
 		t.notOk(renderCalled)
 		t.notOk(afterEventFired)
 		t.notOk(beforeEventFired)
@@ -244,7 +244,7 @@ test('emitting dom api create', function(t) {
 		t.equal(context.content.value, 'legit')
 		t.notOk(context.domApi)
 	})
-	stateRouter.on('after create state', function(context) {
+	stateRouter.on('afterCreateState', function(context) {
 		t.ok(beforeEventFired)
 		t.ok(renderCalled)
 		t.notOk(afterEventFired)
@@ -309,7 +309,7 @@ test('emitting dom api destroy', function(t) {
 		}
 	})
 
-	stateRouter.on('before destroy state', function(context) {
+	stateRouter.on('beforeDestroyState', function(context) {
 		t.notOk(destroyCalled)
 		t.notOk(afterEventFired)
 		beforeEventFired = true
@@ -318,7 +318,7 @@ test('emitting dom api destroy', function(t) {
 		t.equal(context.domApi, originalDomApi)
 	})
 
-	stateRouter.on('after destroy state', function(context) {
+	stateRouter.on('afterDestroyState', function(context) {
 		t.ok(beforeEventFired)
 		t.ok(destroyCalled)
 		afterEventFired = true
@@ -383,7 +383,7 @@ test('emitting dom api reset', function(t) {
 
 	stateRouter.addState(originalStateObject)
 
-	stateRouter.on('before reset state', function(context) {
+	stateRouter.on('beforeResetState', function(context) {
 		t.notOk(beforeEventFired)
 		t.notOk(resetCalled)
 		t.notOk(afterEventFired)
@@ -394,7 +394,7 @@ test('emitting dom api reset', function(t) {
 		t.equal(context.content.value, 'legit')
 	})
 
-	stateRouter.on('after reset state', function(context) {
+	stateRouter.on('afterResetState', function(context) {
 		t.ok(beforeEventFired)
 		t.ok(resetCalled)
 		t.notOk(afterEventFired)
