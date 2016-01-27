@@ -189,7 +189,7 @@ Tested in Chrome, Firefox, Safari, and IE10+ (IE9 doesn't support [replace](http
 
 # State change flow
 
-- emit StateChangeStart
+- emit stateChangeStart
 - call all resolve functions
 - resolve functions return
 - **NO LONGER AT PREVIOUS STATE**
@@ -198,7 +198,7 @@ Tested in Chrome, Firefox, Safari, and IE10+ (IE9 doesn't support [replace](http
 - reset "change"ing dom elements
 - call render functions for "create"ed states
 - call all activate functions
-- emit StateChangeEnd
+- emit stateChangeEnd
 
 # Every state change does this to states
 
