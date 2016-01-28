@@ -1,6 +1,7 @@
 var test = require('tape-catch')
 var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 var getTestState = require('./helpers/test-state-factory')
+var mockRendererFacotry = require('./helpers/renderer-mock')
 
 test('Emitting errors when attempting to navigate to invalid states', function(t) {
 	function testGoingTo(description, invalidStateName) {
@@ -186,4 +187,224 @@ test('emitting stateChangeError', function(t) {
 	})
 
 	stateRouter.go('valid1.valid')
+})
+
+test('emitting dom api create', function(t) {
+	var originalDomApi = {}
+	var renderCalled = false
+	var beforeEventFired = false
+	var afterEventFired = false
+
+	t.plan(14)
+
+	var state = getTestState(t, function() {
+		return {
+			render: function(context, cb) {
+				t.ok(beforeEventFired)
+				renderCalled = true
+				t.notOk(afterEventFired)
+				cb(null, originalDomApi)
+			},
+			reset: function(context, cb) {
+				cb(null)
+			},
+			destroy: function(renderedTemplateApi, cb) {
+				cb(null)
+			},
+			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+				cb(null, {})
+			}
+		}
+	})
+
+	var stateRouter = state.stateRouter
+
+	var originalStateObject = {
+		name: 'state',
+		route: '/state',
+		template: {},
+		querystringParameters: [ 'wat', 'much' ],
+		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
+		resolve: function(data, params, cb) {
+			cb(null, {
+				value: 'legit'
+			})
+		}
+	}
+
+	stateRouter.addState(originalStateObject)
+
+	stateRouter.on('beforeCreateState', function(context) {
+		t.notOk(renderCalled)
+		t.notOk(afterEventFired)
+		t.notOk(beforeEventFired)
+		beforeEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.content.value, 'legit')
+		t.notOk(context.domApi)
+	})
+	stateRouter.on('afterCreateState', function(context) {
+		t.ok(beforeEventFired)
+		t.ok(renderCalled)
+		t.notOk(afterEventFired)
+		afterEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.content.value, 'legit')
+		t.equal(context.domApi, originalDomApi)
+
+		t.end()
+	})
+
+	stateRouter.go('state', {})
+})
+
+test('emitting dom api destroy', function(t) {
+	var originalDomApi = {}
+	var beforeEventFired = false
+	var afterEventFired = false
+	var destroyCalled = false
+
+	var state = getTestState(t, function() {
+		return {
+			render: function(context, cb) {
+				cb(null, originalDomApi)
+			},
+			reset: function(context, cb) {
+				cb(null)
+			},
+			destroy: function(renderedTemplateApi, cb) {
+				t.ok(beforeEventFired)
+				t.notOk(afterEventFired)
+				destroyCalled = true
+
+				cb(null)
+			},
+			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+				cb(null, {})
+			}
+		}
+	})
+	var stateRouter = state.stateRouter
+	t.plan(11)
+
+	var originalStateObject = {
+		name: 'state',
+		route: '/state',
+		template: {},
+		activate: function() {
+			stateRouter.go('second-state', {})
+		}
+	}
+
+	stateRouter.addState(originalStateObject)
+	stateRouter.addState({
+		name: 'second-state',
+		route: '/second',
+		template: {},
+		activate: function(context) {
+			t.ok(afterEventFired)
+			t.end()
+		}
+	})
+
+	stateRouter.on('beforeDestroyState', function(context) {
+		t.notOk(destroyCalled)
+		t.notOk(afterEventFired)
+		beforeEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.domApi, originalDomApi)
+	})
+
+	stateRouter.on('afterDestroyState', function(context) {
+		t.ok(beforeEventFired)
+		t.ok(destroyCalled)
+		afterEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.notOk(context.domApi)
+	})
+
+	stateRouter.go('state', {})
+})
+
+test('emitting dom api reset', function(t) {
+	var originalDomApi = {}
+	var secondDomApi = {}
+	var domApis = [originalDomApi, secondDomApi]
+	var beforeEventFired = false
+	var afterEventFired = false
+	var resetCalled = false
+
+	t.plan(14)
+
+	var state = getTestState(t, function() {
+		return {
+			render: function(context, cb) {
+				cb(null, domApis.shift())
+			},
+			reset: function(context, cb) {
+				if (!resetCalled) {
+					t.ok(beforeEventFired)
+					t.notOk(afterEventFired)
+					resetCalled = true
+				}
+
+				cb(null)
+			},
+			destroy: function(renderedTemplateApi, cb) {
+				cb(null)
+			},
+			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+				cb(null, {})
+			}
+		}
+	})
+	var stateRouter = state.stateRouter
+
+	var originalStateObject = {
+		name: 'state',
+		route: '/state',
+		template: {},
+		querystringParameters: [ 'wat' ],
+		resolve: function(data, params, cb) {
+			cb(null, {
+				value: 'legit'
+			})
+		},
+		activate: function() {
+			setTimeout(function() {
+				stateRouter.go('state', { wat: 20 })
+			}, 10)
+		}
+	}
+
+	stateRouter.addState(originalStateObject)
+
+	stateRouter.on('beforeResetState', function(context) {
+		t.notOk(beforeEventFired)
+		t.notOk(resetCalled)
+		t.notOk(afterEventFired)
+		beforeEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.domApi, originalDomApi)
+		t.equal(context.content.value, 'legit')
+	})
+
+	stateRouter.on('afterResetState', function(context) {
+		t.ok(beforeEventFired)
+		t.ok(resetCalled)
+		t.notOk(afterEventFired)
+		afterEventFired = true
+
+		t.equal(context.state, originalStateObject)
+		t.equal(context.domApi, originalDomApi)
+		t.equal(context.content.value, 'legit')
+		t.end()
+	})
+
+	stateRouter.go('state', { wat: 10 })
 })

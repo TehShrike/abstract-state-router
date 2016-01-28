@@ -1,4 +1,4 @@
-var myArbitraryRenderFunction = function lol(parent, cb) {
+function myArbitraryRenderFunction(parent, cb) {
 	var child = {}
 
 	var newObject = {
