@@ -396,10 +396,8 @@ test('resolve that returns a promise', function(t) {
 		name: 'some-state',
 		template: null,
 		resolve: function() {
-			return new Promise(function(resolve, reject) {
-				resolve({
-					value: 'this is it!'
-				})
+			return Promise.resolve({
+				value: 'this is it!'
 			})
 		},
 		activate: function(context) {
