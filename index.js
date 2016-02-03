@@ -53,15 +53,16 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function destroyStateName(stateName) {
-		activeEmitters[stateName].emit('destroy')
-		activeEmitters[stateName].removeAllListeners()
-		delete activeEmitters[stateName]
-		delete activeStateResolveContent[stateName]
 		var state = prototypalStateHolder.get(stateName)
 		stateProviderEmitter.emit('beforeDestroyState', {
 			state: state,
 			domApi: activeDomApis[stateName]
 		})
+
+		activeEmitters[stateName].emit('destroy')
+		activeEmitters[stateName].removeAllListeners()
+		delete activeEmitters[stateName]
+		delete activeStateResolveContent[stateName]
 
 		return destroyDom(activeDomApis[stateName]).then(function() {
 			delete activeDomApis[stateName]
@@ -72,9 +73,6 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function resetStateName(parameters, stateName) {
-		activeEmitters[stateName].emit('destroy')
-		delete activeEmitters[stateName]
-
 		var domApi = activeDomApis[stateName]
 		var content = getContentObject(activeStateResolveContent, stateName)
 		var state = prototypalStateHolder.get(stateName)
@@ -84,6 +82,9 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			content: content,
 			state: state
 		})
+
+		activeEmitters[stateName].emit('destroy')
+		delete activeEmitters[stateName]
 
 		return resetDom({
 			domApi: domApi,

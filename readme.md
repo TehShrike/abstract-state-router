@@ -172,6 +172,25 @@ Returns a path to the state, starting with an [optional](#options) octothorpe `#
 stateRouter.makePath('app.tab2', { pants: 'no' })
 ```
 
+## Events
+
+These are all emitted on the state router object.
+
+### State change
+
+- `stateChangeStart(state, parameters)`
+- `stateChangeCancelled(err)`
+- `stateChangeEnd(state, parameters)`
+
+### DOM API interactions
+
+- `beforeCreateState({state, content})`
+- `afterCreateState({state, domApi, content})`
+- `beforeResetState({state, domApi, content})`
+- `afterResetState({state, domApi, content})`
+- `beforeDestroyState({state, domApi})`
+- `afterDestroyState({state})`
+
 # Testing/development
 
 To run the unit tests:
