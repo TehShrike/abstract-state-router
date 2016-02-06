@@ -164,9 +164,11 @@ Returns true if the state name matches the current active state, and all the pro
 stateRouter.stateIsActive('app.tab1', { fancy: 'yes' })
 ```
 
-## stateRouter.makePath(stateName, [stateParameters])
+## stateRouter.makePath(stateName, [stateParameters], options)
 
 Returns a path to the state, starting with an [optional](#options) octothorpe `#`, suitable for inserting straight into the `href` attribute of a link.
+
+The `options` object supports one property: `inherit` - if true, querystring parameters are inherited from the current state.  Defaults to false.
 
 ```js
 stateRouter.makePath('app.tab2', { pants: 'no' })
