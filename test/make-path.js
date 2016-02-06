@@ -1,4 +1,5 @@
 var test = require('tape-catch')
+var qs = require('querystring')
 var getTestState = require('./helpers/test-state-factory')
 
 function basicRouterSetup(t, options) {
@@ -32,7 +33,7 @@ test('makePath builds a path and throws on non-existant state', function(t) {
 
 	var stateRouter = basicRouterSetup(t)
 
-	t.equal('#/parent/child1?param=value', stateRouter.makePath('parent.child1', { param: 'value' }))
+	t.equal(stateRouter.makePath('parent.child1', { param: 'value' }), '#/parent/child1?param=value')
 
 	t.throws(function() {
 		stateRouter.makePath('parent.doesnotexist')
@@ -46,8 +47,34 @@ test('makePath respects the prefix option', function(t) {
 		pathPrefix: ''
 	})
 
-	t.equal('/parent/child1?thingy=value', stateRouter.makePath('parent.child1', { thingy: 'value' }))
-	t.equal('/parent?thingy=value', stateRouter.makePath('parent', { thingy: 'value' }))
+	t.equal(stateRouter.makePath('parent.child1', { thingy: 'value' }), '/parent/child1?thingy=value')
+	t.equal(stateRouter.makePath('parent', { thingy: 'value' }), '/parent?thingy=value')
 
 	t.end()
+})
+
+test('makePath respects the inherit option', function(t) {
+	var stateRouter = basicRouterSetup(t)
+
+	function justTheQuerystring(str) {
+		var match = /\?(.+)$/.exec(str)
+		return qs.parse(match[1])
+	}
+
+	stateRouter.on('stateChangeEnd', function() {
+		var output = justTheQuerystring(stateRouter.makePath('parent.child2', { otherParameter: 'other value' }, { inherit: true }))
+		t.equal(output.originalParameter, 'original value')
+		t.equal(output.otherParameter, 'other value')
+		t.equal(Object.keys(output).length, 2)
+
+		output = justTheQuerystring(stateRouter.makePath('parent.child2', { originalParameter: 'new value' }, { inherit: true }))
+		t.equal(output.originalParameter, 'new value')
+		t.equal(Object.keys(output).length, 1)
+
+		t.end()
+	})
+
+	stateRouter.go('parent.child1', {
+		originalParameter: 'original value'
+	})
 })

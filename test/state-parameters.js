@@ -144,3 +144,44 @@ test('can overwrite parameters when using inherit', function(t) {
 	})
 })
 
+test('inherit works with replace', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+
+	stateRouter.addState({
+		name: 'parent',
+		route: '/parent',
+		template: 'parentTemplate'
+	})
+
+	stateRouter.addState({
+		name: 'parent.child1',
+		route: '/child1',
+		template: 'child1Template',
+		querystringParameters: ['child1'],
+		activate: function(context) {
+			process.nextTick(function() {
+				stateRouter.go('parent.child2', {
+					parent: 'new value'
+				}, { inherit: true, replace: true })
+			})
+		}
+	})
+
+	stateRouter.addState({
+		name: 'parent.child2',
+		route: '/child2',
+		template: 'child2Template',
+		activate: function(context) {
+			t.equal(context.parameters.parent, 'new value')
+			t.equal(context.parameters.whatevs, 'totally')
+			t.end()
+		}
+	})
+
+	stateRouter.go('parent.child1', {
+		parent: 'initial parent',
+		whatevs: 'totally'
+	})
+})
+

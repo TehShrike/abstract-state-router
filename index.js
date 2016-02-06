@@ -295,7 +295,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 
-	function makePath(stateName, parameters) {
+	function makePath(stateName, parameters, options) {
+		if (options && options.inherit) {
+			parameters = extend(current.get().parameters, parameters)
+		}
+
 		prototypalStateHolder.guaranteeAllStatesExist(stateName)
 		var route = prototypalStateHolder.buildFullStateRoute(stateName)
 		return buildPath(route, parameters || {})
@@ -310,11 +314,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		options = extend(defaultOptions, options)
 		var goFunction = options.replace ? stateRouterOptions.router.replace : stateRouterOptions.router.go
 
-		if (options && options.inherit) {
-			parameters = extend(current.get().parameters, parameters)
-		}
-
-		return promiseMe(makePath, newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
+		return promiseMe(makePath, newStateName, parameters, options).then(goFunction, handleError.bind(null, 'stateChangeError'))
 	}
 	stateProviderEmitter.evaluateCurrentRoute = function evaluateCurrentRoute(defaultState, defaultParams) {
 		return promiseMe(makePath, defaultState, defaultParams).then(function(defaultPath) {
@@ -323,8 +323,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			handleError('stateError', err)
 		})
 	}
-	stateProviderEmitter.makePath = function makePathAndPrependHash(stateName, parameters) {
-		return stateRouterOptions.pathPrefix + makePath(stateName, parameters)
+	stateProviderEmitter.makePath = function makePathAndPrependHash(stateName, parameters, options) {
+		return stateRouterOptions.pathPrefix + makePath(stateName, parameters, options)
 	}
 	stateProviderEmitter.stateIsActive = function stateIsActive(stateName, opts) {
 		var currentState = current.get()
