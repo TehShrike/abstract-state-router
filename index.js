@@ -11,9 +11,10 @@ var denodeify = require('then-denodeify')
 var EventEmitter = require('events').EventEmitter
 var extend = require('xtend')
 var newHashBrownRouter = require('hash-brown-router')
-var Promise = require('native-promise-only/npo')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
+
+require('native-promise-only/npo')
 
 var expectedPropertiesOfAddState = ['name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters']
 
@@ -307,6 +308,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	stateProviderEmitter.go = function go(newStateName, parameters, options) {
 		options = extend(defaultOptions, options)
 		var goFunction = options.replace ? stateRouterOptions.router.replace : stateRouterOptions.router.go
+
+		if (options && options.inherit) {
+			parameters = extend(current.get().parameters, parameters)
+		}
 
 		return promiseMe(makePath, newStateName, parameters).then(goFunction, handleError.bind(null, 'stateChangeError'))
 	}
