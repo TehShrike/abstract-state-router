@@ -178,9 +178,10 @@ These are all emitted on the state router object.
 
 ### State change
 
-- `stateChangeStart(state, parameters)`
-- `stateChangeCancelled(err)`
-- `stateChangeEnd(state, parameters)`
+- `stateChangeAttempt(functionThatBeginsTheStateChange)` - used by the state transition manager, probably not use to anyone else at the moment
+- `stateChangeStart(state, parameters)` - emitted after the state name and parameters have been validated
+- `stateChangeCancelled(err)` - emitted if a redirect is issued in a resolve function
+- `stateChangeEnd(state, parameters)` - after all activate functions are called
 
 ### DOM API interactions
 
