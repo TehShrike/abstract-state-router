@@ -284,34 +284,6 @@ test('stateIsActive', function(t) {
 	stateRouter.go('parent.child1', { butts: 'yes' })
 })
 
-test('propertiesInRoute', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
-	var hashRouter = testState.hashRouter
-
-	t.plan(2)
-
-	var timesActivatedCalled = 0
-	stateRouter.addState({
-		name: 'only',
-		template: '',
-		route: '/something/:param/whatever',
-		activate: function(context) {
-			timesActivatedCalled++
-
-			if (timesActivatedCalled === 1) {
-				t.equal(context.parameters.param, 'firstTime')
-				hashRouter.go('/something/secondTime/whatever')
-			} else {
-				t.equal(context.parameters.param, 'secondTime')
-				t.end()
-			}
-		}
-	})
-
-	stateRouter.go('only', { param: 'firstTime' })
-})
-
 test('evaluateCurrentRoute with url set', function(t) {
 	var testState = getTestState(t)
 	var stateRouter = testState.stateRouter
