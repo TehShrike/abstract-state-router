@@ -81,7 +81,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		stateProviderEmitter.emit('beforeResetState', {
 			domApi: domApi,
 			content: content,
-			state: state
+			state: state,
+			parameters: parameters
 		})
 
 		activeEmitters[stateName].emit('destroy')
@@ -96,7 +97,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			stateProviderEmitter.emit('afterResetState', {
 				domApi: domApi,
 				content: content,
-				state: state
+				state: state,
+				parameters: parameters
 			})
 		})
 	}
@@ -120,7 +122,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 			stateProviderEmitter.emit('beforeCreateState', {
 				state: state,
-				content: content
+				content: content,
+				parameters: parameters
 			})
 
 			return renderDom({
@@ -133,7 +136,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				stateProviderEmitter.emit('afterCreateState', {
 					state: state,
 					domApi: domApi,
-					content: content
+					content: content,
+					parameters: parameters
 				})
 				return domApi
 			})

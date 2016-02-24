@@ -195,7 +195,7 @@ test('emitting dom api create', function(t) {
 	var beforeEventFired = false
 	var afterEventFired = false
 
-	t.plan(14)
+	t.plan(16)
 
 	var state = getTestState(t, function() {
 		return {
@@ -242,6 +242,7 @@ test('emitting dom api create', function(t) {
 
 		t.equal(context.state, originalStateObject)
 		t.equal(context.content.value, 'legit')
+		t.equal(context.parameters.thingy, 'yes')
 		t.notOk(context.domApi)
 	})
 	stateRouter.on('afterCreateState', function(context) {
@@ -252,12 +253,15 @@ test('emitting dom api create', function(t) {
 
 		t.equal(context.state, originalStateObject)
 		t.equal(context.content.value, 'legit')
+		t.equal(context.parameters.thingy, 'yes')
 		t.equal(context.domApi, originalDomApi)
 
 		t.end()
 	})
 
-	stateRouter.go('state', {})
+	stateRouter.go('state', {
+		thingy: 'yes'
+	})
 })
 
 test('emitting dom api destroy', function(t) {
@@ -338,7 +342,7 @@ test('emitting dom api reset', function(t) {
 	var afterEventFired = false
 	var resetCalled = false
 
-	t.plan(14)
+	t.plan(16)
 
 	var state = getTestState(t, function() {
 		return {
@@ -376,7 +380,7 @@ test('emitting dom api reset', function(t) {
 		},
 		activate: function() {
 			setTimeout(function() {
-				stateRouter.go('state', { wat: 20 })
+				stateRouter.go('state', { wat: '20' })
 			}, 10)
 		}
 	}
@@ -392,6 +396,7 @@ test('emitting dom api reset', function(t) {
 		t.equal(context.state, originalStateObject)
 		t.equal(context.domApi, originalDomApi)
 		t.equal(context.content.value, 'legit')
+		t.equal(context.parameters.wat, '20')
 	})
 
 	stateRouter.on('afterResetState', function(context) {
@@ -403,8 +408,9 @@ test('emitting dom api reset', function(t) {
 		t.equal(context.state, originalStateObject)
 		t.equal(context.domApi, originalDomApi)
 		t.equal(context.content.value, 'legit')
+		t.equal(context.parameters.wat, '20')
 		t.end()
 	})
 
-	stateRouter.go('state', { wat: 10 })
+	stateRouter.go('state', { wat: '10' })
 })

@@ -187,10 +187,10 @@ These are all emitted on the state router object.
 
 ### DOM API interactions
 
-- `beforeCreateState({state, content})`
-- `afterCreateState({state, domApi, content})`
-- `beforeResetState({state, domApi, content})`
-- `afterResetState({state, domApi, content})`
+- `beforeCreateState({state, content, parameters})`
+- `afterCreateState({state, domApi, content, parameters})`
+- `beforeResetState({state, domApi, content, parameters})`
+- `afterResetState({state, domApi, content, parameters})`
 - `beforeDestroyState({state, domApi})`
 - `afterDestroyState({state})`
 
