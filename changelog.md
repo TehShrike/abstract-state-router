@@ -1,3 +1,7 @@
+# 5.11.0
+
+- functional: added a `parameters` property to the context objects emitted with the `beforeCreateState`, `afterCreateState`, `beforeResetState`, and `afterResetState` events.
+
 # 5.10.0
 
 - functional: changed `destroy` to be emitted to the active states after `beforeDestroyState`/`beforeResetState` is emitted on the state router https://github.com/TehShrike/abstract-state-router/commit/8522a300ad23ed45dce0c6be1398bfb3883dd98c
