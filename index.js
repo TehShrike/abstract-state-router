@@ -28,8 +28,21 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		pathPrefix: '#'
 	}, stateRouterOptions)
 
+	function not_found_url(path) {
+		var error = {
+			message:"The path: " + path + " is not found"
+		}
+		handleError('url_not_found', error)
+	}
+
 	if (!stateRouterOptions.router) {
-		stateRouterOptions.router = newHashBrownRouter({ reverse: true })
+		var router = newHashBrownRouter({ reverse: true })
+		if(stateRouterOptions.not_found_url){
+			router.setDefault(stateRouterOptions.not_found_url)
+		}else{
+			router.setDefault(not_found_url)
+		}
+		stateRouterOptions.router = router
 	}
 
 	current.set('', {})
