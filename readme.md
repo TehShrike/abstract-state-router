@@ -38,6 +38,11 @@ Possible properties of the `options` object are:
 - `pathPrefix` defaults to `'#'`.  If you're using HTML5 routing/pushState, you'll most likely want to set this to an empty string.
 - `router` defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  The abstract-state-router unit tests use the [hash brown router stub](https://github.com/TehShrike/hash-brown-router/#testability).  To use pushState, pass in a hash brown router created with [sausage-router](https://github.com/TehShrike/sausage-router).
 - `throwOnError` defaults to true, because you get way better stack traces in Chrome when you throw than if you `console.log(err)` or emit `'error'` events.  The unit tests disable this.
+- `not_found_url` defaults to to a simple function that will display a message of error that will tell you which path has not be found. You can overwrite with a function that will be called when the route is not found , the first param is the path and the second is the option (ex:`function(path){
+		var error = {
+			message:"The path: " + path + " is not found"
+		}
+		console.log('url_not_found' + error.message)}`) 
 
 ## stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters, defaultQuerystringParameters})
 
