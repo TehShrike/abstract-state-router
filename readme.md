@@ -184,6 +184,7 @@ These are all emitted on the state router object.
 - `stateChangeStart(state, parameters)` - emitted after the state name and parameters have been validated
 - `stateChangeCancelled(err)` - emitted if a redirect is issued in a resolve function
 - `stateChangeEnd(state, parameters)` - after all activate functions are called
+- `stateChangeError(err)` - emitted if an error occurs while trying to navigate to a new state - including if you try to navigate to a state that doesn't exist
 
 ### DOM API interactions
 

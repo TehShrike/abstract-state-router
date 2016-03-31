@@ -1,3 +1,7 @@
+# [5.12.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.0)
+
+- documentation: documented the `stateChangeError` event
+
 # [5.11.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.11.0)
 
 - functional: added a `parameters` property to the context objects emitted with the `beforeCreateState`, `afterCreateState`, `beforeResetState`, and `afterResetState` events.
