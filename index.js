@@ -32,6 +32,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		stateRouterOptions.router = newHashBrownRouter({ reverse: true })
 	}
 
+	stateRouterOptions.router.setDefault(function(route, parameters) {
+		stateProviderEmitter.emit('routeNotFound', route, parameters)
+	})
+
 	current.set('', {})
 
 	var destroyDom = null

@@ -11,7 +11,6 @@ module.exports = function getTestState(t, renderFn, options) {
 		router: hashRouter,
 		throwOnError: false
 	}, options))
-	hashRouter.setDefault(function noop() {})
 
 	stateRouter.addState({
 		name: 'dummy',

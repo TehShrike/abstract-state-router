@@ -445,6 +445,9 @@ test('emitting routeNotFound', function(t) {
 	stateRouter.on('stateChangeError', function(e) {
 		t.fail('Should not emit a normal error')
 	})
+	stateRouter.on('stateError', function(e) {
+		t.fail('Should not emit a normal error')
+	})
 
 	stateRouter.on('routeNotFound', function(route, parameters) {
 		t.equal(route, '/nonexistent')

@@ -1,6 +1,8 @@
 # [5.12.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.0)
 
 - documentation: documented the `stateChangeError` event
+- documentation: documented the `stateError` event
+- functional: added the `routeNotFound` event when a route is visited that doesn't have any states associated with it
 
 # [5.11.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.11.0)
 
