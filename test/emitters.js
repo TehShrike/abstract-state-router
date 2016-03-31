@@ -414,3 +414,43 @@ test('emitting dom api reset', function(t) {
 
 	stateRouter.go('state', { wat: '10' })
 })
+
+test('emitting routeNotFound', function(t) {
+	var renderer = assertingRendererFactory(t, [])
+	var state = getTestState(t, renderer)
+	var stateRouter = state.stateRouter
+	var assertsBelow = 2
+	var renderAsserts = renderer.expectedAssertions
+
+	t.plan(assertsBelow + renderAsserts)
+
+	stateRouter.addState({
+		name: 'valid',
+		route: '/valid',
+		template: null,
+		activate: function(context) {
+			t.fail('Should never activate the parent\'s state')
+		}
+	})
+
+	stateRouter.addState({
+		name: 'valid.valid',
+		route: '/valid',
+		template: null,
+		activate: function(context) {
+			t.fail('Should never activate the child\'s state')
+		}
+	})
+
+	stateRouter.on('stateChangeError', function(e) {
+		t.fail('Should not emit a normal error')
+	})
+
+	stateRouter.on('routeNotFound', function(route, parameters) {
+		t.equal(route, '/nonexistent')
+		t.equal(parameters.thingy, 'stuff')
+		t.end()
+	})
+
+	state.hashRouter.location.go('/nonexistent?thingy=stuff')
+})
