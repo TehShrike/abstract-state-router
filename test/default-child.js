@@ -7,24 +7,24 @@ function resolve(data, parameters, cb) {
 }
 
 function RememberActivation(location) {
-	var last = ''
+	var lastActivatedState = ''
 	var lastLocation = ''
-	function set(str) {
-		return function s() {
-			last = str
+	function activate(stateName) {
+		return function stateActivated() {
+			lastActivatedState = stateName
 			lastLocation = location.get()
 		}
 	}
-	function get(tt, str, url) {
-		return function g() {
-			tt.equal(last, str, 'last activated state should be "' + str + '"')
-			tt.equal(lastLocation, url, 'last observed url should be "' + lastLocation + '"')
-			tt.end()
+	function onEnd(t, stateName, expectedUrl) {
+		return function assertions() {
+			t.equal(lastActivatedState, stateName, 'last activated state should be "' + stateName + '"')
+			t.equal(lastLocation, expectedUrl, 'last observed url should be "' + lastLocation + '"')
+			t.end()
 		}
 	}
 	return {
-		activate: set,
-		onEnd: get
+		activate: activate,
+		onEnd: onEnd
 	}
 }
 
@@ -159,10 +159,22 @@ test('the default child should activate even if it has an empty route string', f
 	})
 
 	stateRouter.addState({
+		name: 'hey.wrong1',
+		template: {},
+		activate: remember.activate('wrong1')
+	})
+
+	stateRouter.addState({
 		name: 'hey.rofl',
 		route: '',
 		template: {},
 		activate: remember.activate('rofl')
+	})
+
+	stateRouter.addState({
+		name: 'hey.wrong2',
+		template: {},
+		activate: remember.activate('wrong2')
 	})
 
 	t.test('hey -> hey', function (tt) {
@@ -173,29 +185,77 @@ test('the default child should activate even if it has an empty route string', f
 })
 
 test('the default child should activate even if it doesn\'t have a route string', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
-	var remember = RememberActivation(testState.location)
+	function setupState(tt, roflRoute) {
+		var testState = getTestState(tt)
+		var stateRouter = testState.stateRouter
+		var remember = RememberActivation(testState.location)
+		testState.remember = remember
 
-	t.timeoutAfter(5000)
-
-	stateRouter.addState({
-		name: 'hey',
-		route: '/hay',
-		defaultChild: 'rofl',
-		template: {},
-		activate: remember.activate('hey')
-	})
-
-	stateRouter.addState({
-		name: 'hey.rofl',
-		template: {},
-		activate: remember.activate('rofl')
-	})
-
-	t.test('hey -> hey', function (tt) {
 		tt.timeoutAfter(5000)
-		stateRouter.once('stateChangeEnd', remember.onEnd(tt, 'rofl', '/hay/'))
-		stateRouter.go('hey')
+
+		stateRouter.addState({
+			name: 'hey',
+			route: '/hay',
+			defaultChild: 'rofl',
+			template: {},
+			activate: remember.activate('hey')
+		})
+
+		stateRouter.addState({
+			name: 'hey.wrong1',
+			template: {},
+			activate: remember.activate('wrong1')
+		})
+
+		stateRouter.addState({
+			name: 'hey.rofl',
+			template: {},
+			route: roflRoute,
+			activate: remember.activate('rofl')
+		})
+
+		stateRouter.addState({
+			name: 'hey.wrong2',
+			template: {},
+			activate: remember.activate('wrong2')
+		})
+
+		return testState
+	}
+
+	t.test('undefined child route with state.go(hey)', function (tt) {
+		var testState = setupState(tt)
+		testState.stateRouter.once('stateChangeEnd', testState.remember.onEnd(tt, 'rofl', '/hay/'))
+		testState.stateRouter.go('hey')
+	})
+
+	t.test('undefined child route with location.go(/hay)', function (tt) {
+		var testState = setupState(tt)
+		testState.stateRouter.once('stateChangeEnd', testState.remember.onEnd(tt, 'rofl', '/hay/'))
+		testState.location.go('/hay')
+	})
+
+	t.test('undefined child route with location.go(/hay/)', function (tt) {
+		var testState = setupState(tt)
+		testState.stateRouter.once('stateChangeEnd', testState.remember.onEnd(tt, 'rofl', '/hay/'))
+		testState.location.go('/hay/')
+	})
+
+	t.test('empty child route with state.go(hey)', function (tt) {
+		var testState = setupState(tt, '')
+		testState.stateRouter.once('stateChangeEnd', testState.remember.onEnd(tt, 'rofl', '/hay/'))
+		testState.stateRouter.go('hey')
+	})
+
+	t.test('empty child route with location.go(/hay)', function (tt) {
+		var testState = setupState(tt, '')
+		testState.stateRouter.once('stateChangeEnd', testState.remember.onEnd(tt, 'rofl', '/hay/'))
+		testState.location.go('/hay')
+	})
+
+	t.test('empty child route with location.go(/hay/)', function (tt) {
+		var testState = setupState(tt, '')
+		testState.stateRouter.once('stateChangeEnd', testState.remember.onEnd(tt, 'rofl', '/hay/'))
+		testState.location.go('/hay/')
 	})
 })

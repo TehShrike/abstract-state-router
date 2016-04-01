@@ -4,6 +4,7 @@ var CurrentState = require('./lib/current-state')
 var stateChangeLogic = require('./lib/state-change-logic')
 var parse = require('./lib/state-string-parser')
 var StateTransitionManager = require('./lib/state-transition-manager')
+var defaultRouterOptions = require('./default-router-options.json')
 
 var series = require('./lib/promise-map-series')
 var denodeify = require('then-denodeify')
@@ -29,7 +30,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}, stateRouterOptions)
 
 	if (!stateRouterOptions.router) {
-		stateRouterOptions.router = newHashBrownRouter({ reverse: true })
+		stateRouterOptions.router = newHashBrownRouter(defaultRouterOptions)
 	}
 
 	stateRouterOptions.router.setDefault(function(route, parameters) {

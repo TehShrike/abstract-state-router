@@ -1,12 +1,13 @@
 var hashRouterFactory = require('hash-brown-router')
 var hashLocationMockFactory = require('hash-brown-router/hash-location-mock')
 var stateRouterFactory = require('../../')
+var defaultRouterOptions = require('../../default-router-options.json')
 var mockRenderFn = require('./renderer-mock')
 var extend = require('xtend')
 
 module.exports = function getTestState(t, renderFn, options) {
 	var location = hashLocationMockFactory()
-	var hashRouter = hashRouterFactory(location)
+	var hashRouter = hashRouterFactory(defaultRouterOptions, location)
 	var stateRouter = stateRouterFactory(renderFn || mockRenderFn, 'body', extend({
 		router: hashRouter,
 		throwOnError: false
