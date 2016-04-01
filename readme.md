@@ -158,10 +158,16 @@ stateRouter.evaluateCurrentRoute('app.tab2')
 
 ## stateRouter.stateIsActive(stateName, [stateParameters])
 
-Returns true if the state name matches the current active state, and all the properties of the state parameters object match exactly the current state parameter values.
+Returns true if `stateName` is the current active state, or an ancestor of the current active state...
+
+...And all of the properties of `stateParameters` match the current state parameter values.
 
 ```js
-stateRouter.stateIsActive('app.tab1', { fancy: 'yes' })
+// Current state name: app.tab1
+// Current parameters: { fancy: 'yes', thing: 'hello' }
+stateRouter.stateIsActive('app.tab1', { fancy: 'yes' }) // => true
+stateRouter.stateIsActive('app.tab1', { fancy: 'no' }) // => false
+stateRouter.stateIsActive('app') // => true
 ```
 
 ## stateRouter.makePath(stateName, [stateParameters], options)
