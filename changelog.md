@@ -1,3 +1,7 @@
+# [5.12.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.2)
+
+- bug fix: fixed Webpack build by changing a JSON file to CommonJS [#65](https://github.com/TehShrike/abstract-state-router/issues/65)
+
 # [5.12.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.1)
 
 - bug fix: states that had child states without routes weren't necessarily loading the correct child state when you browsed to them
