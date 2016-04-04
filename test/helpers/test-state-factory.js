@@ -1,7 +1,7 @@
 var hashRouterFactory = require('hash-brown-router')
 var hashLocationMockFactory = require('hash-brown-router/hash-location-mock')
 var stateRouterFactory = require('../../')
-var defaultRouterOptions = require('../../default-router-options.json')
+var defaultRouterOptions = require('../../default-router-options.js')
 var mockRenderFn = require('./renderer-mock')
 var extend = require('xtend')
 
