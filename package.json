@@ -43,6 +43,7 @@
     "tap-browser-color": "0.1.2",
     "tape": "^4.1.0",
     "tape-catch": "1.0.4",
-    "watchify": "3.4.0"
+    "watchify": "3.4.0",
+    "webpack": "^1.12.14"
   }
 }
