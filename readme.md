@@ -19,6 +19,18 @@ If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstra
 
 If you want to use the state router with some other templating/dom manipulation library, [read these docs](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md)!  It's not too bad to get started.
 
+# Install
+
+Using npm + your favorite CommonJS bundler is easiest.
+
+```sh
+
+npm install abstract-state-router
+
+```
+
+You can also [download the stand-alone build from wzrd.in](https://wzrd.in/standalone/abstract-state-router@latest).  If you include it in a `<script>` tag, a `abstractStateRouter` function will be included on the global scope.
+
 # API
 
 ```js
