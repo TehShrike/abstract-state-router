@@ -1,20 +1,24 @@
+# [5.12.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.3)
+
+- bug fix: `makePath(stateName, params, { inherit: true })` now properly inherits route parameters during the render/activate phases https://github.com/TehShrike/abstract-state-router/commit/7617d74be416d57ac2726cd0d45744627963ec2e
+
 # [5.12.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.2)
 
 - bug fix: fixed Webpack build by changing a JSON file to CommonJS [#65](https://github.com/TehShrike/abstract-state-router/issues/65)
 
 # [5.12.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.1)
 
-- bug fix: states that had child states without routes weren't necessarily loading the correct child state when you browsed to them
+- bug fix: states that had child states without routes weren't necessarily loading the correct child state when you browsed to them https://github.com/TehShrike/abstract-state-router/commit/85112c7965c1bcdea1576b9d8c4f7585b65380e4
 
 # [5.12.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.0)
 
 - documentation: documented the `stateChangeError` event
 - documentation: documented the `stateError` event
-- functional: added the `routeNotFound` event when a route is visited that doesn't have any states associated with it
+- functional: added the `routeNotFound` event when a route is visited that doesn't have any states associated with it https://github.com/TehShrike/abstract-state-router/commit/f3e2fbda5fa85068df3aa9f9539d61bb95667caf
 
 # [5.11.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.11.0)
 
-- functional: added a `parameters` property to the context objects emitted with the `beforeCreateState`, `afterCreateState`, `beforeResetState`, and `afterResetState` events.
+- functional: added a `parameters` property to the context objects emitted with the `beforeCreateState`, `afterCreateState`, `beforeResetState`, and `afterResetState` events. https://github.com/TehShrike/abstract-state-router/commit/c81228b49d0808fe722cda718598816e3c8ac5b3
 
 # [5.10.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.10.0)
 
