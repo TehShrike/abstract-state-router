@@ -78,3 +78,38 @@ test('makePath respects the inherit option', function(t) {
 		originalParameter: 'original value'
 	})
 })
+
+test('makePath inheriting parameters from the route', function(t) {
+	var stateRouter = getTestState(t, null, {
+		pathPrefix: ''
+	}).stateRouter
+
+	stateRouter.addState({
+		name: 'parent',
+		template: '',
+		route: '/parent/:someParam/yarp'
+	})
+
+	stateRouter.addState({
+		name: 'parent.child1',
+		template: '',
+		route: '/child1',
+		activate: function(context) {
+			t.equal(context.parameters.someParam, 'totally')
+
+			var path = stateRouter.makePath('parent.child1', {}, {
+				inherit: true
+			})
+
+			t.equal(path, '/parent/totally/yarp/child2', 'Output path contains the route parameter')
+			t.end()
+		}
+	})
+	stateRouter.addState({
+		name: 'parent.child2',
+		template: '',
+		route: '/child2'
+	})
+
+	stateRouter.go('parent.child1', { someParam: 'totally' })
+})
