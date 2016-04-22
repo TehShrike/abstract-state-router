@@ -86,6 +86,7 @@ test('test queue a state.go happening during a render', function(t) {
 	var state = getTestState(t)
 	var stateRouter = state.stateRouter
 	t.plan(3)
+	t.timeoutAfter(1000)
 
 	var parentActivated = false
 

@@ -79,7 +79,7 @@ test('makePath respects the inherit option', function(t) {
 	})
 })
 
-test('makePath inheriting parameters from the route', function(t) {
+test('makePath inheriting parameters from the route by the time the activate function is called', function(t) {
 	var stateRouter = getTestState(t, null, {
 		pathPrefix: ''
 	}).stateRouter
@@ -97,7 +97,7 @@ test('makePath inheriting parameters from the route', function(t) {
 		activate: function(context) {
 			t.equal(context.parameters.someParam, 'totally')
 
-			var path = stateRouter.makePath('parent.child1', {}, {
+			var path = stateRouter.makePath('parent.child2', {}, {
 				inherit: true
 			})
 

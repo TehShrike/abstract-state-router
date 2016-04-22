@@ -21,7 +21,8 @@ var expectedPropertiesOfAddState = ['name', 'route', 'defaultChild', 'data', 'te
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
-	var current = CurrentState()
+	var lastCompletelyLoadedState = CurrentState()
+	var lastStateStartedActivating = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
 	StateTransitionManager(stateProviderEmitter)
 	stateRouterOptions = extend({
@@ -36,8 +37,6 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	stateRouterOptions.router.setDefault(function(route, parameters) {
 		stateProviderEmitter.emit('routeNotFound', route, parameters)
 	})
-
-	current.set('', {})
 
 	var destroyDom = null
 	var getDomChild = null
@@ -236,9 +235,9 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			return state
 		}).then(ifNotCancelled(function(state) {
 			stateProviderEmitter.emit('stateChangeStart', state, parameters)
+			lastStateStartedActivating.set(state.name, parameters)
 		})).then(function getStateChanges() {
-
-			var stateComparisonResults = StateComparison(prototypalStateHolder)(current.get().name, current.get().parameters, newStateName, parameters)
+			var stateComparisonResults = StateComparison(prototypalStateHolder)(lastCompletelyLoadedState.get().name, lastCompletelyLoadedState.get().parameters, newStateName, parameters)
 			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
 		}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
 			return resolveStates(getStatesToResolve(stateChanges), extend(parameters)).catch(function onResolveError(e) {
@@ -282,7 +281,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				})
 			}
 		})).then(function stateChangeComplete() {
-			current.set(newStateName, parameters)
+			lastCompletelyLoadedState.set(newStateName, parameters)
 			try {
 				stateProviderEmitter.emit('stateChangeEnd', prototypalStateHolder.get(newStateName), parameters)
 			} catch (e) {
@@ -306,7 +305,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 	function makePath(stateName, parameters, options) {
 		if (options && options.inherit) {
-			parameters = extend(current.get().parameters, parameters)
+			parameters = extend(lastStateStartedActivating.get().parameters, parameters)
 		}
 
 		prototypalStateHolder.guaranteeAllStatesExist(stateName)
@@ -336,7 +335,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return stateRouterOptions.pathPrefix + makePath(stateName, parameters, options)
 	}
 	stateProviderEmitter.stateIsActive = function stateIsActive(stateName, opts) {
-		var currentState = current.get()
+		var currentState = lastCompletelyLoadedState.get()
 		return currentState.name.indexOf(stateName) === 0 && (typeof opts === 'undefined' || Object.keys(opts).every(function matches(key) {
 			return opts[key] === currentState.parameters[key]
 		}))
