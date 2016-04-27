@@ -284,6 +284,48 @@ test('stateIsActive', function(t) {
 	stateRouter.go('parent.child1', { butts: 'yes' })
 })
 
+test('stateIsActive but states with that substring are not', function(t) {
+	var stateRouter = getTestState(t).stateRouter
+
+	t.plan(4)
+
+	stateRouter.addState({
+		name: 'parent',
+		template: '',
+		route: '/parent',
+	})
+
+	stateRouter.addState({
+		name: 'parent-thing',
+		template: '',
+		route: '/parent-thing',
+	})
+
+	stateRouter.addState({
+		name: 'parent.child',
+		template: '',
+		route: '/child'
+	})
+
+	stateRouter.addState({
+		name: 'parent.child-thing',
+		template: '',
+		route: '/child-thing',
+	})
+
+	stateRouter.on('stateChangeEnd', function() {
+		t.ok(stateRouter.stateIsActive('parent'), 'parent is active')
+		t.notOk(stateRouter.stateIsActive('parent-thing'), 'parent-thing is not active')
+
+		t.ok(stateRouter.stateIsActive('parent.child'), 'parent.child is active')
+		t.notOk(stateRouter.stateIsActive('parent.child-thing'), 'parent.child-thing is not active')
+
+		t.end()
+	})
+
+	stateRouter.go('parent.child', { butts: 'yes' })
+})
+
 test('evaluateCurrentRoute with url set', function(t) {
 	var testState = getTestState(t)
 	var stateRouter = testState.stateRouter
