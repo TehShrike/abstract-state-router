@@ -336,7 +336,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 	stateProviderEmitter.stateIsActive = function stateIsActive(stateName, opts) {
 		var currentState = lastCompletelyLoadedState.get()
-		return currentState.name.indexOf(stateName) === 0 && (typeof opts === 'undefined' || Object.keys(opts).every(function matches(key) {
+		return (currentState.name === stateName || currentState.name.indexOf(stateName + '.') === 0) && (typeof opts === 'undefined' || Object.keys(opts).every(function matches(key) {
 			return opts[key] === currentState.parameters[key]
 		}))
 	}
