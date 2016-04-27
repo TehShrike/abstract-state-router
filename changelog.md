@@ -1,3 +1,7 @@
+# [5.12.4](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.4)
+
+- bug fix: `stateIsActive` was doing an extremely naive check https://github.com/TehShrike/abstract-state-router/pull/71
+
 # [5.12.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.3)
 
 - bug fix: `makePath(stateName, params, { inherit: true })` now properly inherits route parameters during the render/activate phases https://github.com/TehShrike/abstract-state-router/commit/7617d74be416d57ac2726cd0d45744627963ec2e
