@@ -317,13 +317,13 @@ test('stateIsActive but states with that substring are not', function(t) {
 		t.ok(stateRouter.stateIsActive('parent'), 'parent is active')
 		t.notOk(stateRouter.stateIsActive('parent-thing'), 'parent-thing is not active')
 
-		t.ok(stateRouter.stateIsActive('parent.child'), 'parent.child is active')
-		t.notOk(stateRouter.stateIsActive('parent.child-thing'), 'parent.child-thing is not active')
+		t.notOk(stateRouter.stateIsActive('parent.child'), 'parent.child is active')
+		t.ok(stateRouter.stateIsActive('parent.child-thing'), 'parent.child-thing is not active')
 
 		t.end()
 	})
 
-	stateRouter.go('parent.child', { butts: 'yes' })
+	stateRouter.go('parent.child-thing', { butts: 'yes' })
 })
 
 test('evaluateCurrentRoute with url set', function(t) {
