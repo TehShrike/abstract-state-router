@@ -1,11 +1,8 @@
 language: node_js
 node_js:
-- iojs
+  - "0.12"
+  - "4"
+  - "6"
 sudo: false
 script:
   - npm test
-  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && npm run browserstack || true'
-env:
-  global:
-  - secure: A86CL+EBtITETRILi3mE2O5G2JLGdzWQ0hB8oIamIx36qZyfbSO69klBwoiOr5xvnh7iWuCakARG738cg9k7umrYsN+a1YSxCJwB8A33xrX+8/BroKElIV8M58WluHokYB+TZh/SLJ1CpCAZobc3B1YKzdeTZQiQSOJ8d9jB+Mw=
-  - secure: eK5CZ8MuBVLjlu5yH/9v9FPDnyxLb/fvOdFevXADmnh+vWRMKh/BanBx544ry487/VnG1qd/m8f8J9QD86a70hQemQF2fokI6gwvTMjZU15Kv9e+i/WZRqB18AdNbiGT3Nflg+EN/+df1Z3w4XkVskBiMlrN1khhITWKl2Q5AO0=
