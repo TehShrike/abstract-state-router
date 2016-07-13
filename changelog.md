@@ -1,3 +1,7 @@
+# [5.12.5](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.5)
+
+- dependency update: require page-path-builder 1.0.3, fixing a path-building bug [#650af6af](https://github.com/TehShrike/abstract-state-router/commit/650af6af9ad622caecd1c8ea7b02dfb22aa63ff2)
+
 # [5.12.4](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.4)
 
 - bug fix: `stateIsActive` was doing an extremely naive check https://github.com/TehShrike/abstract-state-router/pull/71
