@@ -113,3 +113,23 @@ test('makePath inheriting parameters from the route by the time the activate fun
 
 	stateRouter.go('parent.child1', { someParam: 'totally' })
 })
+
+test('makePath with falsey parameters', function(t) {
+	var stateRouter = getTestState(t, null, {
+		pathPrefix: ''
+	}).stateRouter
+
+	stateRouter.addState({
+		name: 'whatever',
+		template: '',
+		route: '/timer/:week(\\d+)/:day(\\d+)'
+	})
+
+	var output = stateRouter.makePath('whatever', {
+		week: 0,
+		day: 0
+	})
+
+	t.equal(output, '/timer/0/0')
+	t.end()
+})
