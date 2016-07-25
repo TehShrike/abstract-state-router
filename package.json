@@ -35,7 +35,7 @@
     "xtend": "^4.0.0"
   },
   "devDependencies": {
-    "browserify": "13.0.1",
+    "browserify": "13.1.0",
     "browserstack-runner": "0.4.4",
     "browserstack-tape-reporter": "1.0.2",
     "covert": "^1.1.0",
