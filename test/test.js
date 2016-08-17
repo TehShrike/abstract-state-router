@@ -464,3 +464,55 @@ test('reset fn receives parameters', function(t) {
 	});
 	stateRouter.go('x', {foo: 'abc'})
 });
+
+test('go uses current state when no stateName is provided', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var firstActivateDidHappen = false
+
+	t.plan(1)
+
+	stateRouter.addState({
+		name: 'some-state',
+		template: '',
+		querystringParameters: ['poop'],
+		activate: function(context) {
+			if(firstActivateDidHappen) {
+				t.deepEqual(context.parameters, {poop: 'wet'})
+				t.end()
+			}
+			else {
+				firstActivateDidHappen = true
+				process.nextTick(() => stateRouter.go(null, {poop: 'wet'}))
+			}
+		}
+	})
+
+	stateRouter.go('some-state', {poop: 'dry'})
+});
+
+test('go uses current state when no stateName is provided with 2 parameters', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var firstActivateDidHappen = false
+
+	t.plan(1)
+
+	stateRouter.addState({
+		name: 'some-state',
+		template: '',
+		querystringParameters: ['poop'],
+		activate: function(context) {
+			if(firstActivateDidHappen) {
+				t.deepEqual(context.parameters, {poop: 'wet'})
+				t.end()
+			}
+			else {
+				firstActivateDidHappen = true
+				process.nextTick(() => stateRouter.go(null, {poop: 'wet'}, {replace: true}))
+			}
+		}
+	})
+
+	stateRouter.go('some-state', {poop: 'dry'}, {replace: true})
+});
