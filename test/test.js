@@ -516,3 +516,38 @@ test('go uses current state when no stateName is provided with 2 parameters', fu
 
 	stateRouter.go('some-state', {poop: 'dry'}, {replace: true})
 });
+
+test('calling redirect with no stateName in resolve should use current state', function(t) {
+    t.plan(1)
+    var stateRouter = getTestState(t).stateRouter
+    var isFirstResolve = true
+ 
+    //This state is just so we have a "current state" we can get to first
+    stateRouter.addState({
+        name: 'first',
+        template: '',
+        activate: function(context) {
+            process.nextTick(() => stateRouter.go('second', {wut: 'fart'}))
+        }
+    })
+ 
+    stateRouter.addState({
+        name: 'second',
+        template: '',
+        querystringParameters: ['wut'],
+        resolve: function(data, parameters, cb) {
+            if(isFirstResolve) {
+                isFirstResolve = false
+                cb.redirect('second', {wut: 'butt'})//change the stateName to null after this test is passing
+            }
+            else cb()
+        },
+        activate: function(context) {
+            //this should never get hit the first time since redirect gets called in resolve
+            t.equal(context.parameters.wut, 'butt')
+            t.end()
+        }
+    })
+ 
+    stateRouter.go('first')
+});
