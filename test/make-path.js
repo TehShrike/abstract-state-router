@@ -145,3 +145,13 @@ test('makePath with null state name goes to the current state', function(t) {
 		t.end()
 	})
 })
+
+test('makePath with null state name throws an error if there is no current state', function(t) {
+	var stateRouter = basicRouterSetup(t)
+
+	t.throws(function() {
+		stateRouter.makePath(null, { thinger: 'eh' })
+	}, /previous state/)
+
+	t.end()
+})
