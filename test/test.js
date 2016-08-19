@@ -480,7 +480,9 @@ test('go uses current state when no stateName is provided', function(t) {
 				t.end()
 			} else {
 				firstActivateDidHappen = true
-				process.nextTick(() => stateRouter.go(null, {poop: 'wet'}))
+				process.nextTick(function() {
+					stateRouter.go(null, {poop: 'wet'})
+				})
 			}
 		}
 	})
@@ -507,7 +509,9 @@ test('go uses current state when no stateName is provided with 2 parameters', fu
 			}
 			else {
 				firstActivateDidHappen = true
-				process.nextTick(() => stateRouter.go(null, {poop: 'wet'}, {replace: true}))
+				process.nextTick(function() {
+					stateRouter.go(null, {poop: 'wet'}, {replace: true})
+				})
 			}
 		}
 	})
@@ -526,7 +530,9 @@ test('calling redirect with no stateName in resolve should use current state', f
         route: 'FRIST',
         template: '',
         activate: function(context) {
-            process.nextTick(() => stateRouter.go('second', {wut: 'fart'}))
+            process.nextTick(function() {
+            	stateRouter.go('second', {wut: 'fart'})
+            })
         }
     })
 
