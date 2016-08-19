@@ -304,12 +304,20 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function makePath(stateName, parameters, options) {
+		function getGuaranteedPreviousState() {
+			if (!lastStateStartedActivating.get().name) {
+				throw new Error('makePath required a previous state to exist, and none was found')
+			}
+			return lastStateStartedActivating.get()
+		}
 		if (options && options.inherit) {
-			parameters = extend(lastStateStartedActivating.get().parameters, parameters)
+			parameters = extend(getGuaranteedPreviousState().parameters, parameters)
 		}
 
-		prototypalStateHolder.guaranteeAllStatesExist(stateName)
-		var route = prototypalStateHolder.buildFullStateRoute(stateName)
+		var destinationState = stateName === null ? getGuaranteedPreviousState().name : stateName
+
+		prototypalStateHolder.guaranteeAllStatesExist(destinationState)
+		var route = prototypalStateHolder.buildFullStateRoute(destinationState)
 		return buildPath(route, parameters || {})
 	}
 

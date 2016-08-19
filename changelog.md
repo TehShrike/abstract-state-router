@@ -1,14 +1,18 @@
+# [5.13.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.13.0)
+
+- functional: made `stateName` optional for `go`/`replace`/`makePath` [#83](https://github.com/TehShrike/abstract-state-router/pull/83)
+
 # [5.12.5](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.5)
 
 - dependency update: require page-path-builder 1.0.3, fixing a path-building bug [#650af6af](https://github.com/TehShrike/abstract-state-router/commit/650af6af9ad622caecd1c8ea7b02dfb22aa63ff2)
 
 # [5.12.4](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.4)
 
-- bug fix: `stateIsActive` was doing an extremely naive check https://github.com/TehShrike/abstract-state-router/pull/71
+- bug fix: `stateIsActive` was doing an extremely naive check [#71](https://github.com/TehShrike/abstract-state-router/pull/71)
 
 # [5.12.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.3)
 
-- bug fix: `makePath(stateName, params, { inherit: true })` now properly inherits route parameters during the render/activate phases https://github.com/TehShrike/abstract-state-router/commit/7617d74be416d57ac2726cd0d45744627963ec2e
+- bug fix: `makePath(stateName, params, { inherit: true })` now properly inherits route parameters during the render/activate phases [#7617d74b](https://github.com/TehShrike/abstract-state-router/commit/7617d74be416d57ac2726cd0d45744627963ec2e)
 
 # [5.12.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.2)
 
@@ -16,7 +20,7 @@
 
 # [5.12.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.1)
 
-- bug fix: states that had child states without routes weren't necessarily loading the correct child state when you browsed to them https://github.com/TehShrike/abstract-state-router/commit/85112c7965c1bcdea1576b9d8c4f7585b65380e4
+- bug fix: states that had child states without routes weren't necessarily loading the correct child state when you browsed to them [#85112c79](https://github.com/TehShrike/abstract-state-router/commit/85112c7965c1bcdea1576b9d8c4f7585b65380e4)
 
 # [5.12.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.12.0)
 

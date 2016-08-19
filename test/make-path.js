@@ -133,3 +133,25 @@ test('makePath with falsey parameters', function(t) {
 	t.equal(output, '/timer/0/0')
 	t.end()
 })
+
+test('makePath with null state name goes to the current state', function(t) {
+	var stateRouter = basicRouterSetup(t)
+
+	stateRouter.go('parent.child2', { thinger: 'whatsit' })
+
+	stateRouter.on('stateChangeEnd', function() {
+		var output = stateRouter.makePath(null, { thinger: 'eh' })
+		t.equal(output, '#/parent/child2?thinger=eh')
+		t.end()
+	})
+})
+
+test('makePath with null state name throws an error if there is no current state', function(t) {
+	var stateRouter = basicRouterSetup(t)
+
+	t.throws(function() {
+		stateRouter.makePath(null, { thinger: 'eh' })
+	}, /previous state/)
+
+	t.end()
+})

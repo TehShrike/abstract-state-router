@@ -1,7 +1,6 @@
 var test = require('tape-catch')
 var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 var getTestState = require('./helpers/test-state-factory')
-var Promise = require('native-promise-only/npo')
 
 test('normal, error-less state activation flow for two states', function(t) {
 	function basicTest(t) {
@@ -366,7 +365,6 @@ test('evaluateCurrentRoute with url set', function(t) {
 test('evaluateCurrentRoute with no current route should go to the default', function(t) {
 	var testState = getTestState(t)
 	var stateRouter = testState.stateRouter
-	var hashRouter = testState.hashRouter
 
 	var correctRouteCalled = false
 
@@ -402,7 +400,6 @@ test('evaluateCurrentRoute with no current route should go to the default', func
 test('resolve that returns a promise', function(t) {
 	var testState = getTestState(t)
 	var stateRouter = testState.stateRouter
-	var hashRouter = testState.hashRouter
 
 	t.plan(1)
 
@@ -440,7 +437,7 @@ test('render fn receives parameters', function(t) {
 		template: ''
 	})
 	stateRouter.go('x', {foo: 'abc'})
-});
+})
 
 test('reset fn receives parameters', function(t) {
 	t.plan(1)
@@ -461,6 +458,103 @@ test('reset fn receives parameters', function(t) {
 	})
 	stateRouter.on('stateChangeEnd', function() {
 		stateRouter.go('x', {foo: 'def'})
-	});
+	})
 	stateRouter.go('x', {foo: 'abc'})
-});
+})
+
+test('go uses current state when no stateName is provided', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var firstActivateDidHappen = false
+
+	t.plan(1)
+
+	stateRouter.addState({
+		name: 'some-state',
+		template: '',
+		route: 'someState',
+		querystringParameters: ['poop'],
+		activate: function(context) {
+			if (firstActivateDidHappen) {
+				t.deepEqual(context.parameters, {poop: 'wet'})
+				t.end()
+			} else {
+				firstActivateDidHappen = true
+				process.nextTick(function() {
+					stateRouter.go(null, {poop: 'wet'})
+				})
+			}
+		}
+	})
+
+	stateRouter.go('some-state', {poop: 'dry'})
+})
+
+test('go uses current state when no stateName is provided with 2 parameters', function(t) {
+	var testState = getTestState(t)
+	var stateRouter = testState.stateRouter
+	var firstActivateDidHappen = false
+
+	t.plan(1)
+
+	stateRouter.addState({
+		name: 'some-state',
+		template: '',
+		route: 'someState',
+		querystringParameters: ['poop'],
+		activate: function(context) {
+			if (firstActivateDidHappen) {
+				t.deepEqual(context.parameters, {poop: 'wet'})
+				t.end()
+			}
+			else {
+				firstActivateDidHappen = true
+				process.nextTick(function() {
+					stateRouter.go(null, {poop: 'wet'}, {replace: true})
+				})
+			}
+		}
+	})
+
+	stateRouter.go('some-state', {poop: 'dry'}, {replace: true})
+})
+
+test('calling redirect with no stateName in resolve should use current state', function(t) {
+    t.plan(1)
+    var stateRouter = getTestState(t).stateRouter
+    var isFirstResolve = true
+
+    //This state is just so we have a "current state" we can get to first
+    stateRouter.addState({
+        name: 'first',
+        route: 'FRIST',
+        template: '',
+        activate: function(context) {
+            process.nextTick(function() {
+            	stateRouter.go('second', {wut: 'fart'})
+            })
+        }
+    })
+
+    stateRouter.addState({
+        name: 'second',
+        route: 'SCONDE',
+        template: '',
+        querystringParameters: ['wut'],
+        resolve: function(data, parameters, cb) {
+            if (isFirstResolve) {
+                isFirstResolve = false
+                cb.redirect(null, {wut: 'butt'})
+            } else {
+            	cb()
+            }
+        },
+        activate: function(context) {
+            //this should never get hit the first time since redirect gets called in resolve
+            t.equal(context.parameters.wut, 'butt')
+            t.end()
+        }
+    })
+
+    stateRouter.go('first')
+})
