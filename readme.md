@@ -157,6 +157,8 @@ The options object currently supports just one option "replace" - if it is truth
 
 If a state change is triggered during a state transition, and the DOM hasn't been manipulated yet, then the current state change is discarded, and the new one replaces it. Otherwise, it is queued and applied once the current state change is done.
 
+If `stateName` is `null`, the current state is used as the destination.
+
 ```js
 stateRouter.go('app')
 // This actually redirects to app.tab1, because the app state has the default child: 'tab1'
@@ -189,6 +191,8 @@ stateRouter.stateIsActive('app') // => true
 Returns a path to the state, starting with an [optional](#options) octothorpe `#`, suitable for inserting straight into the `href` attribute of a link.
 
 The `options` object supports one property: `inherit` - if true, querystring parameters are inherited from the current state.  Defaults to false.
+
+If `stateName` is `null`, the current state is used.
 
 ```js
 stateRouter.makePath('app.tab2', { pants: 'no' })

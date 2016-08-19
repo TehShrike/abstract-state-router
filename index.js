@@ -308,8 +308,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			parameters = extend(lastStateStartedActivating.get().parameters, parameters)
 		}
 
-		prototypalStateHolder.guaranteeAllStatesExist(stateName)
-		var route = prototypalStateHolder.buildFullStateRoute(stateName)
+		var destinationState = stateName === null ? lastStateStartedActivating.get().name : stateName
+
+		prototypalStateHolder.guaranteeAllStatesExist(destinationState)
+		var route = prototypalStateHolder.buildFullStateRoute(destinationState)
 		return buildPath(route, parameters || {})
 	}
 
