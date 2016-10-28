@@ -1,3 +1,7 @@
+# [5.14.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.14.0)
+
+- functional: replaced the `defaultQuerystringParameters` property on states with `defaultParameters`, which applies to both querystring and route parameters.  If you don't specify `defaultParameters`, `defaultQuerystringParameters` will be checked too (though it will now apply to route parameters as well).  [#91](https://github.com/TehShrike/abstract-state-router/issues/91)
+
 # [5.13.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.13.0)
 
 - functional: made `stateName` optional for `go`/`replace`/`makePath` [#83](https://github.com/TehShrike/abstract-state-router/pull/83)

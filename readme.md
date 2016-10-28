@@ -53,7 +53,7 @@ Possible properties of the `options` object are:
 - `router` defaults to an instance of a [hash brown router](https://github.com/TehShrike/hash-brown-router/).  The abstract-state-router unit tests use the [hash brown router stub](https://github.com/TehShrike/hash-brown-router/#testability).  To use pushState, pass in a hash brown router created with [sausage-router](https://github.com/TehShrike/sausage-router).
 - `throwOnError` defaults to true, because you get way better stack traces in Chrome when you throw than if you `console.log(err)` or emit `'error'` events.  The unit tests disable this.
 
-## stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters, defaultQuerystringParameters})
+## stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters, defaultParameters})
 
 The addState function takes a single object of options. All of them are optional, unless stated otherwise.
 
@@ -73,7 +73,9 @@ The addState function takes a single object of options. All of them are optional
 
 `querystringParameters` is an array of query string parameters that will be watched by this state.
 
-`defaultQuerystringParameters` is an object whose properties should correspond to parameters defined in the `querystringParameters` option.  Whatever values you supply here will be used as the defaults in case the url does not contain any value for that parameter.
+`defaultParameters` is an object whose properties should correspond to parameters defined in the `querystringParameters` option or the route parameters.  Whatever values you supply here will be used as the defaults in case the url does not contain any value for that parameter.
+
+For backwards compatibility reasons, `defaultQuerystringParameters` will work as well (though it does not function any differently).
 
 ### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
 
