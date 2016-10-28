@@ -48,39 +48,60 @@ test('default querystring parameters', function(tt) {
 })
 
 test('race conditions on redirects', function(t) {
-		var state = getTestState(t)
-		var stateRouter = state.stateRouter
-		t.plan(4)
+	var state = getTestState(t)
+	var stateRouter = state.stateRouter
+	t.plan(4)
 
-		stateRouter.addState({
-			name: 'state1',
-			route: '/state1',
-			template: {},
-			querystringParameters: [ 'wat', 'much' ],
-			defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
-			activate: function(context) {
-				t.deepEqual({ wat: 'lol', much: 'neat' }, context.parameters)
-				t.equal(state.location.get(), '/state1?wat=lol&much=neat')
+	stateRouter.addState({
+		name: 'state1',
+		route: '/state1',
+		template: {},
+		querystringParameters: [ 'wat', 'much' ],
+		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
+		activate: function(context) {
+			t.deepEqual({ wat: 'lol', much: 'neat' }, context.parameters)
+			t.equal(state.location.get(), '/state1?wat=lol&much=neat')
 
-				stateRouter.go('state2', { wat: 'waycool', much: 'awesome', hi: 'world' }) //does not redirect
-			}
-		})
+			stateRouter.go('state2', { wat: 'waycool', much: 'awesome', hi: 'world' }) //does not redirect
+		}
+	})
 
-		stateRouter.addState({
-			name: 'state2',
-			route: '/state2',
-			template: {},
-			querystringParameters: [ 'wat', 'much' ],
-			defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
-			activate: function(context) {
-				t.deepEqual({ wat: 'waycool', much: 'awesome', hi: 'world' }, context.parameters)
-				t.equal(state.location.get(), '/state2?wat=waycool&much=awesome&hi=world')
+	stateRouter.addState({
+		name: 'state2',
+		route: '/state2',
+		template: {},
+		querystringParameters: [ 'wat', 'much' ],
+		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
+		activate: function(context) {
+			t.deepEqual({ wat: 'waycool', much: 'awesome', hi: 'world' }, context.parameters)
+			t.equal(state.location.get(), '/state2?wat=waycool&much=awesome&hi=world')
 
-				t.end()
-			}
-		})
+			t.end()
+		}
+	})
 
 
-		stateRouter.go('state1', {}) //redirects
+	stateRouter.go('state1', {}) //redirects
 
+})
+
+test('default parameters should work for route params too', function(t) {
+	var state = getTestState(t)
+	var stateRouter = state.stateRouter
+
+	stateRouter.addState({
+		name: 'state1',
+		route: '/state1/:yarp',
+		template: {},
+		querystringParameters: [ 'wat' ],
+		defaultQuerystringParameters: { wat: 'lol', yarp: 'neat' },
+		activate: function(context) {
+			t.deepEqual({ wat: 'lol', yarp: 'neat' }, context.parameters)
+			t.equal(state.location.get(), '/state1/neat?wat=lol')
+
+			t.end()
+		}
+	})
+
+	stateRouter.go('state1', {}) //redirects
 })

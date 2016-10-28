@@ -314,10 +314,15 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			parameters = extend(getGuaranteedPreviousState().parameters, parameters)
 		}
 
-		var destinationState = stateName === null ? getGuaranteedPreviousState().name : stateName
+		var destinationStateName = stateName === null ? getGuaranteedPreviousState().name : stateName
 
-		prototypalStateHolder.guaranteeAllStatesExist(destinationState)
-		var route = prototypalStateHolder.buildFullStateRoute(destinationState)
+		var destinationState = prototypalStateHolder.get(destinationStateName) || {}
+		var defaultParams = destinationState.defaultQuerystringParameters
+
+		parameters = extend(defaultParams, parameters)
+
+		prototypalStateHolder.guaranteeAllStatesExist(destinationStateName)
+		var route = prototypalStateHolder.buildFullStateRoute(destinationStateName)
 		return buildPath(route, parameters || {})
 	}
 
