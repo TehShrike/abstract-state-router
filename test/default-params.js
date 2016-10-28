@@ -123,3 +123,79 @@ test('default parameters should work for route params too', function(t) {
 	testWithPropertyName('defaultParameters')
 	testWithPropertyName('defaultQuerystringParameters')
 })
+
+test('default parameters should work for default child route params', function(t) {
+	function testWithPropertyName(property) {
+		t.test(property, function(tt) {
+			var state = getTestState(tt)
+			var stateRouter = state.stateRouter
+
+			stateRouter.addState({
+				name: 'state1',
+				route: '/state1',
+				defaultChild: 'child1',
+				template: {}
+			})
+
+			var asrState = {
+				name: 'state1.child1',
+				route: '/:yarp',
+				template: {},
+				querystringParameters: [ 'wat' ],
+				activate: function(context) {
+					tt.deepEqual({ wat: 'lol', yarp: 'neat' }, context.parameters)
+					tt.equal(state.location.get(), '/state1/neat?wat=lol')
+
+					tt.end()
+				}
+			}
+
+			asrState[property] = { wat: 'lol', yarp: 'neat' }
+
+			stateRouter.addState(asrState)
+
+			stateRouter.go('state1', {})
+		})
+	}
+
+	testWithPropertyName('defaultParameters')
+	testWithPropertyName('defaultQuerystringParameters')
+})
+
+test('default parameters on parent states should apply to child state routes', function(t) {
+	function testWithPropertyName(property) {
+		t.test(property, function(tt) {
+			var state = getTestState(tt)
+			var stateRouter = state.stateRouter
+
+			var parentState = {
+				name: 'state1',
+				route: '/state1',
+				defaultChild: 'child1',
+				template: {}
+			}
+
+			parentState[property] = { wat: 'lol', yarp: 'neat' }
+
+			stateRouter.addState(parentState)
+
+			stateRouter.addState({
+				name: 'state1.child1',
+				route: '/:yarp',
+				template: {},
+				querystringParameters: [ 'wat' ],
+				activate: function(context) {
+					tt.deepEqual({ wat: 'lol', yarp: 'neat' }, context.parameters)
+					tt.equal(state.location.get(), '/state1/neat?wat=lol')
+
+					tt.end()
+				}
+			})
+
+			stateRouter.go('state1', {})
+		})
+	}
+
+	testWithPropertyName('defaultParameters')
+	testWithPropertyName('defaultQuerystringParameters')
+})
