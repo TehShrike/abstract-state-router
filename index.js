@@ -17,7 +17,7 @@ var buildPath = require('page-path-builder')
 
 require('native-promise-only/npo')
 
-var expectedPropertiesOfAddState = ['name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters']
+var expectedPropertiesOfAddState = ['name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters', 'defaultParameters']
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
@@ -224,7 +224,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return promiseMe(prototypalStateHolder.guaranteeAllStatesExist, newStateName)
 		.then(function applyDefaultParameters() {
 			var state = prototypalStateHolder.get(newStateName)
-			var defaultParams = state.defaultQuerystringParameters || {}
+			var defaultParams = state.defaultParameters || state.defaultQuerystringParameters || {}
 			var needToApplyDefaults = Object.keys(defaultParams).some(function missingParameterValue(param) {
 				return !parameters[param]
 			})
@@ -317,7 +317,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		var destinationStateName = stateName === null ? getGuaranteedPreviousState().name : stateName
 
 		var destinationState = prototypalStateHolder.get(destinationStateName) || {}
-		var defaultParams = destinationState.defaultQuerystringParameters
+		var defaultParams = destinationState.defaultParameters || destinationState.defaultQuerystringParameters
 
 		parameters = extend(defaultParams, parameters)
 

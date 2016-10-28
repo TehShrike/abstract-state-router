@@ -1,45 +1,53 @@
 var test = require('tape-catch')
 var getTestState = require('./helpers/test-state-factory')
 
-test('default querystring parameters', function(tt) {
-	function basicTest(tt, testName, params, expectParams, expectLocation) {
-		tt.test(testName, function(t) {
-			var state = getTestState(t)
+test('default querystring parameters', function(t) {
+	function basicTest(testName, params, expectParams, expectLocation, defaultParamsPropertyName) {
+		t.test(testName, function(tt) {
+			var state = getTestState(tt)
 			var stateRouter = state.stateRouter
-			t.plan(2)
+			tt.plan(2)
 
-			stateRouter.addState({
+			var asrState = {
 				name: 'state',
 				route: '/state',
 				template: {},
 				querystringParameters: [ 'wat', 'much' ],
-				defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
 				activate: function(context) {
-					t.deepEqual(context.parameters, expectParams)
-					t.equal(state.location.get(), expectLocation)
-					t.end()
+					tt.deepEqual(context.parameters, expectParams)
+					tt.equal(state.location.get(), expectLocation)
+					tt.end()
 				}
-			})
+			}
+
+			asrState[defaultParamsPropertyName] = { wat: 'lol', much: 'neat' },
+
+			stateRouter.addState(asrState)
 
 			stateRouter.go('state', params)
 		})
 	}
 
-	basicTest(tt,
+	function testWithBothPropertyNames(testName, params, expectParams, expectLocation) {
+		basicTest(testName, params, expectParams, expectLocation, 'defaultQuerystringParameters')
+		basicTest(testName, params, expectParams, expectLocation, 'defaultParameters')
+	}
+
+	testWithBothPropertyNames(
 		'params override defaults',
 		{ wat: 'waycool', much: 'awesome', hi: 'world' },
 		{ wat: 'waycool', much: 'awesome', hi: 'world' },
 		'/state?wat=waycool&much=awesome&hi=world'
 	)
 
-	basicTest(tt,
+	testWithBothPropertyNames(
 		'defaults and params are applied',
 		{ wat: 'roflol'},
 		{ wat: 'roflol', much: 'neat'},
 		'/state?wat=roflol&much=neat'
 	)
 
-	basicTest(tt,
+	testWithBothPropertyNames(
 		'defaults are applied',
 		{},
 		{ wat: 'lol', much: 'neat'},
@@ -86,22 +94,32 @@ test('race conditions on redirects', function(t) {
 })
 
 test('default parameters should work for route params too', function(t) {
-	var state = getTestState(t)
-	var stateRouter = state.stateRouter
+	function testWithPropertyName(property) {
+		t.test(property, function(tt) {
+			var state = getTestState(tt)
+			var stateRouter = state.stateRouter
 
-	stateRouter.addState({
-		name: 'state1',
-		route: '/state1/:yarp',
-		template: {},
-		querystringParameters: [ 'wat' ],
-		defaultQuerystringParameters: { wat: 'lol', yarp: 'neat' },
-		activate: function(context) {
-			t.deepEqual({ wat: 'lol', yarp: 'neat' }, context.parameters)
-			t.equal(state.location.get(), '/state1/neat?wat=lol')
+			var asrState = {
+				name: 'state1',
+				route: '/state1/:yarp',
+				template: {},
+				querystringParameters: [ 'wat' ],
+				activate: function(context) {
+					tt.deepEqual({ wat: 'lol', yarp: 'neat' }, context.parameters)
+					tt.equal(state.location.get(), '/state1/neat?wat=lol')
 
-			t.end()
-		}
-	})
+					tt.end()
+				}
+			}
 
-	stateRouter.go('state1', {}) //redirects
+			asrState[property] = { wat: 'lol', yarp: 'neat' }
+
+			stateRouter.addState(asrState)
+
+			stateRouter.go('state1', {})
+		})
+	}
+
+	testWithPropertyName('defaultParameters')
+	testWithPropertyName('defaultQuerystringParameters')
 })
