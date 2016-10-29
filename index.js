@@ -34,7 +34,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		stateRouterOptions.router = newHashBrownRouter(defaultRouterOptions)
 	}
 
-	stateRouterOptions.router.setDefault(function(route, parameters) {
+	stateRouterOptions.router.on('not found', function(route, parameters) {
 		stateProviderEmitter.emit('routeNotFound', route, parameters)
 	})
 
