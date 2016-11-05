@@ -1,3 +1,7 @@
+# [5.14.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.14.1)
+
+- bug fix: empty strings in default parameters would cause the state router to stop cold without any error message
+
 # [5.14.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.14.0)
 
 - functional: replaced the `defaultQuerystringParameters` property on states with `defaultParameters`, which applies to both querystring and route parameters.  If you don't specify `defaultParameters`, `defaultQuerystringParameters` will be checked too (though it will now apply to route parameters as well).  [#91](https://github.com/TehShrike/abstract-state-router/issues/91)

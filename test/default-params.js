@@ -199,3 +199,28 @@ test('default parameters on parent states should apply to child state routes', f
 	testWithPropertyName('defaultParameters')
 	testWithPropertyName('defaultQuerystringParameters')
 })
+
+test('empty string is a valid default parameter', function(t) {
+	var state = getTestState(t)
+	var stateRouter = state.stateRouter
+
+	stateRouter.addState({
+		name: 'state',
+		route: '/state',
+		template: {},
+		defaultParameters: {
+			someParam: ''
+		},
+		querystringParameters: [ 'someParam' ],
+		activate: function(context) {
+			t.equal(context.parameters.someParam, '')
+			t.equal(state.location.get(), '/state?someParam=')
+
+			t.end()
+		}
+	})
+
+	stateRouter.go('state')
+}, {
+	timeout: 1000
+})

@@ -226,7 +226,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			var state = prototypalStateHolder.get(newStateName)
 			var defaultParams = state.defaultParameters || state.defaultQuerystringParameters || {}
 			var needToApplyDefaults = Object.keys(defaultParams).some(function missingParameterValue(param) {
-				return !parameters[param]
+				return typeof parameters[param] === 'undefined'
 			})
 
 			if (needToApplyDefaults) {
