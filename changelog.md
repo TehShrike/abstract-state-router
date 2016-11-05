@@ -1,6 +1,6 @@
 # [5.14.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.14.1)
 
-- bug fix: empty strings in default parameters would cause the state router to stop cold without any error message
+- bug fix: empty strings in default parameters would cause the state router to stop cold without any error message [#2abf9361](https://github.com/TehShrike/abstract-state-router/commit/2abf936172271369c07413f47c9917dd9d36c005)
 
 # [5.14.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.14.0)
 
