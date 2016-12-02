@@ -97,9 +97,13 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			content: content,
 			template: state.template,
 			parameters: parameters
-		}).then(function() {
+		}).then(function(newDomApi) {
+			if (newDomApi) {
+				activeDomApis[stateName] = newDomApi
+			}
+
 			stateProviderEmitter.emit('afterResetState', {
-				domApi: domApi,
+				domApi: activeDomApis[stateName],
 				content: content,
 				state: state,
 				parameters: parameters

@@ -4,7 +4,7 @@ var getTestState = require('./helpers/test-state-factory')
 test('All dom functions called in order', function(t) {
 	var actions = []
 
-	var renderer = function makeRenderer() {
+	function makeRenderer() {
 		return {
 			render: function render(context, cb) {
 				var element = context.element
@@ -27,7 +27,7 @@ test('All dom functions called in order', function(t) {
 		}
 	}
 
-	var state = getTestState(t, renderer)
+	var state = getTestState(t, makeRenderer)
 
 	var expectedActions = [
 		'render topTemplate on body',
@@ -80,4 +80,54 @@ test('All dom functions called in order', function(t) {
 	})
 
 	state.stateRouter.go('top.first')
+})
+
+test('Supplying a value to reset replaces the active DOM API', function(t) {
+	var originalDomApi = {}
+	var domApiAfterReset = {}
+
+	function makeRenderer() {
+		return {
+			render: function render(context, cb) {
+				cb(null, originalDomApi)
+			},
+			reset: function reset(context, cb) {
+				t.equal(originalDomApi, context.domApi)
+				cb(null, domApiAfterReset)
+			},
+			destroy: function destroy(renderedTemplateApi, cb) {
+				cb()
+			},
+			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+				cb()
+			}
+		}
+	}
+
+	var state = getTestState(t, makeRenderer)
+	var firstActivation = true
+
+	state.stateRouter.addState({
+		name: 'top',
+		template: 'topTemplate',
+		querystringParameters: ['myFancyParam'],
+		activate: function(context) {
+			if (firstActivation) {
+				t.equal(context.domApi, originalDomApi)
+				firstActivation = false
+
+				state.stateRouter.go('top', {
+					myFancyParam: 'new value'
+				})
+			} else {
+				t.equal(context.domApi, domApiAfterReset)
+				t.end()
+			}
+		}
+	})
+
+
+	state.stateRouter.go('top', {
+		myFancyParam: 'original value'
+	})
 })

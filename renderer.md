@@ -41,10 +41,10 @@ Is passed an object with four properties:
 function render(context, cb) {
   var myHtml = myTemplateParser(context.template, context.content) // Compile template and content
   $(context.element).html(myHtml) // Apply to the DOM
-  
+
   // domApi is a jquery object in these examples
   // You should expose the interface provided by your dom manipulation library of choice
-  var domApi = $(context.element) 
+  var domApi = $(context.element)
   cb(null, domApi)
 }
 ```
@@ -85,7 +85,9 @@ Your reset implementation should
 - wipe out all content/state in `domApi`
 - apply the new `content` to the same `domApi`
 
-This function doesn't return anything, just call the callback or whatever once the resetting is complete.
+This function doesn't have to return anything, it's totally fine to call the callback or return a resolved promise without any value once the resetting is complete.  The router will assume that the previous DOM API is still valid.
+
+If you do pass a truthy value to the callback or in the promise, the router will assume that the value is the new DOM API which should replace the previous one.
 
 ```js
 function reset(context, cb) {
