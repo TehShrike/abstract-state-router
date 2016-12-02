@@ -1,3 +1,7 @@
+# [5.15.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.15.0)
+
+- feature: renderers may now return a new DOM API from the reset function. [c07a45fb](https://github.com/TehShrike/abstract-state-router/commit/c07a45fba4d50d95c78822e2227529ca4aea29f8)
+
 # [5.14.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.14.1)
 
 - bug fix: empty strings in default parameters would cause the state router to stop cold without any error message [#2abf9361](https://github.com/TehShrike/abstract-state-router/commit/2abf936172271369c07413f47c9917dd9d36c005)
