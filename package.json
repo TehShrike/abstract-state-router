@@ -35,7 +35,7 @@
     "xtend": "^4.0.0"
   },
   "devDependencies": {
-    "browserify": "13.1.1",
+    "browserify": "14.0.0",
     "browserstack-runner": "TehShrike/browserstack-runner#fixing-json-borking",
     "browserstack-tape-reporter": "~1.1.0",
     "covert": "^1.1.0",
