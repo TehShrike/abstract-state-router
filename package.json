@@ -44,6 +44,6 @@
     "tape": "^4.1.0",
     "tape-catch": "1.0.6",
     "watchify": "3.9.0",
-    "webpack": "^1.12.14"
+    "webpack": "^2.2.1"
   }
 }
