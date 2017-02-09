@@ -86,6 +86,21 @@ If you call `callback(err, content)` with a truthy err value, the state change w
 
 If you call `callback.redirect(stateName, [stateParameters])`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
 
+If you want to redirect with promises, return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values for the state to redirect to.
+
+```js
+function resolve(data, parameters) {
+	return Promise.reject({
+		redirectTo: {
+			name: 'otherCoolState',
+			params: {
+				extraCool: true
+			}
+		}
+	})
+}
+```
+
 ### activate(context)
 
 The activate function is called when the state becomes active.  It is passed an event emitter named `context` with four properties:
