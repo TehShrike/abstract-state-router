@@ -1,10 +1,8 @@
-[ui-router](https://github.com/angular-ui/ui-router/wiki) is fantastic, and I would use it in all of my projects if it wasn't tied to AngularJS.
+abstract-state-router lets you build single-page webapps using nested routes/states.  Your code doesn't reference routes directly, like `/app/users/josh`, but by name and properties, like `app.user` + `{ name: 'josh' }`.
 
-But I don't want to use AngularJS - I want to use *[my favorite templating/dom manipulation libraries here]*.
+To find out why you should be using this kind of router, read [Why Your Webapp Needs a State-Based Router](http://joshduff.com/#!/post/2015-06-why-you-need-a-state-router.md).
 
-Thus, this library!  Written to work with [browserify](https://github.com/substack/node-browserify), it lets you create nested "states" that correspond to different parts of the url path.
-
-If you've never used AngularJS's ui-router before, check out this post: [Why your webapp needs a state-based router](http://joshduff.com/#!/post/2015-06-why-you-need-a-state-router.md).
+abstract-state-router is heavily inspired by [ui-router](https://github.com/angular-ui/ui-router/wiki).  The biggest difference is: you can use abstract-state-router with whatever templating/component library you like.
 
 To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](http://tehshrike.github.io/state-router-example).
 
@@ -18,7 +16,7 @@ If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstra
 - [Knockout](https://github.com/crissdev/knockout-state-renderer)
 - [Svelte](https://github.com/TehShrike/svelte-state-renderer)
 
-If you want to use the state router with some other templating/dom manipulation library, [read these docs](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md)!  It's not too bad to get started.
+If you want to use the state router with any other templating/dom manipulation library, [read these docs](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md)!  It's not too bad to get started.
 
 # Install
 
@@ -26,7 +24,7 @@ Using npm + your favorite CommonJS bundler is easiest.
 
 ```sh
 
-npm install abstract-state-router
+npm install abstract-state-router -S
 
 ```
 
