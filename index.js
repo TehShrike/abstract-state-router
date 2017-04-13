@@ -9,7 +9,7 @@ var defaultRouterOptions = require('./default-router-options.js')
 var series = require('./lib/promise-map-series')
 var denodeify = require('then-denodeify')
 
-var EventEmitter = require('events').EventEmitter
+var EventEmitter = require('events')
 var extend = require('xtend')
 var newHashBrownRouter = require('hash-brown-router')
 var combine = require('combine-arrays')
