@@ -1,6 +1,7 @@
 # [5.15.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.15.1)
 
-- compatibility: updated hash-brown-router and switched from `requre('events').EventEmitter` to `requre('events')` for better Rollup compatibility. [c861f5ab](https://github.com/TehShrike/abstract-state-router/commit/c861f5ab2d0c5d34915c6344fc8ef2d5a7982db2)
+- updated hash-brown-router [#93](https://github.com/TehShrike/abstract-state-router/pull/93)
+- compatibility: switched from `requre('events').EventEmitter` to `requre('events')` for better Rollup compatibility. [c861f5ab](https://github.com/TehShrike/abstract-state-router/commit/c861f5ab2d0c5d34915c6344fc8ef2d5a7982db2)
 
 # [5.15.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.15.0)
 
