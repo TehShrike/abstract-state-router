@@ -1,3 +1,7 @@
+# [5.15.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.15.1)
+
+- compatibility: updated hash-brown-router and switched from `requre('events').EventEmitter` to `requre('events')` for better Rollup compatibility. [c861f5ab](https://github.com/TehShrike/abstract-state-router/commit/c861f5ab2d0c5d34915c6344fc8ef2d5a7982db2)
+
 # [5.15.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.15.0)
 
 - feature: renderers may now return a new DOM API from the reset function. [c07a45fb](https://github.com/TehShrike/abstract-state-router/commit/c07a45fba4d50d95c78822e2227529ca4aea29f8)

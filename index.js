@@ -17,7 +17,7 @@ var buildPath = require('page-path-builder')
 
 require('native-promise-only/npo')
 
-var expectedPropertiesOfAddState = ['name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters', 'defaultParameters']
+var expectedPropertiesOfAddState = [ 'name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters', 'defaultParameters' ]
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
 	var prototypalStateHolder = StateState()
@@ -392,7 +392,7 @@ function resolveStates(states, parameters) {
 	var statesWithResolveFunctions = states.filter(isFunction('resolve'))
 	var stateNamesWithResolveFunctions = statesWithResolveFunctions.map(property('name'))
 	var resolves = Promise.all(statesWithResolveFunctions.map(function(state) {
-		return new Promise(function (resolve, reject) {
+		return new Promise(function(resolve, reject) {
 			function resolveCb(err, content) {
 				err ? reject(err) : resolve(content)
 			}
