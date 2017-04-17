@@ -1,3 +1,7 @@
+# [5.16.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.0)
+
+- updated hash-brown-router to 3.1.0, making the `/` route equivalent to an empty route string [#102](https://github.com/TehShrike/abstract-state-router/pull/102)
+
 # [5.15.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.15.1)
 
 - updated hash-brown-router [#93](https://github.com/TehShrike/abstract-state-router/pull/93)
