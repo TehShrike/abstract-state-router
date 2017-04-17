@@ -1,6 +1,6 @@
 {
   "name": "abstract-state-router",
-  "version": "5.15.1",
+  "version": "5.16.0",
   "description": "Like ui-router, but without all the Angular. The best way to structure a single-page webapp.",
   "main": "index.js",
   "scripts": {
