@@ -121,7 +121,7 @@ This is a matter of taste, but I think that the renderer should expose some basi
 - easily linking to other states
 - setting an `active` class on an element if a given state is active
 
-You'll need to implement those in order to get the example todo app working.  See the Ractive `app` state template [here](https://github.com/TehShrike/state-router-example/blob/gh-pages/implementations/ractive/app/app.html#L5-L7) using the Ractive decorator exposed by ractive-state-router that sets an `active` class on the element when the given state name is active, and the `makePath` function that builds a url to a state given a state name and some properties.
+You'll need to implement those in order to get the example todo app working.  See the Ractive `app` state template [here](https://github.com/TehShrike/state-router-example/blob/master/implementations/ractive/app/app.html#L5-L7) using the Ractive decorator exposed by ractive-state-router that sets an `active` class on the element when the given state name is active, and the `makePath` function that builds a url to a state given a state name and some properties.
 
 You can implement these with functionality exposed by the state router:
 
