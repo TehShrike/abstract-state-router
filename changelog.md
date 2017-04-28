@@ -1,3 +1,10 @@
+# [5.16.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.1)
+
+
+- documentation: fixed a requre/require typo [#103](https://github.com/TehShrike/abstract-state-router/pull/103)
+- documentation: added "inherit" to the documented `go()` options [#104](https://github.com/TehShrike/abstract-state-router/pull/104)
+- documentation: in the rendered docs, fixed the link to the ractive example source code [8511b651](https://github.com/TehShrike/abstract-state-router/commit/8511b651de025af466e70cc9fb0bfa5c3ad351f6)
+
 # [5.16.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.0)
 
 - updated hash-brown-router to 3.1.0, making the `/` route equivalent to an empty route string [#102](https://github.com/TehShrike/abstract-state-router/pull/102)
