@@ -171,7 +171,9 @@ stateRouter.addState({
 
 Browses to the given state, with the current parameters.  Changes the url to match.
 
-The options object currently supports just one option "replace" - if it is truthy, the current state is replaced in the url history.
+The options object currently supports two options:
+- `replace` - if it is truthy, the current state is replaced in the url history.
+- `inherit` - if true, querystring parameters are inherited from the current state.  Defaults to false.
 
 If a state change is triggered during a state transition, and the DOM hasn't been manipulated yet, then the current state change is discarded, and the new one replaces it. Otherwise, it is queued and applied once the current state change is done.
 
