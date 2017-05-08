@@ -27,6 +27,7 @@
   "homepage": "https://github.com/TehShrike/abstract-state-router",
   "dependencies": {
     "combine-arrays": "~1.0.2",
+    "eventemitter3": "2.0.3",
     "hash-brown-router": "~3.1.0",
     "native-promise-only": "0.8.1",
     "page-path-builder": "~1.0.3",
