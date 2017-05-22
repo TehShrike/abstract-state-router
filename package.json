@@ -29,6 +29,7 @@
     "combine-arrays": "~1.0.2",
     "eventemitter3": "2.0.3",
     "hash-brown-router": "~3.1.0",
+    "iso-next-tick": "1.0.0",
     "native-promise-only": "0.8.1",
     "page-path-builder": "~1.0.3",
     "path-to-regexp-with-reversible-keys": "~1.0.3",

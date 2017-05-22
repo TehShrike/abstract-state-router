@@ -14,6 +14,7 @@ var extend = require('xtend')
 var newHashBrownRouter = require('hash-brown-router')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
+var nextTick = require('iso-next-tick')
 
 require('native-promise-only/npo')
 
@@ -48,7 +49,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	var activeEmitters = {}
 
 	function handleError(event, err) {
-		process.nextTick(function() {
+		nextTick(function() {
 			stateProviderEmitter.emit(event, err)
 			console.error(event + ' - ' + err.message)
 			if (stateRouterOptions.throwOnError) {
@@ -278,7 +279,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					try {
 						state.activate && state.activate(context)
 					} catch (e) {
-						process.nextTick(function() {
+						nextTick(function() {
 							throw e
 						})
 					}
