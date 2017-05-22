@@ -1,3 +1,7 @@
+# [5.16.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.2)
+
+- drop dependencies on the `process` and `events` polyfills and bump hash-brown-router dependency, saving about 25KB
+
 # [5.16.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.1)
 
 
