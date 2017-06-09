@@ -37,21 +37,21 @@ test('default querystring parameters', function(t) {
 		'params override defaults',
 		{ wat: 'waycool', much: 'awesome', hi: 'world' },
 		{ wat: 'waycool', much: 'awesome', hi: 'world' },
-		'/state?wat=waycool&much=awesome&hi=world'
+		'/state?hi=world&much=awesome&wat=waycool'
 	)
 
 	testWithBothPropertyNames(
 		'defaults and params are applied',
-		{ wat: 'roflol'},
-		{ wat: 'roflol', much: 'neat'},
-		'/state?wat=roflol&much=neat'
+		{ wat: 'roflol' },
+		{ wat: 'roflol', much: 'neat' },
+		'/state?much=neat&wat=roflol'
 	)
 
 	testWithBothPropertyNames(
 		'defaults are applied',
 		{},
-		{ wat: 'lol', much: 'neat'},
-		'/state?wat=lol&much=neat'
+		{ wat: 'lol', much: 'neat' },
+		'/state?much=neat&wat=lol'
 	)
 })
 
@@ -68,7 +68,7 @@ test('race conditions on redirects', function(t) {
 		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
 		activate: function(context) {
 			t.deepEqual({ wat: 'lol', much: 'neat' }, context.parameters)
-			t.equal(state.location.get(), '/state1?wat=lol&much=neat')
+			t.equal(state.location.get(), '/state1?much=neat&wat=lol')
 
 			stateRouter.go('state2', { wat: 'waycool', much: 'awesome', hi: 'world' }) //does not redirect
 		}
@@ -82,7 +82,7 @@ test('race conditions on redirects', function(t) {
 		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
 		activate: function(context) {
 			t.deepEqual({ wat: 'waycool', much: 'awesome', hi: 'world' }, context.parameters)
-			t.equal(state.location.get(), '/state2?wat=waycool&much=awesome&hi=world')
+			t.equal(state.location.get(), '/state2?hi=world&much=awesome&wat=waycool')
 
 			t.end()
 		}
@@ -90,7 +90,6 @@ test('race conditions on redirects', function(t) {
 
 
 	stateRouter.go('state1', {}) //redirects
-
 })
 
 test('default parameters should work for route params too', function(t) {
