@@ -366,6 +366,13 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	renderDom = denodeify(renderer.render)
 	resetDom = denodeify(renderer.reset)
 
+	stateProviderEmitter.states = {
+		get: prototypalStateHolder.get,
+		getHierarchy: prototypalStateHolder.getHierarchy,
+		getParent: prototypalStateHolder.getParent,
+		getParentName: prototypalStateHolder.getParentName
+  	}
+
 	return stateProviderEmitter
 }
 
