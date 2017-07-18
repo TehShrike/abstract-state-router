@@ -126,7 +126,8 @@ stateRouter.addState({
 		isLoggedIn(function(err, isLoggedIn) {
 			cb(err, isLoggedIn)
 		})
-	}, activate: function(context) {
+	},
+	activate: function(context) {
 		// Normally, you would set data in your favorite view library
 		var isLoggedIn = context.content
 		var ele = document.getElementById('status')
@@ -141,7 +142,8 @@ stateRouter.addState({
 	template: '',
 	resolve: function(data, parameters, cb) {
 		getTab1Data(cb)
-	}, activate: function(context) {
+	},
+	activate: function(context) {
 		document.getElementById('tab').innerText = context.content
 
 		var intervalId = setInterval(function() {
@@ -161,7 +163,8 @@ stateRouter.addState({
 	template: '',
 	resolve: function(data, parameters, cb) {
 		getTab2Data(cb)
-	}, activate: function(context) {
+	},
+	activate: function(context) {
 		document.getElementById('tab').innerText = context.content
 	}
 })
