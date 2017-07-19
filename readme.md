@@ -2,7 +2,9 @@ abstract-state-router lets you build single-page webapps using nested routes/sta
 
 To find out why you should be using this kind of router, read [Why Your Webapp Needs a State-Based Router](http://joshduff.com/#!/post/2015-06-why-you-need-a-state-router.md).
 
-abstract-state-router is heavily inspired by [ui-router](https://github.com/angular-ui/ui-router/wiki).  The biggest difference is: you can use abstract-state-router with whatever templating/component library you like.
+abstract-state-router is heavily inspired by the [original ui-router](https://github.com/angular-ui/ui-router/wiki).  The biggest difference is: you can use abstract-state-router with whatever templating/component library you like.
+
+It is similar in that way to the [new ui-router](https://github.com/ui-router/core), except that abstract-state-router is smaller, its documentation is more readable, and it is easier to create [new renderers for arbitrary view libraries](./renderer.md).
 
 To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](http://tehshrike.github.io/state-router-example).
 
