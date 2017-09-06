@@ -36,6 +36,19 @@ Want to use the abstract-state-router without messing with bundlers or package m
 
 # API
 
+- [`options`](#options)
+- [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
+	- [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
+	- [`activate`](#activatecontext)
+	- [Examples](#addstate-examples)
+- [`go`](#stateroutergostatename-stateparameters-options)
+- [`evaluateCurrent`](#staterouterevaluatecurrentroutefallbackstatename-fallbackstateparameters)
+- [`stateIsActive`](#staterouterstateisactivestatename-stateparameters)
+- [`makePath`](#stateroutermakepathstatename-stateparameters-options)
+- [Events](#events)
+	- [State change](#state-change)
+	- [DOM API interactions](#dom-api-interactions)
+
 ```js
 var createStateRouter = require('abstract-state-router')
 
