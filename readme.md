@@ -36,7 +36,8 @@ Want to use the abstract-state-router without messing with bundlers or package m
 
 # API
 
-- [`options`](#options)
+- [Instantiate](#instantiate)
+	- [`options`](#options)
 - [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
 	- [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
 	- [`activate`](#activatecontext)
@@ -49,6 +50,8 @@ Want to use the abstract-state-router without messing with bundlers or package m
 	- [State change](#state-change)
 	- [DOM API interactions](#dom-api-interactions)
 
+## Instantiate
+
 ```js
 var createStateRouter = require('abstract-state-router')
 
@@ -59,7 +62,7 @@ The `makeRenderer` should be a function that returns an object with four propert
 
 The `rootElement` is the element where the first-generation states will be created.
 
-## options
+### options
 
 Possible properties of the `options` object are:
 
