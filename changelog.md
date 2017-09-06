@@ -1,9 +1,12 @@
+# [5.16.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.3)
+
+- documentation: added a table of contents to the API section of the readme [#111](https://github.com/TehShrike/abstract-state-router/pull/111)
+
 # [5.16.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.2)
 
 - drop dependencies on the `process` and `events` polyfills and bump hash-brown-router dependency, saving about 25KB
 
 # [5.16.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.1)
-
 
 - documentation: fixed a requre/require typo [#103](https://github.com/TehShrike/abstract-state-router/pull/103)
 - documentation: added "inherit" to the documented `go()` options [#104](https://github.com/TehShrike/abstract-state-router/pull/104)
