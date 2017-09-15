@@ -10,6 +10,8 @@ To see an example app implemented with a couple of different browser rendering l
 
 If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstract-state-router)! [![Join the chat at https://gitter.im/TehShrike/abstract-state-router](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TehShrike/abstract-state-router)
 
+**[Read the changelog](./changelog.md)**
+
 # Current renderer implementations
 
 - [RactiveJS](https://github.com/TehShrike/ractive-state-router)
