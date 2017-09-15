@@ -246,9 +246,9 @@ These are all emitted on the state router object.
 ### State change
 
 - `stateChangeAttempt(functionThatBeginsTheStateChange)` - used by the state transition manager, probably not useful to anyone else at the moment
-- `stateChangeStart(state, parameters)` - emitted after the state name and parameters have been validated
+- `stateChangeStart(state, parameters, states)` - emitted after the state name and parameters have been validated
 - `stateChangeCancelled(err)` - emitted if a redirect is issued in a resolve function
-- `stateChangeEnd(state, parameters)` - after all activate functions are called
+- `stateChangeEnd(state, parameters, states)` - after all activate functions are called
 - `stateChangeError(err)` - emitted if an error occurs while trying to navigate to a new state - including if you try to navigate to a state that doesn't exist
 - `stateError(err)` - emitted if an error occurs in an activation function, or somewhere else that doesn't directly interfere with changing states. Should probably be combined with `stateChangeError` at some point since they're not that different?
 - `routeNotFound(route, parameters)` - emitted if the user or some errant code changes the location hash to a route that does not have any states associated with it.  If you have a generic "not found" page you want to redirect people to, you can do so like this:

@@ -1,7 +1,6 @@
 var test = require('tape-catch')
 var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 var getTestState = require('./helpers/test-state-factory')
-var mockRendererFacotry = require('./helpers/renderer-mock')
 
 test('Emitting errors when attempting to navigate to invalid states', function(t) {
 	function testGoingTo(description, invalidStateName) {
@@ -55,7 +54,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 	var renderer = assertingRendererFactory(t, [ parent1Template, child1Template, parent2Template, child2Template ])
 	var state = getTestState(t, renderer)
 	var stateRouter = state.stateRouter
-	var assertsBelow = 24
+	var assertsBelow = 28
 	var renderAsserts = renderer.expectedAssertions
 
 	t.plan(assertsBelow + renderAsserts)
@@ -65,52 +64,58 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 	var secondParentActivate = false
 	var secondChildActivate = false
 
-	stateRouter.addState({
+	var valid1 = {
 		name: 'valid1',
 		route: '/valid1',
 		template: parent1Template,
 		activate: function(context) {
 			firstParentActivate = true
 		}
-	})
-
-	stateRouter.addState({
+	}
+	var valid1valid = {
 		name: 'valid1.valid',
 		route: '/valid1',
 		template: child1Template,
 		activate: function(context) {
 			firstChildActivate = true
 		}
-	})
+	}
 
-	stateRouter.addState({
+	var valid2 = {
 		name: 'valid2',
 		route: '/valid2',
 		template: parent2Template,
 		activate: function(context) {
 			secondParentActivate = true
 		}
-	})
+	}
 
-	stateRouter.addState({
+	var valid2valid = {
 		name: 'valid2.valid',
 		route: '/valid2',
 		template: child2Template,
 		activate: function(context) {
 			secondChildActivate = true
 		}
-	})
+	}
 
-	stateRouter.once('stateChangeStart', function(state, properties) {
+	stateRouter.addState(valid1)
+	stateRouter.addState(valid1valid)
+	stateRouter.addState(valid2)
+	stateRouter.addState(valid2valid)
+
+	stateRouter.once('stateChangeStart', function(state, properties, states) {
 		t.equal(state.name, 'valid1.valid')
 		t.deepEqual(properties, firstProperties)
 		t.notOk(firstParentActivate)
 		t.notOk(firstChildActivate)
 		t.notOk(secondParentActivate)
 		t.notOk(secondChildActivate)
+
+		t.deepEqual(states, [valid1, valid1valid])
 	})
 
-	stateRouter.once('stateChangeEnd', function(state, properties) {
+	stateRouter.once('stateChangeEnd', function(state, properties, states) {
 		t.equal(state.name, 'valid1.valid')
 		t.deepEqual(properties, firstProperties)
 		t.ok(firstParentActivate)
@@ -118,22 +123,28 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 		t.notOk(secondParentActivate)
 		t.notOk(secondChildActivate)
 
-		stateRouter.once('stateChangeStart', function(state, properties) {
+		t.deepEqual(states, [valid1, valid1valid])
+
+		stateRouter.once('stateChangeStart', function(state, properties, states) {
 			t.equal(state.name, 'valid2.valid')
 			t.deepEqual(properties, secondProperties)
 			t.ok(firstParentActivate)
 			t.ok(firstChildActivate)
 			t.notOk(secondParentActivate)
 			t.notOk(secondChildActivate)
+
+			t.deepEqual(states, [valid2, valid2valid])
 		})
 
-		stateRouter.once('stateChangeEnd', function(state, properties) {
+		stateRouter.once('stateChangeEnd', function(state, properties, states) {
 			t.equal(state.name, 'valid2.valid')
 			t.deepEqual(properties, secondProperties)
 			t.ok(firstParentActivate)
 			t.ok(firstChildActivate)
 			t.ok(secondParentActivate)
 			t.ok(secondChildActivate)
+
+			t.deepEqual(states, [valid2, valid2valid])
 
 			t.end()
 		})
