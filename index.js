@@ -25,6 +25,14 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	var lastCompletelyLoadedState = CurrentState()
 	var lastStateStartedActivating = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
+	var compareStartAndEndStates = StateComparison(prototypalStateHolder)
+
+	function stateNameToArrayofStates(stateName) {
+		return parse(stateName).map(function(name) {
+			return prototypalStateHolder.get(name)
+		})
+	}
+
 	StateTransitionManager(stateProviderEmitter)
 	stateRouterOptions = extend({
 		throwOnError: true,
@@ -239,10 +247,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			}
 			return state
 		}).then(ifNotCancelled(function(state) {
-			stateProviderEmitter.emit('stateChangeStart', state, parameters)
+			stateProviderEmitter.emit('stateChangeStart', state, parameters, stateNameToArrayofStates(state.name))
 			lastStateStartedActivating.set(state.name, parameters)
 		})).then(function getStateChanges() {
-			var stateComparisonResults = StateComparison(prototypalStateHolder)(lastCompletelyLoadedState.get().name, lastCompletelyLoadedState.get().parameters, newStateName, parameters)
+			var stateComparisonResults = compareStartAndEndStates(lastCompletelyLoadedState.get().name, lastCompletelyLoadedState.get().parameters, newStateName, parameters)
 			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
 		}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
 			return resolveStates(getStatesToResolve(stateChanges), extend(parameters)).catch(function onResolveError(e) {
@@ -288,7 +296,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})).then(function stateChangeComplete() {
 			lastCompletelyLoadedState.set(newStateName, parameters)
 			try {
-				stateProviderEmitter.emit('stateChangeEnd', prototypalStateHolder.get(newStateName), parameters)
+				stateProviderEmitter.emit('stateChangeEnd', prototypalStateHolder.get(newStateName), parameters, stateNameToArrayofStates(newStateName))
 			} catch (e) {
 				handleError('stateError', e)
 			}
