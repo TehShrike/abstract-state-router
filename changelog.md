@@ -1,3 +1,7 @@
+# [5.17.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.17.0)
+
+- functional: `stateChangeStart` and `stateChangeEnd` events now also emit the full array of states being transitioned to. [#113](https://github.com/TehShrike/abstract-state-router/pull/113)
+
 # [5.16.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.16.3)
 
 - documentation: added a table of contents to the API section of the readme [#111](https://github.com/TehShrike/abstract-state-router/pull/111)
@@ -23,7 +27,7 @@
 
 # [5.15.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.15.0)
 
-- feature: renderers may now return a new DOM API from the reset function. [c07a45fb](https://github.com/TehShrike/abstract-state-router/commit/c07a45fba4d50d95c78822e2227529ca4aea29f8)
+- functional: renderers may now return a new DOM API from the reset function. [c07a45fb](https://github.com/TehShrike/abstract-state-router/commit/c07a45fba4d50d95c78822e2227529ca4aea29f8)
 
 # [5.14.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.14.1)
 
