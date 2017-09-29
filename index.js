@@ -295,7 +295,9 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				function activateAll() {
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
-					return activateStates(statesToActivate)
+					var result = activateStates(statesToActivate)
+                    renderStates(statesToActivate)
+                    return result
 				}
 
 				activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
@@ -306,7 +308,18 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
 				})
 			}))
-
+            function renderStates(stateNames) {
+                return stateNames.map(prototypalStateHolder.get).forEach(function (state) {
+                    var domApi = activeDomApis[state.name]
+                    try {
+                        domApi.render && domApi.render()
+                    } catch (e) {
+                        nextTick(function () {
+                            throw e
+                        })
+                    }
+                })
+            }
 			function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
 					var emitter = new EventEmitter()
