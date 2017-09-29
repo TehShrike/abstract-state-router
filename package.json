@@ -27,13 +27,15 @@
   "homepage": "https://github.com/TehShrike/abstract-state-router",
   "dependencies": {
     "combine-arrays": "~1.0.2",
-    "eventemitter3": "2.0.3",
-    "hash-brown-router": "~3.2.0",
-    "iso-next-tick": "1.0.0",
+    "eventemitter3": "^2.0.3",
+    "hash-brown-router": "^3.2.1",
+    "iso-next-tick": "^1.0.0",
     "native-promise-only": "0.8.1",
     "page-path-builder": "~1.0.3",
+    "parse5": "^3.0.2",
     "path-to-regexp-with-reversible-keys": "~1.0.3",
-    "then-denodeify": "1.0.1",
+    "shortid": "^2.2.8",
+    "then-denodeify": "^1.0.1",
     "xtend": "^4.0.0"
   },
   "devDependencies": {

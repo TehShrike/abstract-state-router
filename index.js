@@ -3,6 +3,9 @@ var StateComparison = require('./lib/state-comparison')
 var CurrentState = require('./lib/current-state')
 var stateChangeLogic = require('./lib/state-change-logic')
 var parse = require('./lib/state-string-parser')
+var parse5 = require('parse5')
+var htmlFragment = require('./lib/html-fragment')
+var stringLocation = require('./lib/string-location')
 var StateTransitionManager = require('./lib/state-transition-manager')
 var defaultRouterOptions = require('./default-router-options.js')
 
@@ -21,7 +24,6 @@ require('native-promise-only/npo')
 var expectedPropertiesOfAddState = [ 'name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters', 'defaultParameters' ]
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
-	var prototypalStateHolder = StateState()
 	var lastCompletelyLoadedState = CurrentState()
 	var lastStateStartedActivating = CurrentState()
 	var stateProviderEmitter = new EventEmitter()
@@ -39,11 +41,43 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		pathPrefix: '#'
 	}, stateRouterOptions)
 
+    if (typeof stateRouterOptions.routerFactory === 'function') {
+	    stateRouterOptions.router = stateRouterOptions.routerFactory()
+    }
+
 	if (!stateRouterOptions.router) {
-		stateRouterOptions.router = newHashBrownRouter(defaultRouterOptions)
+		if(typeof window !== 'undefined') {
+		    stateRouterOptions.router = newHashBrownRouter(defaultRouterOptions)
+        } else {
+            stateRouterOptions.router = newHashBrownRouter(defaultRouterOptions, stringLocation())
+        }
 	}
 
-	stateRouterOptions.router.on('not found', function(route, parameters) {
+    var prototypalStateHolder = stateRouterOptions.templateStates || StateState()
+    stateProviderEmitter.useAsTemplateFor = function(rootElement, overidingStateRouterOptions) {
+	    var finalOptions = Object.assign({templateStates: prototypalStateHolder}, stateRouterOptions, {router: null}, overidingStateRouterOptions)
+	    return StateProvider(makeRenderer, rootElement, finalOptions)
+    }
+    stateProviderEmitter.renderAsHTML = function(state, parameters, rootElement) {
+        rootElement = rootElement || '<div ui-view></div>'
+	    if(typeof rootElement === 'string') rootElement = htmlFragment(rootElement)
+        let localRouter = stateProviderEmitter.useAsTemplateFor(rootElement, { router: newHashBrownRouter({}, stringLocation())})
+        return localRouter.changeState(state, parameters).then(function(result) {
+            var x = rootElement
+            if(result.postRender && typeof result.postRender === 'function') result = result.postRender()
+            return result
+        }).catch(function(e) {
+            console.error(e)
+        })
+    }
+    if(stateRouterOptions.templateStates) {
+	    stateRouterOptions.templateStates.forEachState(function (state) {
+            var route = prototypalStateHolder.buildFullStateRoute(state.name)
+            stateRouterOptions.router.add(route, onRouteChange.bind(null, state))
+        })
+    }
+
+    stateRouterOptions.router.on('not found', function(route, parameters) {
 		stateProviderEmitter.emit('routeNotFound', route, parameters)
 	})
 
@@ -127,7 +161,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				var parentDomApi = activeDomApis[parent.name]
 				resolve(getDomChild(parentDomApi))
 			} else {
-				resolve(rootElement)
+			    if(typeof rootElement === 'function') {
+			        resolve(Promise.resolve(rootElement()))
+                } else {
+                    resolve(rootElement)
+                }
 			}
 		})
 	}
@@ -261,7 +299,6 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 				function activateAll() {
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)
-
 					return activateStates(statesToActivate)
 				}
 
@@ -273,8 +310,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
 				})
 			}))
-
-			function activateStates(stateNames) {
+            function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
 					var emitter = new EventEmitter()
 					var context = Object.create(emitter)
@@ -350,6 +386,25 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 		return promiseMe(makePath, newStateName, parameters, options).then(goFunction, handleError.bind(null, 'stateChangeError'))
 	}
+	stateProviderEmitter.changeState = function go(newStateName, parameters, options) {
+        return new Promise(function(resolve, reject) {
+            function removeEvents() {
+                stateProviderEmitter.off('stateChangeEnd', success)
+                stateProviderEmitter.off('stateError', error)
+            }
+            function error(e) {
+                removeEvents()
+                reject(e)
+            }
+            function success() {
+                removeEvents()
+                resolve(rootElement)
+            }
+            stateProviderEmitter.on('stateChangeEnd', success)
+            stateProviderEmitter.on('stateError', error)
+            stateProviderEmitter.go(newStateName, parameters, options)
+        })
+    }
 	stateProviderEmitter.evaluateCurrentRoute = function evaluateCurrentRoute(defaultState, defaultParams) {
 		return promiseMe(makePath, defaultState, defaultParams).then(function(defaultPath) {
 			stateRouterOptions.router.evaluateCurrent(defaultPath)
@@ -373,6 +428,17 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	getDomChild = denodeify(renderer.getChildElement)
 	renderDom = denodeify(renderer.render)
 	resetDom = denodeify(renderer.reset)
+
+    Object.defineProperties(stateProviderEmitter, {
+        rootElement: {
+            get() {
+                return rootElement
+            },
+            set(newRootElement) {
+                rootElement = newRootElement
+            }
+        }
+    })
 
 	return stateProviderEmitter
 }
@@ -451,3 +517,5 @@ function promiseMe() {
 		resolve(fn.apply(null, args))
 	})
 }
+
+module.exports.ssrRenderer = require('./lib/ssr-renderer')
