@@ -4,6 +4,7 @@ var CurrentState = require('./lib/current-state')
 var stateChangeLogic = require('./lib/state-change-logic')
 var parse = require('./lib/state-string-parser')
 var parse5 = require('parse5')
+var htmlFragment = require('./lib/html-fragment')
 var stringLocation = require('./lib/string-location')
 var StateTransitionManager = require('./lib/state-transition-manager')
 var defaultRouterOptions = require('./default-router-options.js')
@@ -57,12 +58,16 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	    var finalOptions = Object.assign({templateStates: prototypalStateHolder}, stateRouterOptions, {router: null}, overidingStateRouterOptions)
 	    return StateProvider(makeRenderer, rootElement, finalOptions)
     }
-    stateProviderEmitter.renderAsHTML = function(state, rootElement) {
-	    rootElement = rootElement || '<ui-view></ui-view>'
-        let root = parse5.parseFragment(rootElement)
-        let localRouter = stateProviderEmitter.useAsTemplateFor(root, { router: newHashBrownRouter({}, stringLocation())})
-        return localRouter.changeState(state).then(function(result) {
-            return parse5.serialize(result)
+    stateProviderEmitter.renderAsHTML = function(state, parameters, rootElement) {
+        rootElement = rootElement || '<div ui-view></div>'
+	    if(typeof rootElement === 'string') rootElement = htmlFragment(rootElement)
+        let localRouter = stateProviderEmitter.useAsTemplateFor(rootElement, { router: newHashBrownRouter({}, stringLocation())})
+        return localRouter.changeState(state, parameters).then(function(result) {
+            var x = rootElement
+            if(result.postRender && typeof result.postRender === 'function') result = result.postRender()
+            return result
+        }).catch(function(e) {
+            console.error(e)
         })
     }
     if(stateRouterOptions.templateStates) {
@@ -296,7 +301,14 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
 					var result = activateStates(statesToActivate)
-                    renderStates(statesToActivate)
+                    // var domApi = activeDomApis[statesToActivate[0]]
+                    // try {
+                    //     domApi.postRender && typeof domApi.postRender === 'function' && domApi.postRender()
+                    // } catch (e) {
+                    //     nextTick(function () {
+                    //         throw e
+                    //     })
+                    // }
                     return result
 				}
 
@@ -308,19 +320,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
 				})
 			}))
-            function renderStates(stateNames) {
-                return stateNames.map(prototypalStateHolder.get).forEach(function (state) {
-                    var domApi = activeDomApis[state.name]
-                    try {
-                        domApi.render && domApi.render()
-                    } catch (e) {
-                        nextTick(function () {
-                            throw e
-                        })
-                    }
-                })
-            }
-			function activateStates(stateNames) {
+            function activateStates(stateNames) {
 				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
 					var emitter = new EventEmitter()
 					var context = Object.create(emitter)
@@ -527,3 +527,5 @@ function promiseMe() {
 		resolve(fn.apply(null, args))
 	})
 }
+
+module.exports.ssrRenderer = require('./lib/ssr-renderer')
