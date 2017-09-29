@@ -299,17 +299,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 				function activateAll() {
 					var statesToActivate = stateChanges.change.concat(stateChanges.create)
-
-					var result = activateStates(statesToActivate)
-                    // var domApi = activeDomApis[statesToActivate[0]]
-                    // try {
-                    //     domApi.postRender && typeof domApi.postRender === 'function' && domApi.postRender()
-                    // } catch (e) {
-                    //     nextTick(function () {
-                    //         throw e
-                    //     })
-                    // }
-                    return result
+					return activateStates(statesToActivate)
 				}
 
 				activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
