@@ -1,14 +1,14 @@
-var test = require('tape-catch')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const getTestState = require('./helpers/test-state-factory')
 
 test('default querystring parameters', function(t) {
 	function basicTest(testName, params, expectParams, expectLocation, defaultParamsPropertyName) {
 		t.test(testName, function(tt) {
-			var state = getTestState(tt)
-			var stateRouter = state.stateRouter
+			const state = getTestState(tt)
+			const stateRouter = state.stateRouter
 			tt.plan(2)
 
-			var asrState = {
+			const asrState = {
 				name: 'state',
 				route: '/state',
 				template: {},
@@ -17,7 +17,7 @@ test('default querystring parameters', function(t) {
 					tt.deepEqual(context.parameters, expectParams)
 					tt.equal(state.location.get(), expectLocation)
 					tt.end()
-				}
+				},
 			}
 
 			asrState[defaultParamsPropertyName] = { wat: 'lol', much: 'neat' },
@@ -56,8 +56,8 @@ test('default querystring parameters', function(t) {
 })
 
 test('race conditions on redirects', function(t) {
-	var state = getTestState(t)
-	var stateRouter = state.stateRouter
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
 	t.plan(4)
 
 	stateRouter.addState({
@@ -71,7 +71,7 @@ test('race conditions on redirects', function(t) {
 			t.equal(state.location.get(), '/state1?much=neat&wat=lol')
 
 			stateRouter.go('state2', { wat: 'waycool', much: 'awesome', hi: 'world' }) //does not redirect
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -85,7 +85,7 @@ test('race conditions on redirects', function(t) {
 			t.equal(state.location.get(), '/state2?hi=world&much=awesome&wat=waycool')
 
 			t.end()
-		}
+		},
 	})
 
 
@@ -95,10 +95,10 @@ test('race conditions on redirects', function(t) {
 test('default parameters should work for route params too', function(t) {
 	function testWithPropertyName(property) {
 		t.test(property, function(tt) {
-			var state = getTestState(tt)
-			var stateRouter = state.stateRouter
+			const state = getTestState(tt)
+			const stateRouter = state.stateRouter
 
-			var asrState = {
+			const asrState = {
 				name: 'state1',
 				route: '/state1/:yarp',
 				template: {},
@@ -108,7 +108,7 @@ test('default parameters should work for route params too', function(t) {
 					tt.equal(state.location.get(), '/state1/neat?wat=lol')
 
 					tt.end()
-				}
+				},
 			}
 
 			asrState[property] = { wat: 'lol', yarp: 'neat' }
@@ -126,17 +126,17 @@ test('default parameters should work for route params too', function(t) {
 test('default parameters should work for default child route params', function(t) {
 	function testWithPropertyName(property) {
 		t.test(property, function(tt) {
-			var state = getTestState(tt)
-			var stateRouter = state.stateRouter
+			const state = getTestState(tt)
+			const stateRouter = state.stateRouter
 
 			stateRouter.addState({
 				name: 'state1',
 				route: '/state1',
 				defaultChild: 'child1',
-				template: {}
+				template: {},
 			})
 
-			var asrState = {
+			const asrState = {
 				name: 'state1.child1',
 				route: '/:yarp',
 				template: {},
@@ -146,7 +146,7 @@ test('default parameters should work for default child route params', function(t
 					tt.equal(state.location.get(), '/state1/neat?wat=lol')
 
 					tt.end()
-				}
+				},
 			}
 
 			asrState[property] = { wat: 'lol', yarp: 'neat' }
@@ -164,14 +164,14 @@ test('default parameters should work for default child route params', function(t
 test('default parameters on parent states should apply to child state routes', function(t) {
 	function testWithPropertyName(property) {
 		t.test(property, function(tt) {
-			var state = getTestState(tt)
-			var stateRouter = state.stateRouter
+			const state = getTestState(tt)
+			const stateRouter = state.stateRouter
 
-			var parentState = {
+			const parentState = {
 				name: 'state1',
 				route: '/state1',
 				defaultChild: 'child1',
-				template: {}
+				template: {},
 			}
 
 			parentState[property] = { wat: 'lol', yarp: 'neat' }
@@ -188,7 +188,7 @@ test('default parameters on parent states should apply to child state routes', f
 					tt.equal(state.location.get(), '/state1/neat?wat=lol')
 
 					tt.end()
-				}
+				},
 			})
 
 			stateRouter.go('state1', {})
@@ -200,15 +200,15 @@ test('default parameters on parent states should apply to child state routes', f
 })
 
 test('empty string is a valid default parameter', function(t) {
-	var state = getTestState(t)
-	var stateRouter = state.stateRouter
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
 
 	stateRouter.addState({
 		name: 'state',
 		route: '/state',
 		template: {},
 		defaultParameters: {
-			someParam: ''
+			someParam: '',
 		},
 		querystringParameters: [ 'someParam' ],
 		activate: function(context) {
@@ -216,10 +216,10 @@ test('empty string is a valid default parameter', function(t) {
 			t.equal(state.location.get(), '/state?someParam=')
 
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('state')
 }, {
-	timeout: 1000
+	timeout: 1000,
 })

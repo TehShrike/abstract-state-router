@@ -1,10 +1,8 @@
-var test = require('tape-catch')
-var getTestState = require('./helpers/test-state-factory')
-
-function noop() {}
+const test = require('tape-catch')
+const getTestState = require('./helpers/test-state-factory')
 
 test('friendly error message for missing state', function(t) {
-	var stateRouter = getTestState(t).stateRouter
+	const stateRouter = getTestState(t).stateRouter
 	t.plan(1)
 
 	function shouldThrow() {
@@ -16,7 +14,7 @@ test('friendly error message for missing state', function(t) {
 })
 
 test('friendly error message for missing name', function(t) {
-	var stateRouter = getTestState(t).stateRouter
+	const stateRouter = getTestState(t).stateRouter
 	t.plan(1)
 
 	function shouldThrow() {
@@ -28,7 +26,7 @@ test('friendly error message for missing name', function(t) {
 })
 
 test('friendly error message for missing template', function(t) {
-	var stateRouter = getTestState(t).stateRouter
+	const stateRouter = getTestState(t).stateRouter
 	t.plan(1)
 
 	function shouldThrow() {
@@ -40,7 +38,7 @@ test('friendly error message for missing template', function(t) {
 })
 
 test('name and template are the only required options', function(t) {
-	var stateRouter = getTestState(t).stateRouter
+	const stateRouter = getTestState(t).stateRouter
 	t.plan(1)
 
 	function failure(prefix) {
@@ -50,7 +48,7 @@ test('name and template are the only required options', function(t) {
 	}
 
 	process.on('uncaughtException', failure('uncaught'))
-	stateRouter.on('stateChangeError', failure('stateChangeError') )
+	stateRouter.on('stateChangeError', failure('stateChangeError'))
 	stateRouter.on('stateError', failure('stateError'))
 
 	stateRouter.addState({ name: 'hello', template: 'hello' })

@@ -1,14 +1,14 @@
-var test = require('tape-catch')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const getTestState = require('./helpers/test-state-factory')
 
 test('test queue with a basic activate-in-order test', function(t) {
 	function startTest(t) {
-		var state = getTestState(t)
-		var stateRouter = state.stateRouter
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
 		t.plan(3)
 
-		var parentActivated = false
-		var cancelEvents = 0
+		let parentActivated = false
+		let cancelEvents = 0
 
 		stateRouter.addState({
 			name: 'valid',
@@ -20,7 +20,7 @@ test('test queue with a basic activate-in-order test', function(t) {
 			activate: function() {
 				t.notOk(parentActivated, 'Should only activate once')
 				parentActivated = true
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -32,7 +32,7 @@ test('test queue with a basic activate-in-order test', function(t) {
 			},
 			activate: function() {
 				t.fail('should not activate')
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -41,7 +41,7 @@ test('test queue with a basic activate-in-order test', function(t) {
 			template: {},
 			activate: function() {
 				t.fail('should not activate')
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -55,7 +55,7 @@ test('test queue with a basic activate-in-order test', function(t) {
 				t.pass('valid.valid3 activated')
 				t.equal(cancelEvents, 2, 'Two cancel events emitted')
 				t.end()
-			}
+			},
 		})
 
 		stateRouter.on('stateChangeCancelled', function(e) {
@@ -66,14 +66,14 @@ test('test queue with a basic activate-in-order test', function(t) {
 	}
 
 	t.test('with state.go', function(t) {
-		var stateRouter = startTest(t).stateRouter
+		const stateRouter = startTest(t).stateRouter
 		stateRouter.go('valid.valid1')
 		stateRouter.go('valid.valid2')
 		stateRouter.go('valid.valid3')
 	})
 
 	t.test('by changing the url', function(t) {
-		var hashRouter = startTest(t).hashRouter
+		const hashRouter = startTest(t).hashRouter
 		hashRouter.go('/valid/valid1')
 		hashRouter.go('/valid/valid2')
 		hashRouter.go('/valid/valid3')
@@ -83,12 +83,12 @@ test('test queue with a basic activate-in-order test', function(t) {
 })
 
 test('test queue a state.go happening during a render', function(t) {
-	var state = getTestState(t)
-	var stateRouter = state.stateRouter
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
 	t.plan(3)
 	t.timeoutAfter(1000)
 
-	var parentActivated = false
+	let parentActivated = false
 
 	stateRouter.addState({
 		name: 'valid',
@@ -100,7 +100,7 @@ test('test queue a state.go happening during a render', function(t) {
 		activate: function() {
 			t.notOk(parentActivated, 'Should only activate once')
 			parentActivated = true
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -116,7 +116,7 @@ test('test queue a state.go happening during a render', function(t) {
 		},
 		activate: function() {
 			t.fail('should not activate')
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -129,19 +129,19 @@ test('test queue a state.go happening during a render', function(t) {
 		activate: function() {
 			t.pass('valid.valid2 activated')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('valid.valid1')
 })
 
 test('test queue a state.go when the last transition is in the middle of activating', function(t) {
-	var state = getTestState(t)
-	var stateRouter = state.stateRouter
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
 	t.plan(4)
 
-	var firstTimeParentHasBeenActivated = true
-	var valid2Activated = false
+	let firstTimeParentHasBeenActivated = true
+	let valid2Activated = false
 
 	stateRouter.addState({
 		name: 'valid',
@@ -155,7 +155,7 @@ test('test queue a state.go when the last transition is in the middle of activat
 				stateRouter.go('valid.valid2')
 				firstTimeParentHasBeenActivated = false
 			}
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -169,7 +169,7 @@ test('test queue a state.go when the last transition is in the middle of activat
 		activate: function() {
 			t.notOk(valid2Activated, 'valid2 should not be activated yet')
 			t.pass('valid.valid1 should activate')
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -183,7 +183,7 @@ test('test queue a state.go when the last transition is in the middle of activat
 			valid2Activated = true
 			t.pass('valid.valid2 activated')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('valid.valid1')

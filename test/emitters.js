@@ -1,15 +1,15 @@
-var test = require('tape-catch')
-var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const assertingRendererFactory = require('./helpers/asserting-renderer-factory')
+const getTestState = require('./helpers/test-state-factory')
 
 test('Emitting errors when attempting to navigate to invalid states', function(t) {
 	function testGoingTo(description, invalidStateName) {
 		t.test(description, function(t) {
-			var renderer = assertingRendererFactory(t, [])
-			var state = getTestState(t, renderer)
-			var stateRouter = state.stateRouter
-			var assertsBelow = 1
-			var renderAsserts = renderer.expectedAssertions
+			const renderer = assertingRendererFactory(t, [])
+			const state = getTestState(t, renderer)
+			const stateRouter = state.stateRouter
+			const assertsBelow = 1
+			const renderAsserts = renderer.expectedAssertions
 
 			t.plan(assertsBelow + renderAsserts)
 
@@ -19,7 +19,7 @@ test('Emitting errors when attempting to navigate to invalid states', function(t
 				template: null,
 				activate: function(context) {
 					t.fail('Should never activate the parent\'s state')
-				}
+				},
 			})
 
 			stateRouter.addState({
@@ -28,7 +28,7 @@ test('Emitting errors when attempting to navigate to invalid states', function(t
 				template: null,
 				activate: function(context) {
 					t.fail('Should never activate the child\'s state')
-				}
+				},
 			})
 
 			stateRouter.on('stateChangeError', function(e) {
@@ -45,58 +45,58 @@ test('Emitting errors when attempting to navigate to invalid states', function(t
 })
 
 test('Emitting stateChangeStart and stateChangeEnd', function(t) {
-	var parent1Template = {}
-	var child1Template = {}
-	var parent2Template = {}
-	var child2Template = {}
-	var firstProperties = { one: 'wat' }
-	var secondProperties = { two: 'wat' }
-	var renderer = assertingRendererFactory(t, [ parent1Template, child1Template, parent2Template, child2Template ])
-	var state = getTestState(t, renderer)
-	var stateRouter = state.stateRouter
-	var assertsBelow = 28
-	var renderAsserts = renderer.expectedAssertions
+	const parent1Template = {}
+	const child1Template = {}
+	const parent2Template = {}
+	const child2Template = {}
+	const firstProperties = { one: 'wat' }
+	const secondProperties = { two: 'wat' }
+	const renderer = assertingRendererFactory(t, [ parent1Template, child1Template, parent2Template, child2Template ])
+	const state = getTestState(t, renderer)
+	const stateRouter = state.stateRouter
+	const assertsBelow = 28
+	const renderAsserts = renderer.expectedAssertions
 
 	t.plan(assertsBelow + renderAsserts)
 
-	var firstParentActivate = false
-	var firstChildActivate = false
-	var secondParentActivate = false
-	var secondChildActivate = false
+	let firstParentActivate = false
+	let firstChildActivate = false
+	let secondParentActivate = false
+	let secondChildActivate = false
 
-	var valid1 = {
+	const valid1 = {
 		name: 'valid1',
 		route: '/valid1',
 		template: parent1Template,
 		activate: function(context) {
 			firstParentActivate = true
-		}
+		},
 	}
-	var valid1valid = {
+	const valid1valid = {
 		name: 'valid1.valid',
 		route: '/valid1',
 		template: child1Template,
 		activate: function(context) {
 			firstChildActivate = true
-		}
+		},
 	}
 
-	var valid2 = {
+	const valid2 = {
 		name: 'valid2',
 		route: '/valid2',
 		template: parent2Template,
 		activate: function(context) {
 			secondParentActivate = true
-		}
+		},
 	}
 
-	var valid2valid = {
+	const valid2valid = {
 		name: 'valid2.valid',
 		route: '/valid2',
 		template: child2Template,
 		activate: function(context) {
 			secondChildActivate = true
-		}
+		},
 	}
 
 	stateRouter.addState(valid1)
@@ -112,7 +112,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 		t.notOk(secondParentActivate)
 		t.notOk(secondChildActivate)
 
-		t.deepEqual(states, [valid1, valid1valid])
+		t.deepEqual(states, [ valid1, valid1valid ])
 	})
 
 	stateRouter.once('stateChangeEnd', function(state, properties, states) {
@@ -123,7 +123,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 		t.notOk(secondParentActivate)
 		t.notOk(secondChildActivate)
 
-		t.deepEqual(states, [valid1, valid1valid])
+		t.deepEqual(states, [ valid1, valid1valid ])
 
 		stateRouter.once('stateChangeStart', function(state, properties, states) {
 			t.equal(state.name, 'valid2.valid')
@@ -133,7 +133,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 			t.notOk(secondParentActivate)
 			t.notOk(secondChildActivate)
 
-			t.deepEqual(states, [valid2, valid2valid])
+			t.deepEqual(states, [ valid2, valid2valid ])
 		})
 
 		stateRouter.once('stateChangeEnd', function(state, properties, states) {
@@ -144,7 +144,7 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 			t.ok(secondParentActivate)
 			t.ok(secondChildActivate)
 
-			t.deepEqual(states, [valid2, valid2valid])
+			t.deepEqual(states, [ valid2, valid2valid ])
 
 			t.end()
 		})
@@ -156,15 +156,15 @@ test('Emitting stateChangeStart and stateChangeEnd', function(t) {
 })
 
 test('emitting stateChangeError', function(t) {
-	var parent1Template = {}
-	var child1Template = {}
-	var renderer = assertingRendererFactory(t, [ ])
-	var state = getTestState(t, renderer)
-	var stateRouter = state.stateRouter
-	var assertsBelow = 1
-	var renderAsserts = renderer.expectedAssertions
-	var error1 = new Error('first')
-	var error2 = new Error('second')
+	const parent1Template = {}
+	const child1Template = {}
+	const renderer = assertingRendererFactory(t, [ ])
+	const state = getTestState(t, renderer)
+	const stateRouter = state.stateRouter
+	const assertsBelow = 1
+	const renderAsserts = renderer.expectedAssertions
+	const error1 = new Error('first')
+	const error2 = new Error('second')
 
 	t.plan(assertsBelow + renderAsserts)
 
@@ -177,7 +177,7 @@ test('emitting stateChangeError', function(t) {
 		},
 		activate: function(context) {
 			t.fail('should not activate')
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -189,7 +189,7 @@ test('emitting stateChangeError', function(t) {
 		},
 		activate: function(context) {
 			t.fail('should not activate')
-		}
+		},
 	})
 
 	stateRouter.on('stateChangeError', function(e) {
@@ -201,14 +201,14 @@ test('emitting stateChangeError', function(t) {
 })
 
 test('emitting dom api create', function(t) {
-	var originalDomApi = {}
-	var renderCalled = false
-	var beforeEventFired = false
-	var afterEventFired = false
+	const originalDomApi = {}
+	let renderCalled = false
+	let beforeEventFired = false
+	let afterEventFired = false
 
 	t.plan(16)
 
-	var state = getTestState(t, function() {
+	const state = getTestState(t, function() {
 		return {
 			render: function(context, cb) {
 				t.ok(beforeEventFired)
@@ -224,13 +224,13 @@ test('emitting dom api create', function(t) {
 			},
 			getChildElement: function getChildElement(renderedTemplateApi, cb) {
 				cb(null, {})
-			}
+			},
 		}
 	})
 
-	var stateRouter = state.stateRouter
+	const stateRouter = state.stateRouter
 
-	var originalStateObject = {
+	const originalStateObject = {
 		name: 'state',
 		route: '/state',
 		template: {},
@@ -238,9 +238,9 @@ test('emitting dom api create', function(t) {
 		defaultQuerystringParameters: { wat: 'lol', much: 'neat' },
 		resolve: function(data, params, cb) {
 			cb(null, {
-				value: 'legit'
+				value: 'legit',
 			})
-		}
+		},
 	}
 
 	stateRouter.addState(originalStateObject)
@@ -271,17 +271,17 @@ test('emitting dom api create', function(t) {
 	})
 
 	stateRouter.go('state', {
-		thingy: 'yes'
+		thingy: 'yes',
 	})
 })
 
 test('emitting dom api destroy', function(t) {
-	var originalDomApi = {}
-	var beforeEventFired = false
-	var afterEventFired = false
-	var destroyCalled = false
+	const originalDomApi = {}
+	let beforeEventFired = false
+	let afterEventFired = false
+	let destroyCalled = false
 
-	var state = getTestState(t, function() {
+	const state = getTestState(t, function() {
 		return {
 			render: function(context, cb) {
 				cb(null, originalDomApi)
@@ -298,19 +298,19 @@ test('emitting dom api destroy', function(t) {
 			},
 			getChildElement: function getChildElement(renderedTemplateApi, cb) {
 				cb(null, {})
-			}
+			},
 		}
 	})
-	var stateRouter = state.stateRouter
+	const stateRouter = state.stateRouter
 	t.plan(11)
 
-	var originalStateObject = {
+	const originalStateObject = {
 		name: 'state',
 		route: '/state',
 		template: {},
 		activate: function() {
 			stateRouter.go('second-state', {})
-		}
+		},
 	}
 
 	stateRouter.addState(originalStateObject)
@@ -321,7 +321,7 @@ test('emitting dom api destroy', function(t) {
 		activate: function(context) {
 			t.ok(afterEventFired)
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.on('beforeDestroyState', function(context) {
@@ -346,16 +346,16 @@ test('emitting dom api destroy', function(t) {
 })
 
 test('emitting dom api reset', function(t) {
-	var originalDomApi = {}
-	var secondDomApi = {}
-	var domApis = [originalDomApi, secondDomApi]
-	var beforeEventFired = false
-	var afterEventFired = false
-	var resetCalled = false
+	const originalDomApi = {}
+	const secondDomApi = {}
+	const domApis = [ originalDomApi, secondDomApi ]
+	let beforeEventFired = false
+	let afterEventFired = false
+	let resetCalled = false
 
 	t.plan(16)
 
-	var state = getTestState(t, function() {
+	const state = getTestState(t, function() {
 		return {
 			render: function(context, cb) {
 				cb(null, domApis.shift())
@@ -374,26 +374,26 @@ test('emitting dom api reset', function(t) {
 			},
 			getChildElement: function getChildElement(renderedTemplateApi, cb) {
 				cb(null, {})
-			}
+			},
 		}
 	})
-	var stateRouter = state.stateRouter
+	const stateRouter = state.stateRouter
 
-	var originalStateObject = {
+	const originalStateObject = {
 		name: 'state',
 		route: '/state',
 		template: {},
 		querystringParameters: [ 'wat' ],
 		resolve: function(data, params, cb) {
 			cb(null, {
-				value: 'legit'
+				value: 'legit',
 			})
 		},
 		activate: function() {
 			setTimeout(function() {
 				stateRouter.go('state', { wat: '20' })
 			}, 10)
-		}
+		},
 	}
 
 	stateRouter.addState(originalStateObject)
@@ -427,11 +427,11 @@ test('emitting dom api reset', function(t) {
 })
 
 test('emitting routeNotFound', function(t) {
-	var renderer = assertingRendererFactory(t, [])
-	var state = getTestState(t, renderer)
-	var stateRouter = state.stateRouter
-	var assertsBelow = 2
-	var renderAsserts = renderer.expectedAssertions
+	const renderer = assertingRendererFactory(t, [])
+	const state = getTestState(t, renderer)
+	const stateRouter = state.stateRouter
+	const assertsBelow = 2
+	const renderAsserts = renderer.expectedAssertions
 
 	t.plan(assertsBelow + renderAsserts)
 
@@ -441,7 +441,7 @@ test('emitting routeNotFound', function(t) {
 		template: null,
 		activate: function(context) {
 			t.fail('Should never activate the parent\'s state')
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -450,7 +450,7 @@ test('emitting routeNotFound', function(t) {
 		template: null,
 		activate: function(context) {
 			t.fail('Should never activate the child\'s state')
-		}
+		},
 	})
 
 	stateRouter.on('stateChangeError', function(e) {

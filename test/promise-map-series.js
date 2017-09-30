@@ -1,12 +1,12 @@
 // Copied from https://github.com/joliss/promise-map-series/blob/master/test.js
 
-var test = require('tape-catch')
-var mapSeries = require('../lib/promise-map-series')
+const test = require('tape-catch')
+const mapSeries = require('../lib/promise-map-series')
 
 test('mapSeries', function(t) {
 	t.test('iterator is called in sequence for each item', function(t) {
 		t.plan(6)
-		var seq = 0
+		let seq = 0
 		mapSeries([ 0, 1 ], function(item) {
 			t.equal(seq, item)
 			return new Promise(function(resolve, reject) {
@@ -24,7 +24,7 @@ test('mapSeries', function(t) {
 
 	t.test('is rejected on first rejection', function(t) {
 		t.plan(2)
-		var errorObject = new Error('rejected')
+		const errorObject = new Error('rejected')
 		mapSeries([ 0, 1 ], function(item) {
 			t.pass('is called once')
 			throw errorObject
@@ -38,7 +38,7 @@ test('mapSeries', function(t) {
 
 	t.test('passes index and array argument to iterator', function(t) {
 		t.plan(5)
-		var arr = [ 42, 43 ]
+		const arr = [ 42, 43 ]
 		mapSeries(arr, function(item, index, array) {
 			t.equal(item, index + 42)
 			t.equal(array, arr)

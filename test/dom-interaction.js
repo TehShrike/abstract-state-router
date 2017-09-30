@@ -1,14 +1,14 @@
-var test = require('tape-catch')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const getTestState = require('./helpers/test-state-factory')
 
 test('All dom functions called in order', function(t) {
-	var actions = []
+	const actions = []
 
 	function makeRenderer() {
 		return {
 			render: function render(context, cb) {
-				var element = context.element
-				var template = context.template
+				const element = context.element
+				const template = context.template
 				actions.push('render ' + template + ' on ' + element)
 				cb(null, template)
 			},
@@ -23,13 +23,13 @@ test('All dom functions called in order', function(t) {
 			getChildElement: function getChildElement(renderedTemplateApi, cb) {
 				actions.push('getChild ' + renderedTemplateApi)
 				cb(null, renderedTemplateApi + ' child')
-			}
+			},
 		}
 	}
 
-	var state = getTestState(t, makeRenderer)
+	const state = getTestState(t, makeRenderer)
 
-	var expectedActions = [
+	const expectedActions = [
 		'render topTemplate on body',
 		'getChild topTemplate',
 		'render topFirstTemplate on topTemplate child',
@@ -40,7 +40,7 @@ test('All dom functions called in order', function(t) {
 		'getChild topTemplate',
 		'render topSecondTemplate on topTemplate child',
 		'activate top',
-		'activate top.second'
+		'activate top.second',
 	]
 
 	t.plan(expectedActions.length)
@@ -48,10 +48,10 @@ test('All dom functions called in order', function(t) {
 	state.stateRouter.addState({
 		name: 'top',
 		template: 'topTemplate',
-		querystringParameters: ['myFancyParam'],
+		querystringParameters: [ 'myFancyParam' ],
 		activate: function() {
 			actions.push('activate top')
-		}
+		},
 	})
 
 	state.stateRouter.addState({
@@ -61,9 +61,9 @@ test('All dom functions called in order', function(t) {
 		activate: function() {
 			actions.push('activate top.first')
 			state.stateRouter.go('top.second', {
-				myFancyParam: 'groovy dude'
+				myFancyParam: 'groovy dude',
 			})
-		}
+		},
 	})
 
 	state.stateRouter.addState({
@@ -76,15 +76,15 @@ test('All dom functions called in order', function(t) {
 				t.equal(actions[index], planned, planned)
 			})
 			t.end()
-		}
+		},
 	})
 
 	state.stateRouter.go('top.first')
 })
 
 test('Supplying a value to reset replaces the active DOM API', function(t) {
-	var originalDomApi = {}
-	var domApiAfterReset = {}
+	const originalDomApi = {}
+	const domApiAfterReset = {}
 
 	function makeRenderer() {
 		return {
@@ -100,34 +100,34 @@ test('Supplying a value to reset replaces the active DOM API', function(t) {
 			},
 			getChildElement: function getChildElement(renderedTemplateApi, cb) {
 				cb()
-			}
+			},
 		}
 	}
 
-	var state = getTestState(t, makeRenderer)
-	var firstActivation = true
+	const state = getTestState(t, makeRenderer)
+	let firstActivation = true
 
 	state.stateRouter.addState({
 		name: 'top',
 		template: 'topTemplate',
-		querystringParameters: ['myFancyParam'],
+		querystringParameters: [ 'myFancyParam' ],
 		activate: function(context) {
 			if (firstActivation) {
 				t.equal(context.domApi, originalDomApi)
 				firstActivation = false
 
 				state.stateRouter.go('top', {
-					myFancyParam: 'new value'
+					myFancyParam: 'new value',
 				})
 			} else {
 				t.equal(context.domApi, domApiAfterReset)
 				t.end()
 			}
-		}
+		},
 	})
 
 
 	state.stateRouter.go('top', {
-		myFancyParam: 'original value'
+		myFancyParam: 'original value',
 	})
 })

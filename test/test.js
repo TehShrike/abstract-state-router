@@ -1,31 +1,31 @@
-var test = require('tape-catch')
-var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const assertingRendererFactory = require('./helpers/asserting-renderer-factory')
+const getTestState = require('./helpers/test-state-factory')
 
 test('normal, error-less state activation flow for two states', function(t) {
 	function basicTest(t) {
-		var parentData = {}
-		var childData = {}
-		var parentTemplate = {}
-		var childTemplate = {}
-		var parentResolveContent = {
-			parentProperty: 'some string'
+		const parentData = {}
+		const childData = {}
+		const parentTemplate = {}
+		const childTemplate = {}
+		const parentResolveContent = {
+			parentProperty: 'some string',
 		}
-		var childResolveContent = {
-			childProperty: 'a different string'
+		const childResolveContent = {
+			childProperty: 'a different string',
 		}
 
-		var renderer = assertingRendererFactory(t, [parentTemplate, childTemplate])
-		var state = getTestState(t, renderer)
-		var stateRouter = state.stateRouter
-		var assertsBelow = 18
-		var renderAsserts = renderer.expectedAssertions
+		const renderer = assertingRendererFactory(t, [ parentTemplate, childTemplate ])
+		const state = getTestState(t, renderer)
+		const stateRouter = state.stateRouter
+		const assertsBelow = 18
+		const renderAsserts = renderer.expectedAssertions
 
 		t.plan(assertsBelow + renderAsserts)
 
-		var parentResolveFinished = false
-		var parentStateActivated = false
-		var childResolveFinished = false
+		let parentResolveFinished = false
+		let parentStateActivated = false
+		let childResolveFinished = false
 
 		stateRouter.addState({
 			name: 'rofl',
@@ -40,12 +40,12 @@ test('normal, error-less state activation flow for two states', function(t) {
 					cb(null, parentResolveContent)
 				}, 200)
 			},
-			querystringParameters: ['wat'],
+			querystringParameters: [ 'wat' ],
 			activate: function(context) {
-				var domApi = context.domApi
-				var data = context.data
-				var parameters = context.parameters
-				var content = context.content
+				const domApi = context.domApi
+				const data = context.data
+				const parameters = context.parameters
+				const content = context.content
 
 				t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
 				parentStateActivated = true
@@ -57,7 +57,7 @@ test('normal, error-less state activation flow for two states', function(t) {
 				t.equal(content.parentProperty, parentResolveContent.parentProperty, 'The parent activate function got the parent property from the resolve function object')
 				t.notOk(content.childProperty, 'No child resolve content visible to the parent')
 				t.equal(parameters.wat, 'wut', 'got the parameter value in the parent\'s activate function')
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -74,10 +74,10 @@ test('normal, error-less state activation flow for two states', function(t) {
 				}, 100)
 			},
 			activate: function(context) {
-				var domApi = context.domApi
-				var data = context.data
-				var parameters = context.parameters
-				var content = context.content
+				const domApi = context.domApi
+				const data = context.data
+				const parameters = context.parameters
+				const content = context.content
 
 				t.ok(parentStateActivated, 'Parent state was activated before the child state was')
 				t.ok(childResolveFinished, 'Child resolve was completed before the activate')
@@ -89,19 +89,19 @@ test('normal, error-less state activation flow for two states', function(t) {
 				t.equal(parameters.wat, 'wut', 'got the the parent\'s parameter value in the child\'s activate function')
 
 				t.end()
-			}
+			},
 		})
 
 		return state
 	}
 
 	t.test('triggered with go()', function(t) {
-		var stateRouter = basicTest(t).stateRouter
+		const stateRouter = basicTest(t).stateRouter
 		stateRouter.go('rofl.copter', { wat: 'wut' })
 	})
 
 	t.test('triggered by the router', function(t) {
-		var hashRouter = basicTest(t).hashRouter
+		const hashRouter = basicTest(t).hashRouter
 		hashRouter.go('/routeButt/lolcopter?wat=wut')
 	})
 })
@@ -109,11 +109,11 @@ test('normal, error-less state activation flow for two states', function(t) {
 
 test('undefined data, querystring, and resolve function', function(t) {
 	function basicTest(t) {
-		var parentTemplate = {}
+		const parentTemplate = {}
 
-		var renderer = assertingRendererFactory(t, [parentTemplate])
-		var state = getTestState(t, renderer)
-		var assertsBelow = 3
+		const renderer = assertingRendererFactory(t, [ parentTemplate ])
+		const state = getTestState(t, renderer)
+		const assertsBelow = 3
 
 		t.plan(assertsBelow + renderer.expectedAssertions)
 
@@ -122,60 +122,60 @@ test('undefined data, querystring, and resolve function', function(t) {
 			route: '/routeButt',
 			template: parentTemplate,
 			activate: function(context) {
-				var data = context.data
-				var parameters = context.parameters
-				var content = context.content
+				const data = context.data
+				const parameters = context.parameters
+				const content = context.content
 
 				t.equal(typeof data, 'undefined', 'data is undefined')
 				t.equal(parameters.wat, 'wut', 'got the parameter value')
 				t.equal(Object.keys(content).length, 0, 'No keys on the content object')
 				t.end()
-			}
+			},
 		})
 
 		return state
 	}
 
 	t.test('triggered with go()', function(t) {
-		var stateRouter = basicTest(t).stateRouter
+		const stateRouter = basicTest(t).stateRouter
 		stateRouter.go('rofl', { wat: 'wut' })
 	})
 
 	t.test('triggered by the router', function(t) {
-		var hashRouter = basicTest(t).hashRouter
+		const hashRouter = basicTest(t).hashRouter
 		hashRouter.go('/routeButt?wat=wut')
 	})
 })
 
 test('normal, error-less state activation flow for two states', function(t) {
-	var parentData = {}
-	var child1Data = {}
-	var child2Data = {}
-	var parentTemplate = {}
-	var child1Template = {}
-	var child2Template = {}
-	var parentResolveContent = {
-		parentProperty: 'some string'
+	const parentData = {}
+	const child1Data = {}
+	const child2Data = {}
+	const parentTemplate = {}
+	const child1Template = {}
+	const child2Template = {}
+	const parentResolveContent = {
+		parentProperty: 'some string',
 	}
-	var child1ResolveContent = {
-		child1Property: 'a different string'
+	const child1ResolveContent = {
+		child1Property: 'a different string',
 	}
-	var child2ResolveContent = {
-		child2Property: 'whatever man'
+	const child2ResolveContent = {
+		child2Property: 'whatever man',
 	}
 
 
-	var renderer = assertingRendererFactory(t, [parentTemplate, child1Template, child2Template])
-	var state = getTestState(t, renderer)
-	var stateRouter = state.stateRouter
-	var assertsBelow = 11
+	const renderer = assertingRendererFactory(t, [ parentTemplate, child1Template, child2Template ])
+	const state = getTestState(t, renderer)
+	const stateRouter = state.stateRouter
+	const assertsBelow = 11
 
 	t.plan(assertsBelow + renderer.expectedAssertions)
 
-	var parentResolveCalled = false
-	var parentStateActivated = false
-	var child1ResolveCalled = false
-	var child1Activated = false
+	let parentResolveCalled = false
+	let parentStateActivated = false
+	let child1ResolveCalled = false
+	let child1Activated = false
 
 	stateRouter.addState({
 		name: 'parent',
@@ -189,11 +189,11 @@ test('normal, error-less state activation flow for two states', function(t) {
 				cb(null, parentResolveContent)
 			}, 50)
 		},
-		querystringParameters: ['wat'],
+		querystringParameters: [ 'wat' ],
 		activate: function(context) {
 			t.notOk(parentStateActivated, 'parent state hasn\'t been activated before')
 			parentStateActivated = true
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -215,7 +215,7 @@ test('normal, error-less state activation flow for two states', function(t) {
 			setTimeout(function() {
 				stateRouter.go('parent.child2', { wat: 'some value' })
 			})
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -239,14 +239,14 @@ test('normal, error-less state activation flow for two states', function(t) {
 			t.equal(context.parameters.wat, 'some value', 'got the the parent\'s parameter value in the child2\'s activate function')
 
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('parent.child1', { wat: 'some value' })
 })
 
 test('stateIsActive', function(t) {
-	var stateRouter = getTestState(t).stateRouter
+	const stateRouter = getTestState(t).stateRouter
 
 	t.plan(6)
 
@@ -259,7 +259,7 @@ test('stateIsActive', function(t) {
 	stateRouter.addState({
 		name: 'parent.child1',
 		template: '',
-		route: '/child1'
+		route: '/child1',
 	})
 
 	stateRouter.addState({
@@ -284,7 +284,7 @@ test('stateIsActive', function(t) {
 })
 
 test('stateIsActive but states with that substring are not', function(t) {
-	var stateRouter = getTestState(t).stateRouter
+	const stateRouter = getTestState(t).stateRouter
 
 	t.plan(4)
 
@@ -303,7 +303,7 @@ test('stateIsActive but states with that substring are not', function(t) {
 	stateRouter.addState({
 		name: 'parent.child',
 		template: '',
-		route: '/child'
+		route: '/child',
 	})
 
 	stateRouter.addState({
@@ -326,11 +326,11 @@ test('stateIsActive but states with that substring are not', function(t) {
 })
 
 test('evaluateCurrentRoute with url set', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
-	var hashRouter = testState.hashRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
+	const hashRouter = testState.hashRouter
 
-	var correctRouteCalled = false
+	let correctRouteCalled = false
 
 	t.plan(3)
 
@@ -342,7 +342,7 @@ test('evaluateCurrentRoute with url set', function(t) {
 		template: null,
 		activate: function() {
 			t.fail()
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -354,7 +354,7 @@ test('evaluateCurrentRoute with url set', function(t) {
 			correctRouteCalled = true
 			t.notOk(context.parameters.parameterName)
 			t.end()
-		}
+		},
 	})
 
 	t.notOk(correctRouteCalled)
@@ -363,10 +363,10 @@ test('evaluateCurrentRoute with url set', function(t) {
 })
 
 test('evaluateCurrentRoute with no current route should go to the default', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
 
-	var correctRouteCalled = false
+	let correctRouteCalled = false
 
 	t.plan(3)
 
@@ -376,7 +376,7 @@ test('evaluateCurrentRoute with no current route should go to the default', func
 		template: null,
 		activate: function() {
 			t.fail()
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -389,7 +389,7 @@ test('evaluateCurrentRoute with no current route should go to the default', func
 			t.equal(context.parameters.parameterName, 'wrong')
 			correctRouteCalled = true
 			t.end()
-		}
+		},
 	})
 
 	t.notOk(correctRouteCalled)
@@ -398,8 +398,8 @@ test('evaluateCurrentRoute with no current route should go to the default', func
 })
 
 test('resolve that returns a promise', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
 
 	t.plan(1)
 
@@ -409,14 +409,14 @@ test('resolve that returns a promise', function(t) {
 		resolve: function() {
 			return new Promise(function(resolve, reject) {
 				resolve({
-					value: 'this is it!'
+					value: 'this is it!',
 				})
 			})
 		},
 		activate: function(context) {
 			t.equal(context.content.value, 'this is it!')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('some-state')
@@ -424,48 +424,48 @@ test('resolve that returns a promise', function(t) {
 
 test('render fn receives parameters', function(t) {
 	t.plan(1)
-	var stateRouter = getTestState(t, function() {
+	const stateRouter = getTestState(t, function() {
 		return {
 			render: function(context) {
-				t.deepEqual(context.parameters, {foo: 'abc'})
-			}
+				t.deepEqual(context.parameters, { foo: 'abc' })
+			},
 		}
 	}).stateRouter
 	stateRouter.addState({
 		name: 'x',
 		route: '/x/:foo',
-		template: ''
+		template: '',
 	})
-	stateRouter.go('x', {foo: 'abc'})
+	stateRouter.go('x', { foo: 'abc' })
 })
 
 test('reset fn receives parameters', function(t) {
 	t.plan(1)
-	var stateRouter = getTestState(t, function() {
+	const stateRouter = getTestState(t, function() {
 		return {
 			render: function(context, cb) {
 				cb()
 			},
 			reset: function(context) {
-				t.deepEqual(context.parameters, {foo: 'def'})
-			}
+				t.deepEqual(context.parameters, { foo: 'def' })
+			},
 		}
 	}).stateRouter
 	stateRouter.addState({
 		name: 'x',
 		route: '/x/:foo',
-		template: ''
+		template: '',
 	})
 	stateRouter.on('stateChangeEnd', function() {
-		stateRouter.go('x', {foo: 'def'})
+		stateRouter.go('x', { foo: 'def' })
 	})
-	stateRouter.go('x', {foo: 'abc'})
+	stateRouter.go('x', { foo: 'abc' })
 })
 
 test('go uses current state when no stateName is provided', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
-	var firstActivateDidHappen = false
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
+	let firstActivateDidHappen = false
 
 	t.plan(1)
 
@@ -473,27 +473,27 @@ test('go uses current state when no stateName is provided', function(t) {
 		name: 'some-state',
 		template: '',
 		route: 'someState',
-		querystringParameters: ['poop'],
+		querystringParameters: [ 'poop' ],
 		activate: function(context) {
 			if (firstActivateDidHappen) {
-				t.deepEqual(context.parameters, {poop: 'wet'})
+				t.deepEqual(context.parameters, { poop: 'wet' })
 				t.end()
 			} else {
 				firstActivateDidHappen = true
 				process.nextTick(function() {
-					stateRouter.go(null, {poop: 'wet'})
+					stateRouter.go(null, { poop: 'wet' })
 				})
 			}
-		}
+		},
 	})
 
-	stateRouter.go('some-state', {poop: 'dry'})
+	stateRouter.go('some-state', { poop: 'dry' })
 })
 
 test('go uses current state when no stateName is provided with 2 parameters', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
-	var firstActivateDidHappen = false
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
+	let firstActivateDidHappen = false
 
 	t.plan(1)
 
@@ -501,60 +501,59 @@ test('go uses current state when no stateName is provided with 2 parameters', fu
 		name: 'some-state',
 		template: '',
 		route: 'someState',
-		querystringParameters: ['poop'],
+		querystringParameters: [ 'poop' ],
 		activate: function(context) {
 			if (firstActivateDidHappen) {
-				t.deepEqual(context.parameters, {poop: 'wet'})
+				t.deepEqual(context.parameters, { poop: 'wet' })
 				t.end()
-			}
-			else {
+			} else {
 				firstActivateDidHappen = true
 				process.nextTick(function() {
-					stateRouter.go(null, {poop: 'wet'}, {replace: true})
+					stateRouter.go(null, { poop: 'wet' }, { replace: true })
 				})
 			}
-		}
+		},
 	})
 
-	stateRouter.go('some-state', {poop: 'dry'}, {replace: true})
+	stateRouter.go('some-state', { poop: 'dry' }, { replace: true })
 })
 
 test('calling redirect with no stateName in resolve should use current state', function(t) {
-    t.plan(1)
-    var stateRouter = getTestState(t).stateRouter
-    var isFirstResolve = true
+	t.plan(1)
+	const stateRouter = getTestState(t).stateRouter
+	let isFirstResolve = true
 
-    //This state is just so we have a "current state" we can get to first
-    stateRouter.addState({
-        name: 'first',
-        route: 'FRIST',
-        template: '',
-        activate: function(context) {
-            process.nextTick(function() {
-            	stateRouter.go('second', {wut: 'fart'})
-            })
-        }
-    })
+	//This state is just so we have a "current state" we can get to first
+	stateRouter.addState({
+		name: 'first',
+		route: 'FRIST',
+		template: '',
+		activate: function(context) {
+			process.nextTick(function() {
+				stateRouter.go('second', { wut: 'fart' })
+			})
+		},
+	})
 
-    stateRouter.addState({
-        name: 'second',
-        route: 'SCONDE',
-        template: '',
-        querystringParameters: ['wut'],
-        resolve: function(data, parameters, cb) {
-            if (isFirstResolve) {
-                isFirstResolve = false
-                cb.redirect(null, {wut: 'butt'})
-            } else {
-            	cb()
-            }
-        },
-        activate: function(context) {
-            //this should never get hit the first time since redirect gets called in resolve
-            t.equal(context.parameters.wut, 'butt')
-            t.end()
-        }
-    })
+	stateRouter.addState({
+		name: 'second',
+		route: 'SCONDE',
+		template: '',
+		querystringParameters: [ 'wut' ],
+		resolve: function(data, parameters, cb) {
+			if (isFirstResolve) {
+				isFirstResolve = false
+				cb.redirect(null, { wut: 'butt' })
+			} else {
+				cb()
+			}
+		},
+		activate: function(context) {
+			//this should never get hit the first time since redirect gets called in resolve
+			t.equal(context.parameters.wut, 'butt')
+			t.end()
+		},
+	})
 
-    stateRouter.go('first')
+	stateRouter.go('first')
 })
