@@ -10,7 +10,7 @@ export default {
 		file: './bundle.js',
 		format: 'cjs',
 	},
-	sourcemap: false,
+	sourcemap: true,
 	plugins: [
 		commonjs(),
 		resolve({

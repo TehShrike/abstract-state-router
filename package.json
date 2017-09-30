@@ -7,7 +7,8 @@
     "build": "rollup -c",
     "test": "npm run build && tape test/*.js | faucet",
     "coverage": "covert test/*.js",
-    "browserwatch": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d"
+    "browserwatch": "sh -c 'rollup -c -w --dev & npm run watchtests'",
+    "watchtests": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d"
   },
   "repository": {
     "type": "git",
@@ -45,6 +46,7 @@
     "rollup-plugin-commonjs": "8.2.1",
     "rollup-plugin-node-resolve": "3.0.0",
     "rollup-plugin-visualizer": "0.3.1",
+    "rollup-watch": "4.3.1",
     "tap-browser-color": "0.1.2",
     "tape": "^4.1.0",
     "tape-catch": "1.0.6",

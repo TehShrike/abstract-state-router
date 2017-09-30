@@ -1,4 +1,5 @@
 test-browser/build.js
 node_modules
 bundle.js
+bundle.js.map
 stats.html
