@@ -6,9 +6,7 @@
   "scripts": {
     "test": "tape test/*.js | faucet",
     "coverage": "covert test/*.js",
-    "browserwatch": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d",
-    "browserstackbuild": "browserify test-browser/add-color.js test/*.js node_modules/browserstack-tape-reporter/index.js -o test-browser/build.js",
-    "browserstack": "npm run browserstackbuild && browserstack-runner"
+    "browserwatch": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d"
   },
   "repository": {
     "type": "git",
@@ -38,8 +36,6 @@
   },
   "devDependencies": {
     "browserify": "14.0.0",
-    "browserstack-runner": "TehShrike/browserstack-runner#fixing-json-borking",
-    "browserstack-tape-reporter": "~1.1.0",
     "covert": "^1.1.0",
     "faucet": "0.0.1",
     "tap-browser-color": "0.1.2",

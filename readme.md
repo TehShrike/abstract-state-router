@@ -281,13 +281,6 @@ To run the unit tests:
 - run `npm install`
 - run `npm test`
 
-Automated browser testing provided by [Browserstack](https://www.browserstack.com/).
-
-Tested in Chrome, Firefox, Safari, and IE10+ (IE9 doesn't support [replace](https://developer.mozilla.org/en-US/docs/Web/API/Location/replace)).
-
-[![Build Status](https://travis-ci.org/TehShrike/abstract-state-router.svg?branch=master)](https://travis-ci.org/TehShrike/abstract-state-router)
-
-
 # State change flow
 
 - emit stateChangeStart
