@@ -46,15 +46,4 @@ test('mapSeries', function(t) {
 			t.deepEqual(results, [ undefined, undefined ])
 		})
 	})
-
-	t.test('accepts optional thisArg argument', function(t) {
-		t.plan(2)
-		var obj = {}
-		mapSeries([ 0 ], function(item) {
-			t.equal(this, global)
-		})
-		mapSeries([ 0 ], function(item) {
-			t.equal(this, obj)
-		}, obj)
-	})
 })
