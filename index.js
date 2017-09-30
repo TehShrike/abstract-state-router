@@ -249,7 +249,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				stateProviderEmitter.emit('stateChangeStart', state, parameters, stateNameToArrayofStates(state.name))
 				lastStateStartedActivating.set(state.name, parameters)
 			})).then(function getStateChanges() {
-				const stateComparisonResults = compareStartAndEndStates(lastCompletelyLoadedState.get().name, lastCompletelyLoadedState.get().parameters, newStateName, parameters)
+				const stateComparisonResults = compareStartAndEndStates({
+					originalState: lastCompletelyLoadedState.get().name,
+					originalParameters: lastCompletelyLoadedState.get().parameters,
+					newState: newStateName,
+					newParameters: parameters,
+				})
 				return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
 			}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
 				return resolveStates(getStatesToResolve(stateChanges), extend(parameters)).catch(function onResolveError(e) {
