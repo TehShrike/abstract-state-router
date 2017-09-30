@@ -1,15 +1,15 @@
 module.exports = function assertingRendererFactory(t, expectedTemplates) {
-	var makeRenderer = function makeRenderer() {
+	const makeRenderer = function makeRenderer() {
 		return {
 			render: function render(context, cb) {
-				var template = context.template
+				const template = context.template
 				t.ok(expectedTemplates.length, 'The render function hasn\'t been called too many times yet')
-				var expected = expectedTemplates.shift()
+				const expected = expectedTemplates.shift()
 				t.equal(expected, template, 'The expected template was sent to the render function')
 
 				process.nextTick(function() {
 					cb(null, {
-						template: template
+						template: template,
 					})
 				})
 			},
@@ -23,7 +23,7 @@ module.exports = function assertingRendererFactory(t, expectedTemplates) {
 				setTimeout(function() {
 					cb(null, 'dummy child element')
 				}, 100)
-			}
+			},
 		}
 	}
 
