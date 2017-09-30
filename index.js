@@ -10,13 +10,11 @@ var series = require('./lib/promise-map-series')
 var denodeify = require('then-denodeify')
 
 var EventEmitter = require('eventemitter3')
-var extend = require('xtend')
+var extend = (...args) => Object.assign({}, ...args)
 var newHashBrownRouter = require('hash-brown-router')
 var combine = require('combine-arrays')
 var buildPath = require('page-path-builder')
 var nextTick = require('iso-next-tick')
-
-require('native-promise-only/npo')
 
 var expectedPropertiesOfAddState = [ 'name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters', 'defaultParameters' ]
 
@@ -36,7 +34,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	StateTransitionManager(stateProviderEmitter)
 	stateRouterOptions = extend({
 		throwOnError: true,
-		pathPrefix: '#'
+		pathPrefix: '#',
 	}, stateRouterOptions)
 
 	if (!stateRouterOptions.router) {
@@ -70,7 +68,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		var state = prototypalStateHolder.get(stateName)
 		stateProviderEmitter.emit('beforeDestroyState', {
 			state: state,
-			domApi: activeDomApis[stateName]
+			domApi: activeDomApis[stateName],
 		})
 
 		activeEmitters[stateName].emit('destroy')
@@ -81,7 +79,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return destroyDom(activeDomApis[stateName]).then(function() {
 			delete activeDomApis[stateName]
 			stateProviderEmitter.emit('afterDestroyState', {
-				state: state
+				state: state,
 			})
 		})
 	}
@@ -95,7 +93,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			domApi: domApi,
 			content: content,
 			state: state,
-			parameters: parameters
+			parameters: parameters,
 		})
 
 		activeEmitters[stateName].emit('destroy')
@@ -105,7 +103,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			domApi: domApi,
 			content: content,
 			template: state.template,
-			parameters: parameters
+			parameters: parameters,
 		}).then(function(newDomApi) {
 			if (newDomApi) {
 				activeDomApis[stateName] = newDomApi
@@ -115,7 +113,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				domApi: activeDomApis[stateName],
 				content: content,
 				state: state,
-				parameters: parameters
+				parameters: parameters,
 			})
 		})
 	}
@@ -140,21 +138,21 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			stateProviderEmitter.emit('beforeCreateState', {
 				state: state,
 				content: content,
-				parameters: parameters
+				parameters: parameters,
 			})
 
 			return renderDom({
 				element: childElement,
 				template: state.template,
 				content: content,
-				parameters: parameters
+				parameters: parameters,
 			}).then(function(domApi) {
 				activeDomApis[stateName] = domApi
 				stateProviderEmitter.emit('afterCreateState', {
 					state: state,
 					domApi: domApi,
 					content: content,
-					parameters: parameters
+					parameters: parameters,
 				})
 				return domApi
 			})
@@ -235,85 +233,85 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		}
 
 		return promiseMe(prototypalStateHolder.guaranteeAllStatesExist, newStateName)
-		.then(function applyDefaultParameters() {
-			var state = prototypalStateHolder.get(newStateName)
-			var defaultParams = state.defaultParameters || state.defaultQuerystringParameters || {}
-			var needToApplyDefaults = Object.keys(defaultParams).some(function missingParameterValue(param) {
-				return typeof parameters[param] === 'undefined'
-			})
+			.then(function applyDefaultParameters() {
+				var state = prototypalStateHolder.get(newStateName)
+				var defaultParams = state.defaultParameters || state.defaultQuerystringParameters || {}
+				var needToApplyDefaults = Object.keys(defaultParams).some(function missingParameterValue(param) {
+					return typeof parameters[param] === 'undefined'
+				})
 
-			if (needToApplyDefaults) {
-				throw redirector(newStateName, extend(defaultParams, parameters))
-			}
-			return state
-		}).then(ifNotCancelled(function(state) {
-			stateProviderEmitter.emit('stateChangeStart', state, parameters, stateNameToArrayofStates(state.name))
-			lastStateStartedActivating.set(state.name, parameters)
-		})).then(function getStateChanges() {
-			var stateComparisonResults = compareStartAndEndStates(lastCompletelyLoadedState.get().name, lastCompletelyLoadedState.get().parameters, newStateName, parameters)
-			return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
-		}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
-			return resolveStates(getStatesToResolve(stateChanges), extend(parameters)).catch(function onResolveError(e) {
-				e.stateChangeError = true
-				throw e
-			}).then(ifNotCancelled(function destroyAndActivate(stateResolveResultsObject) {
-				transition.cancellable = false
-
-				function activateAll() {
-					var statesToActivate = stateChanges.change.concat(stateChanges.create)
-
-					return activateStates(statesToActivate)
+				if (needToApplyDefaults) {
+					throw redirector(newStateName, extend(defaultParams, parameters))
 				}
+				return state
+			}).then(ifNotCancelled(function(state) {
+				stateProviderEmitter.emit('stateChangeStart', state, parameters, stateNameToArrayofStates(state.name))
+				lastStateStartedActivating.set(state.name, parameters)
+			})).then(function getStateChanges() {
+				var stateComparisonResults = compareStartAndEndStates(lastCompletelyLoadedState.get().name, lastCompletelyLoadedState.get().parameters, newStateName, parameters)
+				return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
+			}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
+				return resolveStates(getStatesToResolve(stateChanges), extend(parameters)).catch(function onResolveError(e) {
+					e.stateChangeError = true
+					throw e
+				}).then(ifNotCancelled(function destroyAndActivate(stateResolveResultsObject) {
+					transition.cancellable = false
 
-				activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
+					function activateAll() {
+						var statesToActivate = stateChanges.change.concat(stateChanges.create)
 
-				return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
-					return series(reverse(stateChanges.change), resetStateName.bind(null, extend(parameters)))
-				}).then(function() {
-					return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
-				})
-			}))
-
-			function activateStates(stateNames) {
-				return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
-					var emitter = new EventEmitter()
-					var context = Object.create(emitter)
-					context.domApi = activeDomApis[state.name]
-					context.data = state.data
-					context.parameters = parameters
-					context.content = getContentObject(activeStateResolveContent, state.name)
-					activeEmitters[state.name] = emitter
-
-					try {
-						state.activate && state.activate(context)
-					} catch (e) {
-						nextTick(function() {
-							throw e
-						})
+						return activateStates(statesToActivate)
 					}
-				})
-			}
-		})).then(function stateChangeComplete() {
-			lastCompletelyLoadedState.set(newStateName, parameters)
-			try {
-				stateProviderEmitter.emit('stateChangeEnd', prototypalStateHolder.get(newStateName), parameters, stateNameToArrayofStates(newStateName))
-			} catch (e) {
-				handleError('stateError', e)
-			}
-		}).catch(ifNotCancelled(function handleStateChangeError(err) {
-			if (err && err.redirectTo) {
-				stateProviderEmitter.emit('stateChangeCancelled', err)
-				return stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
-			} else if (err) {
-				handleError('stateChangeError', err)
-			}
-		})).catch(function handleCancellation(err) {
-			if (err && err.wasCancelledBySomeoneElse) {
+
+					activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
+
+					return series(reverse(stateChanges.destroy), destroyStateName).then(function() {
+						return series(reverse(stateChanges.change), resetStateName.bind(null, extend(parameters)))
+					}).then(function() {
+						return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
+					})
+				}))
+
+				function activateStates(stateNames) {
+					return stateNames.map(prototypalStateHolder.get).forEach(function(state) {
+						var emitter = new EventEmitter()
+						var context = Object.create(emitter)
+						context.domApi = activeDomApis[state.name]
+						context.data = state.data
+						context.parameters = parameters
+						context.content = getContentObject(activeStateResolveContent, state.name)
+						activeEmitters[state.name] = emitter
+
+						try {
+							state.activate && state.activate(context)
+						} catch (e) {
+							nextTick(function() {
+								throw e
+							})
+						}
+					})
+				}
+			})).then(function stateChangeComplete() {
+				lastCompletelyLoadedState.set(newStateName, parameters)
+				try {
+					stateProviderEmitter.emit('stateChangeEnd', prototypalStateHolder.get(newStateName), parameters, stateNameToArrayofStates(newStateName))
+				} catch (e) {
+					handleError('stateError', e)
+				}
+			}).catch(ifNotCancelled(function handleStateChangeError(err) {
+				if (err && err.redirectTo) {
+					stateProviderEmitter.emit('stateChangeCancelled', err)
+					return stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
+				} else if (err) {
+					handleError('stateChangeError', err)
+				}
+			})).catch(function handleCancellation(err) {
+				if (err && err.wasCancelledBySomeoneElse) {
 				// we don't care, the state transition manager has already emitted the stateChangeCancelled for us
-			} else {
-				throw new Error("This probably shouldn't happen, maybe file an issue or something " + err)
-			}
-		})
+				} else {
+					throw new Error("This probably shouldn't happen, maybe file an issue or something " + err)
+				}
+			})
 	}
 
 	function makePath(stateName, parameters, options) {
@@ -340,7 +338,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	var defaultOptions = {
-		replace: false
+		replace: false,
 	}
 
 	stateProviderEmitter.addState = addState
@@ -391,8 +389,8 @@ function redirector(newStateName, parameters) {
 	return {
 		redirectTo: {
 			name: newStateName,
-			params: parameters
-		}
+			params: parameters,
+		},
 	}
 }
 
@@ -420,7 +418,7 @@ function resolveStates(states, parameters) {
 	return resolves.then(function(resolveResults) {
 		return combine({
 			stateName: stateNamesWithResolveFunctions,
-			resolveResult: resolveResults
+			resolveResult: resolveResults,
 		}).reduce(function(obj, result) {
 			obj[result.stateName] = result.resolveResult
 			return obj

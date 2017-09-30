@@ -1,3 +1,4 @@
 test-browser/build.js
 node_modules
-webpack_build.js
+bundle.js
+stats.html
