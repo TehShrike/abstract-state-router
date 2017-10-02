@@ -2,7 +2,7 @@ const test = require('tape-catch')
 const assertingRendererFactory = require('./helpers/asserting-renderer-factory')
 const getTestState = require('./helpers/test-state-factory')
 
-test('normal, error-less state activation flow for two states', function(t) {
+test('normal, error-less state activation flow for two states', t => {
 	function basicTest(t) {
 		const parentData = {}
 		const childData = {}
@@ -95,19 +95,19 @@ test('normal, error-less state activation flow for two states', function(t) {
 		return state
 	}
 
-	t.test('triggered with go()', function(t) {
+	t.test('triggered with go()', t => {
 		const stateRouter = basicTest(t).stateRouter
 		stateRouter.go('rofl.copter', { wat: 'wut' })
 	})
 
-	t.test('triggered by the router', function(t) {
+	t.test('triggered by the router', t => {
 		const hashRouter = basicTest(t).hashRouter
 		hashRouter.go('/routeButt/lolcopter?wat=wut')
 	})
 })
 
 
-test('undefined data, querystring, and resolve function', function(t) {
+test('undefined data, querystring, and resolve function', t => {
 	function basicTest(t) {
 		const parentTemplate = {}
 
@@ -136,18 +136,18 @@ test('undefined data, querystring, and resolve function', function(t) {
 		return state
 	}
 
-	t.test('triggered with go()', function(t) {
+	t.test('triggered with go()', t => {
 		const stateRouter = basicTest(t).stateRouter
 		stateRouter.go('rofl', { wat: 'wut' })
 	})
 
-	t.test('triggered by the router', function(t) {
+	t.test('triggered by the router', t => {
 		const hashRouter = basicTest(t).hashRouter
 		hashRouter.go('/routeButt?wat=wut')
 	})
 })
 
-test('normal, error-less state activation flow for two states', function(t) {
+test('normal, error-less state activation flow for two states', t => {
 	const parentData = {}
 	const child1Data = {}
 	const child2Data = {}
@@ -246,7 +246,7 @@ test('normal, error-less state activation flow for two states', function(t) {
 })
 
 
-test('evaluateCurrentRoute with url set', function(t) {
+test('evaluateCurrentRoute with url set', t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	const hashRouter = testState.hashRouter
@@ -283,7 +283,7 @@ test('evaluateCurrentRoute with url set', function(t) {
 	stateRouter.evaluateCurrentRoute('whatever', { parameterName: 'wrong' })
 })
 
-test('evaluateCurrentRoute with no current route should go to the default', function(t) {
+test('evaluateCurrentRoute with no current route should go to the default', t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
@@ -318,7 +318,7 @@ test('evaluateCurrentRoute with no current route should go to the default', func
 	stateRouter.evaluateCurrentRoute('correct', { parameterName: 'wrong' })
 })
 
-test('resolve that returns a promise', function(t) {
+test('resolve that returns a promise', t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
@@ -343,7 +343,7 @@ test('resolve that returns a promise', function(t) {
 	stateRouter.go('some-state')
 })
 
-test('render fn receives parameters', function(t) {
+test('render fn receives parameters', t => {
 	t.plan(1)
 	const stateRouter = getTestState(t, function() {
 		return {
@@ -360,7 +360,7 @@ test('render fn receives parameters', function(t) {
 	stateRouter.go('x', { foo: 'abc' })
 })
 
-test('reset fn receives parameters', function(t) {
+test('reset fn receives parameters', t => {
 	t.plan(1)
 	const stateRouter = getTestState(t, function() {
 		return {
@@ -383,7 +383,7 @@ test('reset fn receives parameters', function(t) {
 	stateRouter.go('x', { foo: 'abc' })
 })
 
-test('go uses current state when no stateName is provided', function(t) {
+test('go uses current state when no stateName is provided', t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	let firstActivateDidHappen = false
@@ -411,7 +411,7 @@ test('go uses current state when no stateName is provided', function(t) {
 	stateRouter.go('some-state', { poop: 'dry' })
 })
 
-test('go uses current state when no stateName is provided with 2 parameters', function(t) {
+test('go uses current state when no stateName is provided with 2 parameters', t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	let firstActivateDidHappen = false
@@ -439,7 +439,7 @@ test('go uses current state when no stateName is provided with 2 parameters', fu
 	stateRouter.go('some-state', { poop: 'dry' }, { replace: true })
 })
 
-test('calling redirect with no stateName in resolve should use current state', function(t) {
+test('calling redirect with no stateName in resolve should use current state', t => {
 	t.plan(1)
 	const stateRouter = getTestState(t).stateRouter
 	let isFirstResolve = true
