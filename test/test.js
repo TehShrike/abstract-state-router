@@ -283,6 +283,26 @@ test('stateIsActive', function(t) {
 	stateRouter.go('parent.child1', { butts: 'yes' })
 })
 
+test('stateIsActive if opts is null it should be ignored', function(t) {
+	var stateRouter = getTestState(t).stateRouter
+
+	t.plan(1)
+
+	stateRouter.addState({
+		name: 'parent',
+		template: '',
+		route: '/parent',
+	})
+
+	stateRouter.on('stateChangeEnd', function() {
+		t.ok(stateRouter.stateIsActive('parent', null), 'parent is active')
+
+		t.end()
+	})
+
+	stateRouter.go('parent')
+})
+
 test('stateIsActive but states with that substring are not', function(t) {
 	var stateRouter = getTestState(t).stateRouter
 
