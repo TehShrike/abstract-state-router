@@ -363,12 +363,13 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	stateProviderEmitter.makePath = (stateName, parameters, options) => {
 		return pathPrefix + makePath(stateName, parameters, options)
 	}
-	stateProviderEmitter.stateIsActive = (stateName, parameters = {}) => {
+	stateProviderEmitter.stateIsActive = (stateName, parameters = null) => {
 		const currentState = lastCompletelyLoadedState.get()
 		const stateNameMatches = currentState.name === stateName || currentState.name.indexOf(stateName + '.') === 0
+		const parametersWereNotPassedIn = !parameters
 
 		return stateNameMatches
-			&& Object.keys(parameters).every(key => parameters[key] === currentState.parameters[key])
+			&& (parametersWereNotPassedIn || Object.keys(parameters).every(key => parameters[key] === currentState.parameters[key]))
 	}
 
 	const renderer = makeRenderer(stateProviderEmitter)

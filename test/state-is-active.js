@@ -1,7 +1,7 @@
 const test = require('tape-catch')
 const getTestState = require('./helpers/test-state-factory')
 
-test('stateIsActive', function(t) {
+test('stateIsActive', t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	t.plan(6)
@@ -24,7 +24,7 @@ test('stateIsActive', function(t) {
 		route: '/child2',
 	})
 
-	stateRouter.on('stateChangeEnd', function() {
+	stateRouter.on('stateChangeEnd', () => {
 		t.ok(stateRouter.stateIsActive('parent'), 'parent is active')
 		t.ok(stateRouter.stateIsActive('parent.child1'), 'parent.child1 is active')
 		t.notOk(stateRouter.stateIsActive('parent.child2'), 'parent.child2 is not active')
@@ -39,7 +39,7 @@ test('stateIsActive', function(t) {
 	stateRouter.go('parent.child1', { butts: 'yes' })
 })
 
-test('stateIsActive but states with that substring are not', function(t) {
+test('stateIsActive but states with that substring are not', t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	t.plan(4)
@@ -68,7 +68,7 @@ test('stateIsActive but states with that substring are not', function(t) {
 		route: '/child-thing',
 	})
 
-	stateRouter.on('stateChangeEnd', function() {
+	stateRouter.on('stateChangeEnd', () => {
 		t.ok(stateRouter.stateIsActive('parent'), 'parent is active')
 		t.notOk(stateRouter.stateIsActive('parent-thing'), 'parent-thing is not active')
 
@@ -79,4 +79,53 @@ test('stateIsActive but states with that substring are not', function(t) {
 	})
 
 	stateRouter.go('parent.child-thing', { butts: 'yes' })
+})
+
+test('stateIsActive compares parameters', t => {
+	const stateRouter = getTestState(t).stateRouter
+
+	stateRouter.addState({
+		name: 'parent',
+		template: '',
+		route: '/parent',
+	})
+
+	stateRouter.addState({
+		name: 'parent.child',
+		template: '',
+		route: '/child',
+	})
+
+	stateRouter.on('stateChangeEnd', () => {
+		t.ok(stateRouter.stateIsActive('parent.child', { butts: 'yes' }))
+		t.notOk(stateRouter.stateIsActive('parent.child', { butts: 'no' }))
+		t.end()
+	})
+
+	stateRouter.go('parent.child', { butts: 'yes' })
+})
+
+test('null parameters passed to stateIsActive are equivalent to passing in nothing', t => {
+	const stateRouter = getTestState(t).stateRouter
+
+	stateRouter.addState({
+		name: 'parent',
+		template: '',
+		route: '/parent',
+	})
+
+	stateRouter.addState({
+		name: 'parent.child',
+		template: '',
+		route: '/child',
+	})
+
+	stateRouter.on('stateChangeEnd', () => {
+		t.ok(stateRouter.stateIsActive('parent.child', null))
+		t.ok(stateRouter.stateIsActive('parent', null))
+
+		t.end()
+	})
+
+	stateRouter.go('parent.child', { butts: 'yes' })
 })
