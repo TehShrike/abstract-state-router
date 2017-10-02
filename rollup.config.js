@@ -2,6 +2,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import resolve from 'rollup-plugin-node-resolve'
 import babel from 'rollup-plugin-babel'
 import visualizer from 'rollup-plugin-visualizer'
+import { list as babelHelpersList } from 'babel-helpers'
 
 export default {
 	name: 'revelationStructure',
@@ -29,6 +30,8 @@ export default {
 			plugins: [
 				'external-helpers',
 			],
+			// fixing temporary rollup's regression, remove when rollup/rollup#1595 gets solved
+			externalHelpersWhitelist: babelHelpersList.filter(helperName => helperName !== 'asyncGenerator'),
 		}),
 		visualizer(),
 	],
