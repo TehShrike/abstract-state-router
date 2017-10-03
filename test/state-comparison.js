@@ -36,10 +36,14 @@ function compareAllElements(t, expected, result) {
 
 test('only changing the grandchild', t => {
 	const results = setup()({
-		originalState: 'app.main.tab1',
-		originalParameters: {},
-		newState: 'app.main.tab2',
-		newParameters: {},
+		original: {
+			name: 'app.main.tab1',
+			parameters: {},
+		},
+		destination: {
+			name: 'app.main.tab2',
+			parameters: {},
+		},
 	})
 
 	compareAllElements(t, [{
@@ -65,10 +69,14 @@ test('only changing the grandchild', t => {
 
 test('login to a nested state', t => {
 	const results = setup()({
-		originalState: 'login',
-		originalParameters: {},
-		newState: 'app.main.tab1',
-		newParameters: {},
+		original: {
+			name: 'login',
+			parameters: {},
+		},
+		destination: {
+			name: 'app.main.tab1',
+			parameters: {},
+		},
 	})
 
 	compareAllElements(t, [{
@@ -93,10 +101,14 @@ test('login to a nested state', t => {
 
 test('a nested state to logout', t => {
 	const results = setup()({
-		originalState: 'app.main.tab2',
-		originalParameters: {},
-		newState: 'logout',
-		newParameters: {},
+		original: {
+			name: 'app.main.tab2',
+			parameters: {},
+		},
+		destination: {
+			name: 'logout',
+			parameters: {},
+		},
 	})
 
 	compareAllElements(t, [{
@@ -121,10 +133,14 @@ test('a nested state to logout', t => {
 
 test('changing parameters but not the name', t => {
 	const results = setup()({
-		originalState: 'app.main.tab1',
-		originalParameters: { main1: 'first' },
-		newState: 'app.main.tab1',
-		newParameters: { main1: 'second' },
+		original: {
+			name: 'app.main.tab1',
+			parameters: { main1: 'first' },
+		},
+		destination: {
+			name: 'app.main.tab1',
+			parameters: { main1: 'second' },
+		},
 	})
 
 	compareAllElements(t, [{
@@ -150,10 +166,14 @@ test('changing parameters but not the name', t => {
 
 test('changing name but not parameters', t => {
 	const results = setup()({
-		originalState: 'app.main.tab1',
-		originalParameters: { main2: 'no change', doesntMatter: 'lol' },
-		newState: 'app.main.tab2',
-		newParameters: { main2: 'no change', doesntMatter: 'butts' },
+		original: {
+			name: 'app.main.tab1',
+			parameters: { main2: 'no change', doesntMatter: 'lol' },
+		},
+		destination: {
+			name: 'app.main.tab2',
+			parameters: { main2: 'no change', doesntMatter: 'butts' },
+		},
 	})
 
 	compareAllElements(t, [{
@@ -178,10 +198,14 @@ test('changing name but not parameters', t => {
 
 test('changing mid-level parameter and low-level name', t => {
 	const results = setup()({
-		originalState: 'app.main.tab1',
-		originalParameters: { main1: 'will change', main2: 'no change' },
-		newState: 'app.main.tab2',
-		newParameters: { main1: 'changed', main2: 'no change' },
+		original: {
+			name: 'app.main.tab1',
+			parameters: { main1: 'will change', main2: 'no change' },
+		},
+		destination: {
+			name: 'app.main.tab2',
+			parameters: { main1: 'changed', main2: 'no change' },
+		},
 	})
 
 	compareAllElements(t, [{
@@ -206,10 +230,14 @@ test('changing mid-level parameter and low-level name', t => {
 
 test('changing highest-level parameter', t => {
 	const results = setup()({
-		originalState: 'app.main.tab1',
-		originalParameters: { appParam1: 'will change', main2: 'no change' },
-		newState: 'app.main.tab1',
-		newParameters: { appParam1: 'changed', main2: 'no change' },
+		original: {
+			name: 'app.main.tab1',
+			parameters: { appParam1: 'will change', main2: 'no change' },
+		},
+		destination: {
+			name: 'app.main.tab1',
+			parameters: { appParam1: 'changed', main2: 'no change' },
+		},
 	})
 
 	compareAllElements(t, [{
@@ -234,10 +262,14 @@ test('changing highest-level parameter', t => {
 
 test('changing from app.main.tab1 to just main', t => {
 	const results = setup()({
-		originalState: 'app.main.tab1',
-		originalParameters: { main1: 'wut' },
-		newState: 'app',
-		newParameters: {},
+		original: {
+			name: 'app.main.tab1',
+			parameters: { main1: 'wut' },
+		},
+		destination: {
+			name: 'app',
+			parameters: {},
+		},
 	})
 
 	compareAllElements(t, [{
@@ -276,17 +308,25 @@ test('changing states by modifying only a route parameter', t => {
 	}]
 
 	compareAllElements(t, expected, compare({
-		originalState: 'app.main',
-		originalParameters: { main1: 'nothing' },
-		newState: 'app.main',
-		newParameters: { main1: 'nothing', routeParam: 'something-new' },
+		original: {
+			name: 'app.main',
+			parameters: { main1: 'nothing' },
+		},
+		destination: {
+			name: 'app.main',
+			parameters: { main1: 'nothing', routeParam: 'something-new' },
+		},
 	}))
 
 	compareAllElements(t, expected, compare({
-		originalState: 'app.main',
-		originalParameters: { routeParam: 'something' },
-		newState: 'app.main',
-		newParameters: { routeParam: 'something-new' },
+		original: {
+			name: 'app.main',
+			parameters: { routeParam: 'something' },
+		},
+		destination: {
+			name: 'app.main',
+			parameters: { routeParam: 'something-new' },
+		},
 	}))
 
 

@@ -23,8 +23,8 @@ function RememberActivation(location) {
 		}
 	}
 	return {
-		activate: activate,
-		onEnd: onEnd,
+		activate,
+		onEnd,
 	}
 }
 

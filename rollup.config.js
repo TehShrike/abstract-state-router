@@ -5,7 +5,7 @@ import visualizer from 'rollup-plugin-visualizer'
 import { list as babelHelpersList } from 'babel-helpers'
 
 export default {
-	name: 'revelationStructure',
+	name: 'abstractStateRouter',
 	input: './index.js',
 	output: {
 		file: './bundle.js',

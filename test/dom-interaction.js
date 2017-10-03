@@ -9,19 +9,19 @@ test('All dom functions called in order', function(t) {
 			render: function render(context, cb) {
 				const element = context.element
 				const template = context.template
-				actions.push('render ' + template + ' on ' + element)
+				actions.push(`render ${template} on ${element}`)
 				cb(null, template)
 			},
 			reset: function reset(context, cb) {
-				actions.push('reset ' + context.domApi)
+				actions.push(`reset ${context.domApi}`)
 				cb()
 			},
 			destroy: function destroy(renderedTemplateApi, cb) {
-				actions.push('destroy ' + renderedTemplateApi)
+				actions.push(`destroy ${renderedTemplateApi}`)
 				cb()
 			},
 			getChildElement: function getChildElement(renderedTemplateApi, cb) {
-				actions.push('getChild ' + renderedTemplateApi)
+				actions.push(`getChild ${renderedTemplateApi}`)
 				cb(null, renderedTemplateApi + ' child')
 			},
 		}

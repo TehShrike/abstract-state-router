@@ -5,7 +5,7 @@ const StateState = require('../lib/state-state')
 stateState.add
 stateState.get
 */
-const addGetTests = (function() {
+const addGetTests = (() => {
 	const nameStateMessageSets = [
 		{ name: 'rofl', state: 'hey', message: 'add a state' },
 		{ name: 'rofl', state: { sup: 'cool' }, message: 'overwrite a state' },
@@ -33,7 +33,7 @@ const addGetTests = (function() {
 stateState.getParentName
 stateState.getParent
 */
-const parentTests = (function() {
+const parentTests = (() => {
 	const childParentSets = [
 		{ child: 'rofl.haha.lolz',  parent: 'rofl.haha' },
 		{ child: 'rofl.lolz.lolz',  parent: 'rofl.lolz' },
@@ -49,7 +49,7 @@ const parentTests = (function() {
 
 			const apparently = ss.getParentName(set.child)
 
-			const msg = 'parent of "' + set.child + '" is "' + set.parent + '"'
+			const msg = `parent of "${set.child}" is "${set.parent}"`
 			t.equal(apparently, set.parent, msg)
 		}
 	}
@@ -63,7 +63,7 @@ const parentTests = (function() {
 /*
 stateState.buildFullStateRoute
 */
-const buildTests = (function() {
+const buildTests = (() => {
 	const stateRouteSets = [{
 		add: [
 			{ name: 'a', state: { route: 'copter' } },
@@ -126,7 +126,7 @@ const buildTests = (function() {
 
 	function Build(t, ss) {
 		return function bld(set) {
-			set.add.forEach(function(add) {
+			set.add.forEach(add => {
 				ss.add(add.name, add.state)
 			})
 			const route = ss.buildFullStateRoute(set.route)
@@ -144,7 +144,7 @@ const buildTests = (function() {
 /*
 stateState.applyDefaultChildStates
 */
-const defaultChildTests = (function() {
+const defaultChildTests = (() => {
 	const defaultChildSets = [{
 		add: [
 			{ name: 'a', state: { defaultChild: 'b' } },
@@ -155,24 +155,16 @@ const defaultChildTests = (function() {
 		message: 'all default children are strings',
 	}, {
 		add: [
-			{ name: 'a', state: { defaultChild: function() {
-				return 'b'
-			} } },
-			{ name: 'a.b', state: { defaultChild: function() {
-				return 'c'
-			} } },
-			{ name: 'a.b.c', state: { defaultChild: function() {
-				return 'd'
-			} } },
+			{ name: 'a', state: { defaultChild: () => 'b' } },
+			{ name: 'a.b', state: { defaultChild: () => 'c' } },
+			{ name: 'a.b.c', state: { defaultChild: () => 'd' } },
 		],
 		expect: 'a.b.c.d',
 		message: 'all default children are functions',
 	}, {
 		add: [
 			{ name: 'a', state: { defaultChild: 'b' } },
-			{ name: 'a.b', state: { defaultChild: function() {
-				return 'c'
-			} } },
+			{ name: 'a.b', state: { defaultChild: () => 'c' } },
 			{ name: 'a.b.c', state: { defaultChild: 'd' } },
 		],
 		expect: 'a.b.c.d',
@@ -197,7 +189,7 @@ const defaultChildTests = (function() {
 	function DefaultChild(t, ss) {
 		return function bld(set) {
 			const rootStateName = set.add[0].name
-			set.add.forEach(function(add) {
+			set.add.forEach(add => {
 				ss.add(add.name, add.state)
 			})
 			const applied = ss.applyDefaultChildStates(rootStateName)
@@ -222,8 +214,8 @@ const allTests = [].concat(
 	defaultChildTests
 )
 
-test('test state-state', function(tt) {
-	allTests.forEach(function(thisTest) {
+test('test state-state', tt => {
+	allTests.forEach(thisTest => {
 		tt.test(thisTest.name, t => {
 			const fn = thisTest.fn(t, StateState())
 			thisTest.sets.forEach(fn)
@@ -245,14 +237,14 @@ test('guaranteeAllStatesExist', t => {
 	ss.add('a', 'hahaha')
 	ss.add('a.b', 'rofl')
 	ss.add('a.b.c', 'um')
-	t.doesNotThrow(function() {
+	t.doesNotThrow(() => {
 		ss.guaranteeAllStatesExist('a.b.c')
 	}, /lolz/, 'doesn\t throw when state exists')
 
 	ss = StateState()
 	ss.add('a', 'hahaha')
 	ss.add('a.b.c', 'um')
-	t.throws(function() {
+	t.throws(() => {
 		ss.guaranteeAllStatesExist('a.b.c')
 	}, /a\.b.+exist/, 'Throws when an intermediate state doesn\'t exist')
 
