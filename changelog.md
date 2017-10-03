@@ -1,3 +1,7 @@
+# [6.0.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.3)
+
+- bug fix: point package.main at the ES5 bundle instead of the ES2015 code :-x [34ea0baa](https://github.com/TehShrike/abstract-state-router/commit/34ea0baa3286affed51d1a493aeedbb5b40819ae)
+
 # [6.0.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.2)
 
 - bug fix: fixed a crash that would happen if you didn't pass an options object in [3b60669b](https://github.com/TehShrike/abstract-state-router/commit/3b60669b03807ebded9ac4fecfbca0f46070c63d)
