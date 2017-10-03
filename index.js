@@ -24,7 +24,7 @@ const promiseMe = (fn, ...args) => new Promise(resolve => resolve(fn(...args)))
 
 const expectedPropertiesOfAddState = [ 'name', 'route', 'defaultChild', 'data', 'template', 'resolve', 'activate', 'querystringParameters', 'defaultQuerystringParameters', 'defaultParameters' ]
 
-module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions) {
+module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions = {}) {
 	const prototypalStateHolder = StateState()
 	const lastCompletelyLoadedState = CurrentState()
 	const lastStateStartedActivating = CurrentState()
