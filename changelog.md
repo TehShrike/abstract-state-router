@@ -1,3 +1,7 @@
+# [6.0.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.2)
+
+- bug fix: fixed a crash that would happen if you didn't pass an options object in [3b60669b](https://github.com/TehShrike/abstract-state-router/commit/3b60669b03807ebded9ac4fecfbca0f46070c63d)
+
 # [6.0.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.1)
 
 - depedency update: changed hash-brown-router dependency from ~3.2.0 to ^3.3.0 [a593408b](https://github.com/TehShrike/abstract-state-router/commit/a593408be27daf7f2f33207b6ec38ab5b04b1406)
