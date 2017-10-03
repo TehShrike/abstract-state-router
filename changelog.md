@@ -1,3 +1,8 @@
+# [6.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.0)
+
+- `Promise` and `Object.assign` polyfills are now required for older browsers
+- refactor: updated all the source code to ES2015 (though the published version is still compiled down to ES5)
+
 # [5.17.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v5.17.0)
 
 - functional: `stateChangeStart` and `stateChangeEnd` events now also emit the full array of states being transitioned to. [#113](https://github.com/TehShrike/abstract-state-router/pull/113)

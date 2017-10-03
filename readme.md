@@ -10,6 +10,12 @@ To see an example app implemented with a couple of different browser rendering l
 
 If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstract-state-router)! [![Join the chat at https://gitter.im/TehShrike/abstract-state-router](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TehShrike/abstract-state-router)
 
+# 2017-10: major version bump, 6.0!
+
+The first major version bump in two and a half years!  Don't worry though, it's entirely backwards compatible, except that the Promise polyfill has been dropped, so the library size should be a bit smaller.
+
+If you're supporting old browsers, you'll need polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/), it makes life super-easy.
+
 **[Read the changelog](./changelog.md)**
 
 # Current renderer implementations
