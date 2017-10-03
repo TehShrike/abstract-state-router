@@ -28,7 +28,7 @@
   "dependencies": {
     "combine-arrays": "~1.0.2",
     "eventemitter3": "2.0.3",
-    "hash-brown-router": "~3.2.0",
+    "hash-brown-router": "^3.3.0",
     "iso-next-tick": "1.0.0",
     "page-path-builder": "~1.0.3",
     "path-to-regexp-with-reversible-keys": "~1.0.3",
