@@ -1,14 +1,14 @@
-var test = require('tape-catch')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const getTestState = require('./helpers/test-state-factory')
 
 test('propertiesInRoute', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
-	var hashRouter = testState.hashRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
+	const hashRouter = testState.hashRouter
 
 	t.plan(2)
 
-	var timesActivatedCalled = 0
+	let timesActivatedCalled = 0
 	stateRouter.addState({
 		name: 'only',
 		template: '',
@@ -23,35 +23,35 @@ test('propertiesInRoute', function(t) {
 				t.equal(context.parameters.param, 'secondTime')
 				t.end()
 			}
-		}
+		},
 	})
 
 	stateRouter.go('only', { param: 'firstTime' })
 })
 
 test('inherit parent\'s parameters', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
 
 	stateRouter.addState({
 		name: 'parent',
 		route: '/parent',
 		template: 'parentTemplate',
-		querystringParameters: ['parent']
+		querystringParameters: [ 'parent' ],
 	})
 
 	stateRouter.addState({
 		name: 'parent.child1',
 		route: '/child1',
 		template: 'child1Template',
-		querystringParameters: ['child1'],
+		querystringParameters: [ 'child1' ],
 		activate: function(context) {
 			process.nextTick(function() {
 				stateRouter.go('parent.child2', {
-					moreSpecificArg: 'yes'
+					moreSpecificArg: 'yes',
 				}, { inherit: true })
 			})
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -62,32 +62,32 @@ test('inherit parent\'s parameters', function(t) {
 			t.equal(context.parameters.parent, 'initial parent')
 			t.equal(context.parameters.moreSpecificArg, 'yes')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('parent.child1', { parent: 'initial parent' })
 })
 
 test('inherit generic parameters', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
 
 	stateRouter.addState({
 		name: 'parent',
 		route: '/parent',
-		template: 'parentTemplate'
+		template: 'parentTemplate',
 	})
 
 	stateRouter.addState({
 		name: 'parent.child1',
 		route: '/child1',
 		template: 'child1Template',
-		querystringParameters: ['child1'],
+		querystringParameters: [ 'child1' ],
 		activate: function(context) {
 			process.nextTick(function() {
 				stateRouter.go('parent.child2', {}, { inherit: true })
 			})
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -97,34 +97,34 @@ test('inherit generic parameters', function(t) {
 		activate: function(context) {
 			t.equal(context.parameters.parent, 'initial parent')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('parent.child1', { parent: 'initial parent' })
 })
 
 test('can overwrite parameters when using inherit', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
 
 	stateRouter.addState({
 		name: 'parent',
 		route: '/parent',
-		template: 'parentTemplate'
+		template: 'parentTemplate',
 	})
 
 	stateRouter.addState({
 		name: 'parent.child1',
 		route: '/child1',
 		template: 'child1Template',
-		querystringParameters: ['child1'],
+		querystringParameters: [ 'child1' ],
 		activate: function(context) {
 			process.nextTick(function() {
 				stateRouter.go('parent.child2', {
-					parent: 'new value'
+					parent: 'new value',
 				}, { inherit: true })
 			})
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -135,37 +135,37 @@ test('can overwrite parameters when using inherit', function(t) {
 			t.equal(context.parameters.parent, 'new value')
 			t.equal(context.parameters.whatevs, 'totally')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('parent.child1', {
 		parent: 'initial parent',
-		whatevs: 'totally'
+		whatevs: 'totally',
 	})
 })
 
 test('inherit works with replace', function(t) {
-	var testState = getTestState(t)
-	var stateRouter = testState.stateRouter
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
 
 	stateRouter.addState({
 		name: 'parent',
 		route: '/parent',
-		template: 'parentTemplate'
+		template: 'parentTemplate',
 	})
 
 	stateRouter.addState({
 		name: 'parent.child1',
 		route: '/child1',
 		template: 'child1Template',
-		querystringParameters: ['child1'],
+		querystringParameters: [ 'child1' ],
 		activate: function(context) {
 			process.nextTick(function() {
 				stateRouter.go('parent.child2', {
-					parent: 'new value'
+					parent: 'new value',
 				}, { inherit: true, replace: true })
 			})
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -176,12 +176,12 @@ test('inherit works with replace', function(t) {
 			t.equal(context.parameters.parent, 'new value')
 			t.equal(context.parameters.whatevs, 'totally')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('parent.child1', {
 		parent: 'initial parent',
-		whatevs: 'totally'
+		whatevs: 'totally',
 	})
 })
 

@@ -1,23 +1,23 @@
-var test = require('tape-catch')
-var assertingRendererFactory = require('./helpers/asserting-renderer-factory')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const assertingRendererFactory = require('./helpers/asserting-renderer-factory')
+const getTestState = require('./helpers/test-state-factory')
 
 test('moving from x.y.z to x destroys z then y', function(t) {
 	function basicTest(t) {
-		var grandparentTemplate = {}
-		var parentTemplate = {}
-		var childTemplate = {}
+		const grandparentTemplate = {}
+		const parentTemplate = {}
+		const childTemplate = {}
 
-		var renderer = assertingRendererFactory(t, [grandparentTemplate, parentTemplate, childTemplate])
-		var state = getTestState(t, renderer)
-		var stateRouter = state.stateRouter
-		var assertsBelow = 2
-		var renderAsserts = renderer.expectedAssertions
+		const renderer = assertingRendererFactory(t, [ grandparentTemplate, parentTemplate, childTemplate ])
+		const state = getTestState(t, renderer)
+		const stateRouter = state.stateRouter
+		const assertsBelow = 2
+		const renderAsserts = renderer.expectedAssertions
 
 		t.plan(assertsBelow + renderAsserts)
 
-		var childDestroyed = false
-		var parentDestroyed = false
+		let childDestroyed = false
+		let parentDestroyed = false
 
 		stateRouter.addState({
 			name: 'hey',
@@ -27,10 +27,10 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 				setTimeout(cb, 0, null)
 			},
 			activate: function(context) {
-				context.on('destroy', function () {
+				context.on('destroy', function() {
 					t.fail('grandparent should not be destroyed')
 				})
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -40,13 +40,13 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 			resolve: function(data, parameters, cb) {
 				setTimeout(cb, 10, null)
 			},
-			querystringParameters: ['wat'],
+			querystringParameters: [ 'wat' ],
 			activate: function(context) {
-				context.on('destroy', function () {
+				context.on('destroy', function() {
 					parentDestroyed = true
 					t.ok(childDestroyed, 'parent gets destroyed after child')
 				})
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -57,18 +57,18 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 				setTimeout(cb, 0, null)
 			},
 			activate: function(context) {
-				context.on('destroy', function () {
+				context.on('destroy', function() {
 					t.notOk(parentDestroyed, 'child gets destroyed before parent')
 					childDestroyed = true
 				})
-			}
+			},
 		})
 
 		return state
 	}
 
 	t.test('triggered with go()', function(t) {
-		var stateRouter = basicTest(t).stateRouter
+		const stateRouter = basicTest(t).stateRouter
 		stateRouter.go('hey.rofl.copter', { wat: 'wut' })
 		stateRouter.once('stateChangeEnd', function() {
 			stateRouter.go('hey')
@@ -79,8 +79,8 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 	})
 
 	t.test('triggered by the router', function(t) {
-		var testState = basicTest(t)
-		var hashRouter = testState.hashRouter
+		const testState = basicTest(t)
+		const hashRouter = testState.hashRouter
 		hashRouter.go('/hay/routeButt/lolcopter?wat=wut')
 		testState.stateRouter.once('stateChangeEnd', function() {
 			hashRouter.go('/hay')
@@ -92,12 +92,12 @@ test('moving from x.y.z to x destroys z then y', function(t) {
 })
 
 test('a state with changing querystring gets destroyed', function(t) {
-	var state = getTestState(t)
-	var stateRouter = state.stateRouter
-	var parentResolveCalled = 0
-	var parentActivated = 0
-	var parentDestroyed = 0
-	var child1Destroyed = 0
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
+	let parentResolveCalled = 0
+	let parentActivated = 0
+	let parentDestroyed = 0
+	let child1Destroyed = 0
 
 	t.plan(5)
 
@@ -105,7 +105,7 @@ test('a state with changing querystring gets destroyed', function(t) {
 		name: 'parent',
 		route: '/parent',
 		template: null,
-		querystringParameters: ['aParam'],
+		querystringParameters: [ 'aParam' ],
 		resolve: function(data, parameters, cb) {
 			parentResolveCalled++
 			if (parentResolveCalled === 2) {
@@ -119,7 +119,7 @@ test('a state with changing querystring gets destroyed', function(t) {
 			context.on('destroy', function() {
 				parentDestroyed++
 			})
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -132,9 +132,9 @@ test('a state with changing querystring gets destroyed', function(t) {
 			})
 
 			stateRouter.go('parent.child2', {
-				aParam: '3'
+				aParam: '3',
 			})
-		}
+		},
 	})
 
 	stateRouter.addState({
@@ -147,7 +147,7 @@ test('a state with changing querystring gets destroyed', function(t) {
 			t.equal(child1Destroyed, 1, 'child1 destroyed once')
 			t.equal(parentDestroyed, 1, 'parent destroyed once')
 			t.end()
-		}
+		},
 	})
 
 	stateRouter.go('parent.child1')

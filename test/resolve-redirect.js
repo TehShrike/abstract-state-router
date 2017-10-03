@@ -1,14 +1,14 @@
-var test = require('tape-catch')
-var getTestState = require('./helpers/test-state-factory')
+const test = require('tape-catch')
+const getTestState = require('./helpers/test-state-factory')
 
 test('test redirecting activating the correct states', function(t) {
 	function startTest(t) {
-		var state = getTestState(t)
-		var stateRouter = state.stateRouter
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
 		t.plan(3)
 
-		var parentActivated = false
-		var cancelEvents = 0
+		let parentActivated = false
+		let cancelEvents = 0
 
 		stateRouter.addState({
 			name: 'valid',
@@ -20,7 +20,7 @@ test('test redirecting activating the correct states', function(t) {
 			activate: function() {
 				t.notOk(parentActivated, 'The parent should only activate once')
 				parentActivated = true
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -32,7 +32,7 @@ test('test redirecting activating the correct states', function(t) {
 			},
 			activate: function() {
 				t.fail('should not activate')
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -44,7 +44,7 @@ test('test redirecting activating the correct states', function(t) {
 			},
 			activate: function() {
 				t.fail('should not activate')
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -58,7 +58,7 @@ test('test redirecting activating the correct states', function(t) {
 				t.pass('valid.valid3 activated')
 				t.equal(cancelEvents, 2, 'Two cancel events emitted')
 				t.end()
-			}
+			},
 		})
 
 		stateRouter.on('stateChangeCancelled', function(e) {
@@ -69,12 +69,12 @@ test('test redirecting activating the correct states', function(t) {
 	}
 
 	t.test('with state.go', function(t) {
-		var stateRouter = startTest(t).stateRouter
+		const stateRouter = startTest(t).stateRouter
 		stateRouter.go('valid.valid1')
 	})
 
 	t.test('by changing the url', function(t) {
-		var hashRouter = startTest(t).hashRouter
+		const hashRouter = startTest(t).hashRouter
 		hashRouter.go('/valid/valid1')
 	})
 
@@ -83,11 +83,11 @@ test('test redirecting activating the correct states', function(t) {
 
 test('only one cancel happens if multiple redirects are called', function(t) {
 	function startTest(t) {
-		var state = getTestState(t)
-		var stateRouter = state.stateRouter
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
 		t.plan(2)
 
-		var cancelEvents = 0
+		let cancelEvents = 0
 
 		stateRouter.addState({
 			name: 'valid',
@@ -96,7 +96,7 @@ test('only one cancel happens if multiple redirects are called', function(t) {
 			resolve: function(data, params, cb) {
 				setTimeout(cb, 50)
 			},
-			activate: function() {}
+			activate: function() {},
 		})
 
 		stateRouter.addState({
@@ -109,7 +109,7 @@ test('only one cancel happens if multiple redirects are called', function(t) {
 			},
 			activate: function() {
 				t.fail('should not activate')
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -118,7 +118,7 @@ test('only one cancel happens if multiple redirects are called', function(t) {
 			template: {},
 			activate: function() {
 				t.fail('should not activate')
-			}
+			},
 		})
 
 		stateRouter.addState({
@@ -132,7 +132,7 @@ test('only one cancel happens if multiple redirects are called', function(t) {
 				t.pass('valid.valid3 activated')
 				t.equal(cancelEvents, 1, 'One cancel event emitted')
 				t.end()
-			}
+			},
 		})
 
 		stateRouter.on('stateChangeCancelled', function(e) {
@@ -143,12 +143,12 @@ test('only one cancel happens if multiple redirects are called', function(t) {
 	}
 
 	t.test('with state.go', function(t) {
-		var stateRouter = startTest(t).stateRouter
+		const stateRouter = startTest(t).stateRouter
 		stateRouter.go('valid.valid1')
 	})
 
 	t.test('by changing the url', function(t) {
-		var hashRouter = startTest(t).hashRouter
+		const hashRouter = startTest(t).hashRouter
 		hashRouter.go('/valid/valid1')
 	})
 
