@@ -8,7 +8,7 @@
 
 # [6.0.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.1)
 
-- depedency update: changed hash-brown-router dependency from ~3.2.0 to ^3.3.0 [a593408b](https://github.com/TehShrike/abstract-state-router/commit/a593408be27daf7f2f33207b6ec38ab5b04b1406)
+- dependency update: changed hash-brown-router dependency from ~3.2.0 to ^3.3.0 [a593408b](https://github.com/TehShrike/abstract-state-router/commit/a593408be27daf7f2f33207b6ec38ab5b04b1406)
 
 # [6.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.0)
 
