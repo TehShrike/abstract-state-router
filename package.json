@@ -28,7 +28,7 @@
   "dependencies": {
     "combine-arrays": "~1.0.2",
     "eventemitter3": "2.0.3",
-    "hash-brown-router": "^3.3.0",
+    "hash-brown-router": "^3.3.1",
     "iso-next-tick": "1.0.0",
     "page-path-builder": "~1.0.3",
     "path-to-regexp-with-reversible-keys": "~1.0.3",
@@ -48,7 +48,7 @@
     "rollup-plugin-visualizer": "0.3.1",
     "rollup-watch": "4.3.1",
     "tap-browser-color": "0.1.2",
-    "tape": "^4.1.0",
+    "tape": "^4.8.0",
     "tape-catch": "1.0.6",
     "watchify": "3.9.0"
   }
