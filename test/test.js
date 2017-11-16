@@ -283,6 +283,34 @@ test('evaluateCurrentRoute with url set', t => {
 	stateRouter.evaluateCurrentRoute('whatever', { parameterName: 'wrong' })
 })
 
+test('evaluateCurrentRoute with slash url', t => {
+	const testState = getTestState(t)
+	const stateRouter = testState.stateRouter
+	const hashRouter = testState.hashRouter
+
+	let correctRouteCalled = false
+
+	t.plan(3)
+
+	hashRouter.go('/')
+
+	stateRouter.addState({
+		name: 'correct',
+		route: '/',
+		template: null,
+		activate: function(context) {
+			t.notOk(correctRouteCalled)
+			correctRouteCalled = true
+			t.notOk(context.parameters.parameterName)
+			t.end()
+		},
+	})
+
+	t.notOk(correctRouteCalled)
+
+	stateRouter.evaluateCurrentRoute('correct')
+})
+
 test('evaluateCurrentRoute with no current route should go to the default', t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
