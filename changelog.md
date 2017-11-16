@@ -1,3 +1,7 @@
+# [6.0.4](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.4)
+
+- bug fix: update the hash-brown-router dependency to fix an issue where calling `evaluateCurrent('somestate')` wouldn't do anything when `somestate`'s route was `/` and the current url was also `/`.  Issue #116 in abstract-state-router, commit [#56c207f0](https://github.com/TehShrike/hash-brown-router/commit/56c207f011600722f2a805f88ab2381eb55fde2f) in hash-brown-router.  If you're passing in your own hash-brown-router instance, make sure to update it to 3.3.1 to avoid the bug.
+
 # [6.0.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.3)
 
 - bug fix: point package.main at the ES5 bundle instead of the ES2015 code :-x [34ea0baa](https://github.com/TehShrike/abstract-state-router/commit/34ea0baa3286affed51d1a493aeedbb5b40819ae)
