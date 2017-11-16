@@ -48,7 +48,7 @@
     "rollup-plugin-visualizer": "0.3.1",
     "rollup-watch": "4.3.1",
     "tap-browser-color": "0.1.2",
-    "tape": "^4.1.0",
+    "tape": "^4.8.0",
     "tape-catch": "1.0.6",
     "watchify": "3.9.0"
   }
