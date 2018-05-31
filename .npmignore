@@ -1,1 +1,9 @@
 stats.html
+*.md
+*.js
+test
+test-browser
+lib
+.travis.yml
+
+!bundle.js
