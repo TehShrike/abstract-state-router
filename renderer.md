@@ -12,7 +12,34 @@ Implementing that basic todo app is a good functional test for your renderer, an
 
 ## What is a renderer really
 
-It's a function!
+It's a function that returns an object with four methods:
+
+```js
+module.exports = function makeRenderer(stateRouter) {
+	return {
+		render: function render(context, cb) {
+			const element = context.element
+			myArbitraryRenderFunction(element, function(renderedTemplateApi) {
+				cb(null, renderedTemplateApi)
+			})
+		},
+		reset: function reset(context, cb) {
+			const renderedTemplateApi = context.domApi
+			renderedTemplateApi.reset()
+			setTimeout(cb, 100)
+		},
+		destroy: function destroy(renderedTemplateApi, cb) {
+			renderedTemplateApi.teardown()
+			setTimeout(cb, 100)
+		},
+		getChildElement: function getChildElement(renderedTemplateApi, cb) {
+			setTimeout(function() {
+				cb(null, renderedTemplateApi.getChildElement('ui-view'))
+			}, 100)
+		},
+	}
+}
+```
 
 You'll pass it to the state router like this:
 
@@ -28,7 +55,7 @@ This function should return an object with four properties (all functions), whic
 
 All of the functions are asynchronous, and take an error-first callback function as the final argument - but if you're more of a promises type, you can return a promise instead, no problem.
 
-### render
+### `render`
 
 Is passed an object with four properties:
 
@@ -51,7 +78,7 @@ function render(context, cb) {
 
 Your render function should return in the promise/callback whatever object your chosen template library uses to represent an instantiated template.  This is the object that is passed to the consumer's activate function as the `domApi` property, and is also passed in to...
 
-### getChildElement
+### `getChildElement`
 
 Is passed whatever DOM/template manipulation object your render function returned.
 
@@ -67,7 +94,7 @@ function getChildElement(domApi, cb) {
 }
 ```
 
-### reset
+### `reset`
 
 Is passed an object with four properties:
 
@@ -99,7 +126,7 @@ function reset(context, cb) {
 }
 ```
 
-### destroy
+### `destroy`
 
 Is passed the `domApi` object returned by your `render` function above.
 

@@ -8,7 +8,7 @@ It is similar in that way to the [new ui-router](https://github.com/ui-router/co
 
 To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](http://tehshrike.github.io/state-router-example).
 
-If you have any questions, [ask me on Gitter](https://gitter.im/TehShrike/abstract-state-router)! [![Join the chat at https://gitter.im/TehShrike/abstract-state-router](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TehShrike/abstract-state-router)
+If you have any questions, [join the chat on Discord](https://discord.gg/G8FrErC)!
 
 # 2017-10: major version bump, 6.0!
 
