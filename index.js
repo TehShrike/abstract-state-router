@@ -364,6 +364,9 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	stateProviderEmitter.makePath = (stateName, parameters, options) => {
 		return pathPrefix + makePath(stateName, parameters, options)
 	}
+	stateProviderEmitter.active = () => {
+		return lastCompletelyLoadedState.get().name
+	}
 	stateProviderEmitter.stateIsActive = (stateName, parameters = null) => {
 		const currentState = lastCompletelyLoadedState.get()
 		const stateNameMatches = currentState.name === stateName || currentState.name.indexOf(stateName + '.') === 0
