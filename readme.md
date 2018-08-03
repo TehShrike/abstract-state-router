@@ -248,13 +248,14 @@ If `stateName` is `null`, the current state is used.
 stateRouter.makePath('app.tab2', { pants: 'no' })
 ```
 
-## stateRouter.active()
+## stateRouter.getActiveState()
 
-Returns the `stateName` of the current active state
+Returns the last completely loaded state
 
 ```js
 // Current state name: app.tab1
-stateRouter.active() // => app.tab1
+// Current state params: pants: 'no'
+stateRouter.getActiveState() // => { name: 'app.tab1', parameters: { pants: 'no' }}
 ```
 
 ## Events
