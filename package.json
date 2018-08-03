@@ -6,8 +6,6 @@
   "scripts": {
     "build": "rollup -c",
     "test": "npm run build && tape test/*.js | faucet",
-    "browserwatch": "sh -c 'rollup -c -w --dev & npm run watchtests'",
-    "watchtests": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d",
     "test:browser": "npm run build && browserify test/*.js | tape-run"
   },
   "repository": {
@@ -27,7 +25,7 @@
   "dependencies": {
     "combine-arrays": "~1.0.2",
     "eventemitter3": "2.0.3",
-    "hash-brown-router": "^3.3.1",
+    "hash-brown-router": "3.4.0",
     "iso-next-tick": "1.0.0",
     "page-path-builder": "~1.0.3",
     "path-to-regexp-with-reversible-keys": "~1.0.3",
@@ -44,11 +42,9 @@
     "rollup-plugin-commonjs": "8.2.1",
     "rollup-plugin-node-resolve": "3.0.0",
     "rollup-plugin-visualizer": "0.3.1",
-    "rollup-watch": "4.3.1",
     "tap-browser-color": "0.1.2",
-    "tape": "^4.8.0",
+    "tape": "4.9.1",
     "tape-catch": "1.0.6",
-    "tape-run": "4.0.0",
-    "watchify": "3.11.0"
+    "tape-run": "4.0.0"
   }
 }
