@@ -8,7 +8,8 @@
     "test": "npm run build && tape test/*.js | faucet",
     "coverage": "covert test/*.js",
     "browserwatch": "sh -c 'rollup -c -w --dev & npm run watchtests'",
-    "watchtests": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d"
+    "watchtests": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d",
+    "test:browser": "npm run build && browserify test/*.js | tape-run"
   },
   "repository": {
     "type": "git",
@@ -16,8 +17,7 @@
   },
   "keywords": [
     "router",
-    "ui-router",
-    "browserify"
+    "ui-router"
   ],
   "author": "TehShrike",
   "license": "WTFPL",
@@ -50,6 +50,7 @@
     "tap-browser-color": "0.1.2",
     "tape": "^4.8.0",
     "tape-catch": "1.0.6",
+    "tape-run": "4.0.0",
     "watchify": "3.9.0"
   }
 }
