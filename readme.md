@@ -54,6 +54,7 @@ Want to use the abstract-state-router without messing with bundlers or package m
 - [`evaluateCurrentRoute`](#staterouterevaluatecurrentroutefallbackstatename-fallbackstateparameters)
 - [`stateIsActive`](#staterouterstateisactivestatename-stateparameters)
 - [`makePath`](#stateroutermakepathstatename-stateparameters-options)
+- [`getActiveState`](#stateroutergetactivestate)
 - [Events](#events)
 	- [State change](#state-change)
 	- [DOM API interactions](#dom-api-interactions)
@@ -245,6 +246,16 @@ If `stateName` is `null`, the current state is used.
 
 ```js
 stateRouter.makePath('app.tab2', { pants: 'no' })
+```
+
+## stateRouter.getActiveState()
+
+Returns the last completely loaded state
+
+```js
+// Current state name: app.tab1
+// Current state params: pants: 'no'
+stateRouter.getActiveState() // => { name: 'app.tab1', parameters: { pants: 'no' }}
 ```
 
 ## Events
