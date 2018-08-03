@@ -6,7 +6,6 @@
   "scripts": {
     "build": "rollup -c",
     "test": "npm run build && tape test/*.js | faucet",
-    "coverage": "covert test/*.js",
     "browserwatch": "sh -c 'rollup -c -w --dev & npm run watchtests'",
     "watchtests": "watchify test-browser/add-color.js test/*.js -o test-browser/build.js -d",
     "test:browser": "npm run build && browserify test/*.js | tape-run"
@@ -39,7 +38,6 @@
     "babel-plugin-external-helpers": "6.22.0",
     "babel-preset-es2015": "6.24.1",
     "browserify": "14.0.0",
-    "covert": "^1.1.0",
     "faucet": "0.0.1",
     "rollup": "0.50.0",
     "rollup-plugin-babel": "3.0.2",
