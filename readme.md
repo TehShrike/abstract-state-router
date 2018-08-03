@@ -54,7 +54,7 @@ Want to use the abstract-state-router without messing with bundlers or package m
 - [`evaluateCurrentRoute`](#staterouterevaluatecurrentroutefallbackstatename-fallbackstateparameters)
 - [`stateIsActive`](#staterouterstateisactivestatename-stateparameters)
 - [`makePath`](#stateroutermakepathstatename-stateparameters-options)
-- [`active`](#staterouteractive)
+- [`getActiveState`](#stateroutergetactivestate)
 - [Events](#events)
 	- [State change](#state-change)
 	- [DOM API interactions](#dom-api-interactions)
