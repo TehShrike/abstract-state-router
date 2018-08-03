@@ -1,3 +1,7 @@
+# [6.1.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.1.0)
+
+- feature: added `getActiveState` method [#121](https://github.com/TehShrike/abstract-state-router/pull/121)
+
 # [6.0.5](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.0.5)
 
 - maintenance: added a bunch of files to the `.npmignore` to reduce the package download size
