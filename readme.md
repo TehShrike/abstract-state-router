@@ -1,3 +1,7 @@
+**[Read the changelog](./changelog.md) • [Join the chat on Discord](https://discord.gg/G8FrErC)**
+
+# Brief explanation
+
 abstract-state-router lets you build single-page webapps using nested routes/states.  Your code doesn't reference routes directly, like `/app/users/josh`, but by name and properties, like `app.user` + `{ name: 'josh' }`.
 
 To find out why you should be using this kind of router, read [Why Your Webapp Needs a State-Based Router](http://joshduff.com/#!/post/2015-06-why-you-need-a-state-router.md).
@@ -8,15 +12,21 @@ It is similar in that way to the [new ui-router](https://github.com/ui-router/co
 
 To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](http://tehshrike.github.io/state-router-example).
 
-If you have any questions, [join the chat on Discord](https://discord.gg/G8FrErC)!
+# Project status
 
-# 2017-10: major version bump, 6.0!
+This project is stable and has been used in production for years.
 
-The first major version bump in two and a half years!  Don't worry though, it's entirely backwards compatible, except that the Promise polyfill has been dropped, so the library size should be a bit smaller.
+The last breaking change was in October of 2017, and only involved removing some built-in polyfills.
 
-If you're supporting old browsers, you'll need polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/), it makes life super-easy.
+abstract-state-router is extensible without much work, so very few feature additions have been necessary.
 
-**[Read the changelog](./changelog.md)**
+I occasionally have dreams of [a rewrite](https://github.com/TehShrike/abstract-state-router/wiki), but it's hard to justify when the current version works so well for my main target use case (business software).
+
+# Browser compatibility
+
+This project is currently published as CommonJS ES5-compatible code.
+
+If you're supporting old browsers, you'll need to use polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/), it makes life super-easy.
 
 # Current renderer implementations
 
