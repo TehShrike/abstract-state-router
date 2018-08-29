@@ -1,4 +1,4 @@
-**[Read the changelog](./changelog.md) • [Join the chat on Discord](https://discord.gg/G8FrErC)**
+**[Changelog](./changelog.md) • [Join the chat on Discord](https://discord.gg/G8FrErC) • [API documentation](#api)**
 
 # Brief explanation
 
