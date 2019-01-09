@@ -48,7 +48,7 @@ npm install abstract-state-router -S
 
 ```
 
-You can also [download the stand-alone build from wzrd.in](https://wzrd.in/standalone/abstract-state-router@latest).  If you include it in a `<script>` tag, a `abstractStateRouter` function will be included on the global scope.
+You can also [download the stand-alone build from bundle.run](https://bundle.run/abstract-state-router@latest).  If you include it in a `<script>` tag, a `abstractStateRouter` function will be included on the global scope.
 
 Want to use the abstract-state-router without messing with bundlers or package managers?  Check out the minimum-viable-project code (in a single HTML file!) over at the [simplest-abstract-state-router-usage](https://github.com/TehShrike/simplest-abstract-state-router-usage).
 
