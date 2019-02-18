@@ -4,7 +4,7 @@
 
 abstract-state-router lets you build single-page webapps using nested routes/states.  Your code doesn't reference routes directly, like `/app/users/josh`, but by name and properties, like `app.user` + `{ name: 'josh' }`.
 
-To find out why you should be using this kind of router, read [Why Your Webapp Needs a State-Based Router](http://joshduff.com/#!/post/2015-06-why-you-need-a-state-router.md).
+To find out why you should be using this kind of router, read [Why Your Webapp Needs a State-Based Router](https://joshduff.com/2015-06-why-you-need-a-state-router.md).
 
 abstract-state-router is heavily inspired by the [original ui-router](https://github.com/angular-ui/ui-router/wiki).  The biggest difference is: you can use abstract-state-router with whatever templating/component library you like.
 
