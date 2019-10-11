@@ -350,11 +350,11 @@ To get all the benefits of navigating around nested states, you'll need to inter
 
 You would need to add these click handlers whenever a state change happened.
 
-## server-side rendering
+## Server-side rendering
 
 You would also need to be able to render the correct HTML on the server-side.
 
-For this to even possible, your chosen rendering library needs to be able to work on the server-side to generate static HTML.  I know at least Ractive.js and Riot support this.
+For this to even be possible, your chosen rendering library needs to be able to work on the server-side to generate static HTML.  I know at least Ractive.js and Riot support this.
 
 The abstract-state-router would need to be changed to supply the list of nested DOM API objects for your chosen renderer.
 
