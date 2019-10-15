@@ -307,6 +307,7 @@ To run the unit tests:
 - clone this repository
 - run `npm install`
 - run `npm test`
+- run `npm tsd` for TypeScript tests
 
 # State change flow
 
