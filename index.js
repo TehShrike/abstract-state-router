@@ -375,6 +375,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return stateNameMatches
 			&& (parametersWereNotPassedIn || Object.keys(parameters).every(key => parameters[key] === currentState.parameters[key]))
 	}
+	// Backwards compatibility with eventemitter3 <3.0.0
+	stateProviderEmitter.setMaxListeners = () => {}
 
 	const renderer = makeRenderer(stateProviderEmitter)
 
