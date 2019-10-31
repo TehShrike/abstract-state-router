@@ -1,6 +1,6 @@
 import * as EventEmitter from "eventemitter3";
 
-type Parameter = { [key: string]: any };
+type Parameter = { [key: string]: string | number | null };
 
 export interface Renderer<TemplateInputType, ElementType, TemplateType> {
   render(
@@ -43,7 +43,7 @@ export interface RouterOptions {
 }
 
 export interface StateResolveCallback<ContentType> {
-  (err: any, content: ContentType): void;
+  (err: any, content?: ContentType): void;
   redirect(stateName: string, parameters?: Parameter): void;
 }
 
@@ -113,7 +113,7 @@ export interface Router<TemplateInputType, TemplateType>
       ContentType
     >
   ): void;
-  go(stateName: string, stateParameters?: Parameter, options?: GoOption): void;
+  go(stateName?: string|null, stateParameters?: Parameter, options?: GoOption): void;
   evaluateCurrentRoute(
     fallbackStateName: string,
     fallbackStateParameters?: Parameter
