@@ -117,7 +117,7 @@ For backwards compatibility reasons, `defaultQuerystringParameters` will work as
 
 ### resolve(data, parameters, [callback(err, content)].redirect(stateName, [stateParameters]))
 
-Returns a Promise if a callbackc function is not provided.
+Returns a Promise if a callback function is not provided.
 
 The first argument is the data object you passed to the addState call.  The second argument is an object containing the parameters that were parsed out of the route and the query string.
 
