@@ -117,13 +117,35 @@ For backwards compatibility reasons, `defaultQuerystringParameters` will work as
 
 ### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
 
-The first argument is the data object you passed to the addState call.  The second argument is an object containing the parameters that were parsed out of the route and the query string.
+`data` is the data object you passed to the addState call.  `parameters` is an object containing the parameters that were parsed out of the route and the query string.
 
-If you call `callback(err, content)` with a truthy err value, the state change will be cancelled and the previous state will remain active.
+#### Returning values
+
+Your `resolve` function can either return a promise, or call the callback.
+
+Properties on the returned object will be set as attributes on the state's component.
+
+```js
+async function resolve(data, parameters) {
+	const [ user, invoice ] = await Promise.all([
+		fetchUser(parameters.userId),
+		fetchInvoice(parameters.invoiceId),
+	])
+	
+	return {
+		user,
+		invoice,
+	}
+}
+```
+
+#### Errors/redirecting
+
+If you return a rejected promise or call `callback(err, content)` with a truthy `err` value, the state change will be cancelled and the previous state will remain active.
 
 If you call `callback.redirect(stateName, [stateParameters])`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
 
-If you want to redirect with promises, return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values for the state to redirect to.
+To cause a redirect with promises, return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values for the state to redirect to:
 
 ```js
 function resolve(data, parameters) {
