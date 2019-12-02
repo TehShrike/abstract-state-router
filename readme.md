@@ -181,7 +181,7 @@ stateRouter.addState({
 	template: '',
 	defaultChild: 'tab1',
 	resolve: function(data, parameters, cb) {
-		// Sync or asnyc stuff; just call the callback when you're done
+		// Sync or async stuff; just call the callback when you're done
 		isLoggedIn(function(err, isLoggedIn) {
 			cb(err, isLoggedIn)
 		})
