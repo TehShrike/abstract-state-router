@@ -1,6 +1,6 @@
 const test = require('tape-catch')
 
-const interpretStateChange = require('../lib/state-change-logic')
+import interpretStateChange from '../lib/state-change-logic.js'
 
 test('State change logic', function(t) {
 	function check(description, input, expected) {
