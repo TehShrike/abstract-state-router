@@ -42,8 +42,8 @@
     "rollup": "^2.32.1",
     "rollup-plugin-visualizer": "^4.1.2",
     "tap-browser-color": "0.1.2",
-    "tape": "4.9.1",
+    "tape": "^5.0.1",
     "tape-catch": "1.0.6",
-    "tape-run": "4.0.0"
+    "tape-run": "^8.0.0"
   }
 }
