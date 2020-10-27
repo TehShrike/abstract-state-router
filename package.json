@@ -24,12 +24,12 @@
   "homepage": "https://github.com/TehShrike/abstract-state-router",
   "dependencies": {
     "combine-arrays": "~1.0.2",
-    "eventemitter3": "2.0.3",
-    "hash-brown-router": "3.4.0",
+    "eventemitter3": "4.0.7",
+    "hash-brown-router": "~3.4.1",
     "iso-next-tick": "1.0.0",
     "page-path-builder": "~1.0.3",
     "path-to-regexp-with-reversible-keys": "~1.0.3",
-    "then-denodeify": "1.0.1"
+    "then-denodeify": "~1.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
