@@ -210,11 +210,13 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function computeDefaultParams(defaultParams) {
-		const computedDefaultParams = Object.entries(defaultParams).map(([ key, value ]) => {
-			return [ key, typeof value === 'function' ? value() : value ]
+		let computedDefaultParams = {}
+
+		const defaultParamKeyValuePairs = Object.keys(defaultParams).forEach(key => {
+			computedDefaultParams[key] = typeof defaultParams[key] === 'function' ? defaultParams[key]() : defaultParams[key]
 		})
 
-		return Object.fromEntries(computedDefaultParams)
+		return computedDefaultParams
 	}
 
 	function getStatesToResolve(stateChanges) {
