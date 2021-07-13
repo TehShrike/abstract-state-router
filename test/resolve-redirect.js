@@ -1,7 +1,7 @@
-const test = require('tape-catch')
-const getTestState = require('./helpers/test-state-factory')
+const test = require(`tape-catch`)
+const getTestState = require(`./helpers/test-state-factory`)
 
-test('test redirecting activating the correct states', function(t) {
+test(`test redirecting activating the correct states`, t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
@@ -11,77 +11,77 @@ test('test redirecting activating the correct states', function(t) {
 		let cancelEvents = 0
 
 		stateRouter.addState({
-			name: 'valid',
-			route: '/valid',
+			name: `valid`,
+			route: `/valid`,
 			template: {},
-			resolve: function(data, params, cb) {
+			resolve(data, params, cb) {
 				setTimeout(cb, 50)
 			},
-			activate: function() {
-				t.notOk(parentActivated, 'The parent should only activate once')
+			activate() {
+				t.notOk(parentActivated, `The parent should only activate once`)
 				parentActivated = true
 			},
 		})
 
 		stateRouter.addState({
-			name: 'valid.valid1',
-			route: '/valid1',
+			name: `valid.valid1`,
+			route: `/valid1`,
 			template: {},
-			resolve: function(data, params, cb) {
-				setTimeout(cb.redirect, 100, 'valid.valid2')
+			resolve(data, params, cb) {
+				setTimeout(cb.redirect, 100, `valid.valid2`)
 			},
-			activate: function() {
-				t.fail('should not activate')
+			activate() {
+				t.fail(`should not activate`)
 			},
 		})
 
 		stateRouter.addState({
-			name: 'valid.valid2',
-			route: '/valid2',
+			name: `valid.valid2`,
+			route: `/valid2`,
 			template: {},
-			resolve: function(data, params, cb) {
-				setTimeout(cb.redirect, 100, 'valid.valid3')
+			resolve(data, params, cb) {
+				setTimeout(cb.redirect, 100, `valid.valid3`)
 			},
-			activate: function() {
-				t.fail('should not activate')
+			activate() {
+				t.fail(`should not activate`)
 			},
 		})
 
 		stateRouter.addState({
-			name: 'valid.valid3',
-			route: '/valid3',
+			name: `valid.valid3`,
+			route: `/valid3`,
 			template: {},
-			resolve: function(data, params, cb) {
+			resolve(data, params, cb) {
 				setTimeout(cb, 100)
 			},
-			activate: function() {
-				t.pass('valid.valid3 activated')
-				t.equal(cancelEvents, 2, 'Two cancel events emitted')
+			activate() {
+				t.pass(`valid.valid3 activated`)
+				t.equal(cancelEvents, 2, `Two cancel events emitted`)
 				t.end()
 			},
 		})
 
-		stateRouter.on('stateChangeCancelled', function(e) {
+		stateRouter.on(`stateChangeCancelled`, e => {
 			cancelEvents++
 		})
 
 		return state
 	}
 
-	t.test('with state.go', function(t) {
+	t.test(`with state.go`, t => {
 		const stateRouter = startTest(t).stateRouter
-		stateRouter.go('valid.valid1')
+		stateRouter.go(`valid.valid1`)
 	})
 
-	t.test('by changing the url', function(t) {
+	t.test(`by changing the url`, t => {
 		const hashRouter = startTest(t).hashRouter
-		hashRouter.go('/valid/valid1')
+		hashRouter.go(`/valid/valid1`)
 	})
 
 	t.end()
 })
 
-test('only one cancel happens if multiple redirects are called', function(t) {
+test(`only one cancel happens if multiple redirects are called`, t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
@@ -90,66 +90,66 @@ test('only one cancel happens if multiple redirects are called', function(t) {
 		let cancelEvents = 0
 
 		stateRouter.addState({
-			name: 'valid',
-			route: '/valid',
+			name: `valid`,
+			route: `/valid`,
 			template: {},
-			resolve: function(data, params, cb) {
+			resolve(data, params, cb) {
 				setTimeout(cb, 50)
 			},
-			activate: function() {},
+			activate() {},
 		})
 
 		stateRouter.addState({
-			name: 'valid.valid1',
-			route: '/valid1',
+			name: `valid.valid1`,
+			route: `/valid1`,
 			template: {},
-			resolve: function(data, params, cb) {
-				cb.redirect('valid.valid3')
-				cb.redirect('valid.valid2')
+			resolve(data, params, cb) {
+				cb.redirect(`valid.valid3`)
+				cb.redirect(`valid.valid2`)
 			},
-			activate: function() {
-				t.fail('should not activate')
-			},
-		})
-
-		stateRouter.addState({
-			name: 'valid.valid2',
-			route: '/valid2',
-			template: {},
-			activate: function() {
-				t.fail('should not activate')
+			activate() {
+				t.fail(`should not activate`)
 			},
 		})
 
 		stateRouter.addState({
-			name: 'valid.valid3',
-			route: '/valid3',
+			name: `valid.valid2`,
+			route: `/valid2`,
 			template: {},
-			resolve: function(data, params, cb) {
+			activate() {
+				t.fail(`should not activate`)
+			},
+		})
+
+		stateRouter.addState({
+			name: `valid.valid3`,
+			route: `/valid3`,
+			template: {},
+			resolve(data, params, cb) {
 				setTimeout(cb, 100)
 			},
-			activate: function() {
-				t.pass('valid.valid3 activated')
-				t.equal(cancelEvents, 1, 'One cancel event emitted')
+			activate() {
+				t.pass(`valid.valid3 activated`)
+				t.equal(cancelEvents, 1, `One cancel event emitted`)
 				t.end()
 			},
 		})
 
-		stateRouter.on('stateChangeCancelled', function(e) {
+		stateRouter.on(`stateChangeCancelled`, e => {
 			cancelEvents++
 		})
 
 		return state
 	}
 
-	t.test('with state.go', function(t) {
+	t.test(`with state.go`, t => {
 		const stateRouter = startTest(t).stateRouter
-		stateRouter.go('valid.valid1')
+		stateRouter.go(`valid.valid1`)
 	})
 
-	t.test('by changing the url', function(t) {
+	t.test(`by changing the url`, t => {
 		const hashRouter = startTest(t).hashRouter
-		hashRouter.go('/valid/valid1')
+		hashRouter.go(`/valid/valid1`)
 	})
 
 	t.end()

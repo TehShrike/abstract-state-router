@@ -1,7 +1,7 @@
-const test = require('tape-catch')
-const getTestState = require('./helpers/test-state-factory')
+const test = require(`tape-catch`)
+const getTestState = require(`./helpers/test-state-factory`)
 
-test('evaluateCurrentRoute with url set', t => {
+test(`evaluateCurrentRoute with url set`, t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	const hashRouter = testState.hashRouter
@@ -10,22 +10,22 @@ test('evaluateCurrentRoute with url set', t => {
 
 	t.plan(3)
 
-	hashRouter.go('/theUrlWhenThePageIsFirstOpened')
+	hashRouter.go(`/theUrlWhenThePageIsFirstOpened`)
 
 	stateRouter.addState({
-		name: 'whatever',
-		route: '/ignored',
+		name: `whatever`,
+		route: `/ignored`,
 		template: null,
-		activate: function() {
+		activate() {
 			t.fail()
 		},
 	})
 
 	stateRouter.addState({
-		name: 'correct',
-		route: '/theUrlWhenThePageIsFirstOpened',
+		name: `correct`,
+		route: `/theUrlWhenThePageIsFirstOpened`,
 		template: null,
-		activate: function(context) {
+		activate(context) {
 			t.notOk(correctRouteCalled)
 			correctRouteCalled = true
 			t.notOk(context.parameters.parameterName)
@@ -35,10 +35,10 @@ test('evaluateCurrentRoute with url set', t => {
 
 	t.notOk(correctRouteCalled)
 
-	stateRouter.evaluateCurrentRoute('whatever', { parameterName: 'wrong' })
+	stateRouter.evaluateCurrentRoute(`whatever`, { parameterName: `wrong` })
 })
 
-test('evaluateCurrentRoute with slash url', t => {
+test(`evaluateCurrentRoute with slash url`, t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	const hashRouter = testState.hashRouter
@@ -47,13 +47,13 @@ test('evaluateCurrentRoute with slash url', t => {
 
 	t.plan(3)
 
-	hashRouter.go('/')
+	hashRouter.go(`/`)
 
 	stateRouter.addState({
-		name: 'correct',
-		route: '/',
+		name: `correct`,
+		route: `/`,
 		template: null,
-		activate: function(context) {
+		activate(context) {
 			t.notOk(correctRouteCalled)
 			correctRouteCalled = true
 			t.notOk(context.parameters.parameterName)
@@ -63,10 +63,10 @@ test('evaluateCurrentRoute with slash url', t => {
 
 	t.notOk(correctRouteCalled)
 
-	stateRouter.evaluateCurrentRoute('correct')
+	stateRouter.evaluateCurrentRoute(`correct`)
 })
 
-test('evaluateCurrentRoute with no current route should go to the default', t => {
+test(`evaluateCurrentRoute with no current route should go to the default`, t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
@@ -75,22 +75,22 @@ test('evaluateCurrentRoute with no current route should go to the default', t =>
 	t.plan(3)
 
 	stateRouter.addState({
-		name: 'whatever',
-		route: '/ignored',
+		name: `whatever`,
+		route: `/ignored`,
 		template: null,
-		activate: function() {
+		activate() {
 			t.fail()
 		},
 	})
 
 	stateRouter.addState({
-		name: 'correct',
-		route: '/default',
+		name: `correct`,
+		route: `/default`,
 		template: null,
-		activate: function(context) {
+		activate(context) {
 			t.notOk(correctRouteCalled)
 
-			t.equal(context.parameters.parameterName, 'wrong')
+			t.equal(context.parameters.parameterName, `wrong`)
 			correctRouteCalled = true
 			t.end()
 		},
@@ -98,5 +98,5 @@ test('evaluateCurrentRoute with no current route should go to the default', t =>
 
 	t.notOk(correctRouteCalled)
 
-	stateRouter.evaluateCurrentRoute('correct', { parameterName: 'wrong' })
+	stateRouter.evaluateCurrentRoute(`correct`, { parameterName: `wrong` })
 })

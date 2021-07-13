@@ -3,17 +3,17 @@ function myArbitraryRenderFunction(parent, cb) {
 
 	const newObject = {
 		reset: function whatever() {},
-		getChildElement: function() {
+		getChildElement() {
 			return child
 		},
-		teardown: function() {
+		teardown() {
 			newObject.getChildElement = null
 			newObject.reset = null
 			newObject.teardown = null
 		},
 	}
 
-	setTimeout(function() {
+	setTimeout(() => {
 		cb(newObject)
 	}, 100)
 }
@@ -22,7 +22,7 @@ module.exports = function makeRenderer(stateRouter) {
 	return {
 		render: function render(context, cb) {
 			const element = context.element
-			myArbitraryRenderFunction(element, function(renderedTemplateApi) {
+			myArbitraryRenderFunction(element, renderedTemplateApi => {
 				cb(null, renderedTemplateApi)
 			})
 		},
@@ -36,8 +36,8 @@ module.exports = function makeRenderer(stateRouter) {
 			setTimeout(cb, 100)
 		},
 		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			setTimeout(function() {
-				cb(null, renderedTemplateApi.getChildElement('ui-view'))
+			setTimeout(() => {
+				cb(null, renderedTemplateApi.getChildElement(`ui-view`))
 			}, 100)
 		},
 	}

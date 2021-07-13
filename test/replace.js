@@ -1,8 +1,8 @@
-const test = require('tape-catch')
-const assertingRendererFactory = require('./helpers/asserting-renderer-factory')
-const getTestState = require('./helpers/test-state-factory')
+const test = require(`tape-catch`)
+const assertingRendererFactory = require(`./helpers/asserting-renderer-factory`)
+const getTestState = require(`./helpers/test-state-factory`)
 
-test('a normal replace call against the state router itself', function(t) {
+test(`a normal replace call against the state router itself`, t => {
 	const parent1Template = {}
 	const child1Template = {}
 	const child2Template = {}
@@ -19,42 +19,42 @@ test('a normal replace call against the state router itself', function(t) {
 	let child2Activated = false
 
 	stateRouter.addState({
-		name: 'valid1',
-		route: '/valid1',
+		name: `valid1`,
+		route: `/valid1`,
 		template: parent1Template,
-		activate: function(context) {
-			t.notOk(parentActivated, 'parent activated once')
+		activate(context) {
+			t.notOk(parentActivated, `parent activated once`)
 			parentActivated = true
 		},
 	})
 
 	stateRouter.addState({
-		name: 'valid1.valid',
-		route: '/valid1',
+		name: `valid1.valid`,
+		route: `/valid1`,
 		template: child1Template,
-		activate: function(context) {
-			t.notOk(child1Activated, 'child1 activated once')
+		activate(context) {
+			t.notOk(child1Activated, `child1 activated once`)
 			child1Activated = true
 
-			setTimeout(function() {
-				stateRouter.go('valid1.valid2', {}, { replace: true })
+			setTimeout(() => {
+				stateRouter.go(`valid1.valid2`, {}, { replace: true })
 			}, 10)
 		},
 	})
 
 	stateRouter.addState({
-		name: 'valid1.valid2',
-		route: '/valid2',
+		name: `valid1.valid2`,
+		route: `/valid2`,
 		template: child2Template,
-		activate: function(context) {
-			t.notOk(child2Activated, 'child2 activated once')
+		activate(context) {
+			t.notOk(child2Activated, `child2 activated once`)
 			child2Activated = true
 
-			t.equal(state.location.get(), '/valid1/valid2')
+			t.equal(state.location.get(), `/valid1/valid2`)
 
 			t.end()
 		},
 	})
 
-	stateRouter.go('valid1.valid')
+	stateRouter.go(`valid1.valid`)
 })
