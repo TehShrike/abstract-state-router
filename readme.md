@@ -111,7 +111,7 @@ If the viewer navigates to a state that has a default child, the router will red
 
 `querystringParameters` is an array of query string parameters that will be watched by this state.
 
-`defaultParameters` is an object whose properties should correspond to parameters defined in the `querystringParameters` option or the route parameters.  Whatever values you supply here will be used as the defaults in case the url does not contain any value for that parameter.
+`defaultParameters` is an object whose properties should correspond to parameters defined in the `querystringParameters` option or the route parameters.  Whatever values you supply here will be used as the defaults in case the url does not contain any value for that parameter. If you pass a function for a default parameter, the return of that function will be used as the default value.
 
 For backwards compatibility reasons, `defaultQuerystringParameters` will work as well (though it does not function any differently).
 
@@ -131,7 +131,7 @@ async function resolve(data, parameters) {
 		fetchUser(parameters.userId),
 		fetchInvoice(parameters.invoiceId),
 	])
-	
+
 	return {
 		user,
 		invoice,
