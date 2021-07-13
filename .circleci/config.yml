@@ -8,6 +8,14 @@ jobs:
       - checkout
       - run: npm ci
       - run: npm t
+  test_in_browser:
+    docker:
+      - image: circleci/node:16
+    steps:
+      - checkout
+      - run: sudo apt-get install xvfb
+      - run: npm ci
+      - run: xvfb-run --auto-servernum npm run test:browser
 
 workflows:
   version: 2
