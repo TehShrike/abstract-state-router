@@ -16,7 +16,7 @@ To see an example app implemented with a couple of different browser rendering l
 
 This project is stable and has been used in production for years.
 
-The last breaking change was in October of 2017, and only involved removing some built-in polyfills.
+The last major version bump change was in July of 2021 when the project started shipping modern JS instead of ES5.  There have been no breaking changes to the library's function APIs since 2015.
 
 abstract-state-router is extensible without much work, so very few feature additions have been necessary.
 

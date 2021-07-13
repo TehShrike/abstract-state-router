@@ -1,3 +1,8 @@
+# [7.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.0.0)
+
+- maintenance: update a bunch of dependencies [#141](https://github.com/TehShrike/abstract-state-router/pull/141)
+- breaking: dropped ES5 support.  If you're targeting ES5 you'll need to compile it in your own app's build.
+
 # [6.2.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.2.0)
 
 - feature: allow dynamic parameter defaults via functions [#144](https://github.com/TehShrike/abstract-state-router/pull/144)
