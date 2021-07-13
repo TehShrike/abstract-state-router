@@ -223,3 +223,28 @@ test('empty string is a valid default parameter', function(t) {
 }, {
 	timeout: 1000,
 })
+
+test('function is a valid default parameter, which returns the default value', function(t) {
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
+
+	stateRouter.addState({
+		name: 'state',
+		route: '/state',
+		template: {},
+		defaultParameters: {
+			someParam: 'foo',
+			someOtherParam: () => 'bar' + 'baz',
+		},
+		querystringParameters: [ 'someParam', 'someOtherParam' ],
+		activate: function(context) {
+			t.equal(context.parameters.someParam, 'foo')
+			t.equal(context.parameters.someOtherParam, 'barbaz')
+			t.equal(state.location.get(), '/state?someOtherParam=barbaz&someParam=foo')
+
+			t.end()
+		},
+	})
+
+	stateRouter.go('state')
+})

@@ -1,3 +1,7 @@
+# [6.2.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.2.0)
+
+- feature: allow dynamic parameter defaults via functions [#144](https://github.com/TehShrike/abstract-state-router/pull/144)
+
 # [6.1.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v6.1.0)
 
 - feature: added `getActiveState` method [#121](https://github.com/TehShrike/abstract-state-router/pull/121)

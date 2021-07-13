@@ -209,6 +209,16 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		router.add(route, parameters => onRouteChange(state, parameters))
 	}
 
+	function computeDefaultParams(defaultParams) {
+		let computedDefaultParams = {}
+
+		const defaultParamKeyValuePairs = Object.keys(defaultParams).forEach(key => {
+			computedDefaultParams[key] = typeof defaultParams[key] === 'function' ? defaultParams[key]() : defaultParams[key]
+		})
+
+		return computedDefaultParams
+	}
+
 	function getStatesToResolve(stateChanges) {
 		return stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
 	}
@@ -241,7 +251,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				})
 
 				if (needToApplyDefaults) {
-					throw redirector(newStateName, extend(defaultParams, parameters))
+					throw redirector(newStateName, extend(computeDefaultParams(defaultParams), parameters))
 				}
 				return state
 			}).then(ifNotCancelled(state => {
@@ -335,9 +345,9 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		const destinationStateName = stateName === null ? getGuaranteedPreviousState().name : stateName
 
 		const destinationState = prototypalStateHolder.get(destinationStateName) || {}
-		const defaultParams = destinationState.defaultParameters || destinationState.defaultQuerystringParameters
+		const defaultParams = destinationState.defaultParameters || destinationState.defaultQuerystringParameters || {}
 
-		parameters = extend(defaultParams, parameters)
+		parameters = extend(computeDefaultParams(defaultParams), parameters)
 
 		prototypalStateHolder.guaranteeAllStatesExist(destinationStateName)
 		const route = prototypalStateHolder.buildFullStateRoute(destinationStateName)
