@@ -1,5 +1,5 @@
 const test = require('tape-catch')
-const StateState = require('../lib/state-state')
+import StateState from '../lib/state-state.js'
 
 /*
 stateState.add

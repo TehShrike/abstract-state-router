@@ -1,7 +1,7 @@
 // Copied from https://github.com/joliss/promise-map-series/blob/master/test.js
 
 const test = require('tape-catch')
-const mapSeries = require('../lib/promise-map-series')
+import mapSeries from '../lib/promise-map-series.js'
 
 test('mapSeries', function(t) {
 	t.test('iterator is called in sequence for each item', function(t) {

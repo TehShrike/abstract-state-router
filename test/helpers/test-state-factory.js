@@ -1,8 +1,9 @@
 const hashRouterFactory = require('hash-brown-router')
 const hashLocationMockFactory = require('hash-brown-router/hash-location-mock')
-const stateRouterFactory = require('../../')
-const defaultRouterOptions = require('../../default-router-options.js')
 const mockRenderFn = require('./renderer-mock')
+
+import stateRouterFactory from '../../index.js'
+import defaultRouterOptions from '../../default-router-options.js'
 
 module.exports = function getTestState(t, renderFn, options) {
 	const location = hashLocationMockFactory()
