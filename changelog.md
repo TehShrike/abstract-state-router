@@ -1,3 +1,7 @@
+# [7.0.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.0.1)
+
+- maintenance: autoformat the scripts to make myself feel better and reduce commit noise in the future [#145](https://github.com/TehShrike/abstract-state-router/pull/145)
+
 # [7.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.0.0)
 
 - maintenance: update a bunch of dependencies [#141](https://github.com/TehShrike/abstract-state-router/pull/141)
