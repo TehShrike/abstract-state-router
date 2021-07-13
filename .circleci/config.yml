@@ -22,3 +22,4 @@ workflows:
   test_and_build:
     jobs:
       - test_and_build
+      - test_in_browser
