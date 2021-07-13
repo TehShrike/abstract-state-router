@@ -32,14 +32,11 @@
     "then-denodeify": "~1.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.12.11",
-    "@rollup/plugin-babel": "^5.2.2",
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "browserify": "^17.0.0",
     "faucet": "0.0.1",
-    "rollup": "^2.36.1",
+    "rollup": "^2.53.1",
     "rollup-plugin-visualizer": "^4.2.0",
     "tap-browser-color": "0.1.2",
     "tape": "^5.1.1",
