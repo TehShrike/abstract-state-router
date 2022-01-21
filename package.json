@@ -41,6 +41,6 @@
     "tap-browser-color": "0.1.2",
     "tape": "^5.1.1",
     "tape-catch": "1.0.6",
-    "tape-run": "^8.0.0"
+    "tape-run": "^9.0.0"
   }
 }
