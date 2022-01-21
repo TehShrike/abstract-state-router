@@ -122,8 +122,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return new Promise(resolve => {
 			const parent = prototypalStateHolder.getParent(stateName)
 			if (parent) {
-				const parentDomApi = activeDomApis[parent.name]
-				resolve(getDomChild(parentDomApi))
+				resolve(getDomChild(activeDomApis[parent.name]).then(childDomApi => {
+					if (!childDomApi) return Promise.reject(new Error(`getDomChild returned a falsey element, did you forget to add a place for a child state to go?`))
+					return childDomApi
+				}))
 			} else {
 				resolve(rootElement)
 			}
