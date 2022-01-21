@@ -1,3 +1,7 @@
+# [7.1.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.1.0)
+
+- Give an explicit/useful error message if you forget to add a `ui-view` element to a parent template [#148](https://github.com/TehShrike/abstract-state-router/pull/148)
+
 # [7.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.0.0)
 
 - maintenance: update a bunch of dependencies [#141](https://github.com/TehShrike/abstract-state-router/pull/141)
