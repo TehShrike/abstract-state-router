@@ -154,3 +154,46 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 
 	t.end()
 })
+
+test(`redirecting to a child reruns the parent resolve`, t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(2)
+
+		let parentActivatedCount = 0
+
+		stateRouter.addState({
+			name: `valid`,
+			route: `/valid`,
+			template: {},
+			resolve(data, params, cb) {
+				parentActivatedCount++
+				if (!params.anyKey) {
+					return cb.redirect(`valid.valid1`, { anyKey: `yes?` })
+				}
+				t.equal(parentActivatedCount, 2, `first it redirected, then it ran again`)
+				setTimeout(cb, 50)
+			},
+		})
+
+		stateRouter.addState({
+			name: `valid.valid1`,
+			route: `/valid1/:anyKey`,
+			template: {},
+			activate() {
+				t.pass(`valid.valid1 activated`)
+				t.end()
+			},
+		})
+
+		return state
+	}
+
+	t.test(`with state.go`, t => {
+		const stateRouter = startTest(t).stateRouter
+		stateRouter.go(`valid`)
+	})
+
+	t.end()
+})
