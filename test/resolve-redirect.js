@@ -161,18 +161,18 @@ test(`redirecting to a child reruns the parent resolve`, t => {
 		const stateRouter = state.stateRouter
 		t.plan(2)
 
-		let parentActivatedCount = 0
+		let parentResolvedCount = 0
 
 		stateRouter.addState({
 			name: `valid`,
 			route: `/valid`,
 			template: {},
 			resolve(data, params, cb) {
-				parentActivatedCount++
+				parentResolvedCount++
 				if (!params.anyKey) {
 					return cb.redirect(`valid.valid1`, { anyKey: `yes?` })
 				}
-				t.equal(parentActivatedCount, 2, `first it redirected, then it ran again`)
+				t.equal(parentResolvedCount, 2, `first it redirected, then it ran again`)
 				setTimeout(cb, 50)
 			},
 		})
