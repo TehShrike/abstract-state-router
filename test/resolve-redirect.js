@@ -197,3 +197,72 @@ test(`redirecting to a child reruns the parent resolve`, t => {
 
 	t.end()
 })
+
+test(`redirecting to a child multiple times reruns all the parent resolves`, t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(2)
+
+		let resolvedCount = 0
+
+		stateRouter.addState({
+			name: 'app',
+			route: '/app',
+			template: {},
+			resolve: async (data, params) => {
+				resolvedCount++
+				if (!params.anyKey) {
+					return Promise.reject({
+						redirectTo: {
+							name: `app.child`,
+						},
+					})
+				}
+				return {}
+			}
+		})
+
+		stateRouter.addState({
+			name: 'app.child',
+			route: '/child',
+			template: {},
+			resolve: async (data, params) => {
+				resolvedCount++
+				if (!params.anyKey) {
+					return Promise.reject({
+						redirectTo: {
+							name: `app.child.node`,
+							params: { anyKey: `yes` },
+						},
+					})
+				}
+				return {}
+			}
+		})
+
+		stateRouter.addState({
+			name: `app.child.node`,
+			route: `/node/:anyKey`,
+			template: {},
+			resolve: async () => {
+				resolvedCount++
+				return {}
+			},
+			activate() {
+				t.equal(resolvedCount, 6, `first it redirected, then it ran again`)
+				t.pass(`app.child.node activated`)
+				t.end()
+			},
+		})
+
+		return state
+	}
+
+	t.test(`with state.go`, t => {
+		const stateRouter = startTest(t).stateRouter
+		stateRouter.go(`app`)
+	})
+
+	t.end()
+})
