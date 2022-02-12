@@ -155,114 +155,105 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 	t.end()
 })
 
-test(`redirecting to a child reruns the parent resolve`, t => {
-	function startTest(t) {
-		const state = getTestState(t)
-		const stateRouter = state.stateRouter
-		t.plan(2)
+test(`redirecting to a child from a parent state reruns the parent's resolve function`, t => {
+	const { stateRouter } = getTestState(t)
 
-		let parentResolvedCount = 0
+	t.plan(2)
 
-		stateRouter.addState({
-			name: `valid`,
-			route: `/valid`,
-			template: {},
-			resolve(data, params, cb) {
-				parentResolvedCount++
-				if (!params.anyKey) {
-					return cb.redirect(`valid.valid1`, { anyKey: `yes?` })
-				}
-				t.equal(parentResolvedCount, 2, `first it redirected, then it ran again`)
-				setTimeout(cb, 50)
-			},
-		})
+	let parentResolvedCount = 0
 
-		stateRouter.addState({
-			name: `valid.valid1`,
-			route: `/valid1/:anyKey`,
-			template: {},
-			activate() {
-				t.pass(`valid.valid1 activated`)
-				t.end()
-			},
-		})
-
-		return state
-	}
-
-	t.test(`with state.go`, t => {
-		const stateRouter = startTest(t).stateRouter
-		stateRouter.go(`valid`)
+	stateRouter.addState({
+		name: `valid`,
+		route: `/valid`,
+		template: {},
+		async resolve(data, params, cb) {
+			parentResolvedCount++
+			if (!params.anyKey) {
+				return cb.redirect(`valid.valid1`, { anyKey: `yes?` })
+			}
+			t.equal(parentResolvedCount, 2, `first it redirected, then it ran again`)
+		},
 	})
 
-	t.end()
+	stateRouter.addState({
+		name: `valid.valid1`,
+		route: `/valid1/:anyKey`,
+		template: {},
+		activate() {
+			t.pass(`valid.valid1 activated`)
+			t.end()
+		},
+	})
+
+	stateRouter.go(`valid`)
 })
 
-test(`redirecting to a child multiple times reruns all the parent resolves`, t => {
-	function startTest(t) {
-		const state = getTestState(t)
-		const stateRouter = state.stateRouter
-		t.plan(2)
+test(`redirecting to a child in an ancestor state multiple times reruns all the ancestor resolves`, t => {
+	const { stateRouter } = getTestState(t)
 
-		let resolvedCount = 0
+	let parentResolveCallCount = 0
+	let parentResolvedCount = 0
+	let childResolveCalledCount = 0
+	let childResolvedCount = 0
 
-		stateRouter.addState({
-			name: 'app',
-			route: '/app',
-			template: {},
-			resolve: async (data, params) => {
-				resolvedCount++
-				if (!params.anyKey) {
-					return Promise.reject({
-						redirectTo: {
-							name: `app.child`,
+	stateRouter.addState({
+		name: `app`,
+		route: `/app`,
+		template: {},
+		querystringParameters: [ `dont_redirect_parent` ],
+		resolve: async(data, params) => {
+			parentResolveCallCount++
+			if (!params.dont_redirect_parent) {
+				return Promise.reject({
+					redirectTo: {
+						name: `app.child`,
+						params: {
+							dont_redirect_parent: true,
 						},
-					})
-				}
-				return {}
+					},
+				})
 			}
-		})
-
-		stateRouter.addState({
-			name: 'app.child',
-			route: '/child',
-			template: {},
-			resolve: async (data, params) => {
-				resolvedCount++
-				if (!params.anyKey) {
-					return Promise.reject({
-						redirectTo: {
-							name: `app.child.node`,
-							params: { anyKey: `yes` },
-						},
-					})
-				}
-				return {}
-			}
-		})
-
-		stateRouter.addState({
-			name: `app.child.node`,
-			route: `/node/:anyKey`,
-			template: {},
-			resolve: async () => {
-				resolvedCount++
-				return {}
-			},
-			activate() {
-				t.equal(resolvedCount, 6, `first it redirected, then it ran again`)
-				t.pass(`app.child.node activated`)
-				t.end()
-			},
-		})
-
-		return state
-	}
-
-	t.test(`with state.go`, t => {
-		const stateRouter = startTest(t).stateRouter
-		stateRouter.go(`app`)
+			parentResolvedCount++
+			return {}
+		},
 	})
 
-	t.end()
+	stateRouter.addState({
+		name: `app.child`,
+		route: `/child`,
+		template: {},
+		resolve: async(data, params) => {
+			childResolveCalledCount++
+			if (!params.dont_redirect_child) {
+				return Promise.reject({
+					redirectTo: {
+						name: `app.child.node`,
+						params: {
+							dont_redirect_parent: true,
+							dont_redirect_child: true,
+						},
+					},
+				})
+			}
+			childResolvedCount++
+			return {}
+		},
+	})
+
+	stateRouter.addState({
+		name: `app.child.node`,
+		route: `/node`,
+		template: {},
+		querystringParameters: [ `dont_redirect_child` ],
+		activate() {
+			t.equal(parentResolveCallCount, 3, `parent state resolve function was called thrice`)
+			t.equal(parentResolvedCount, 2, `parent state was resolved twice`)
+			t.equal(childResolveCalledCount, 2, `child state resolve function was called twice`)
+			t.equal(childResolvedCount, 1, `child state was resolved once`)
+			t.pass(`app.child.node activated`)
+			t.end()
+		},
+	})
+
+	stateRouter.go(`app`)
 })
