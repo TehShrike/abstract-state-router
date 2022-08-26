@@ -268,7 +268,7 @@ stateRouter.stateIsActive('app.tab1', { fancy: 'no' }) // => false
 stateRouter.stateIsActive('app') // => true
 ```
 
-## stateRouter.makePath(stateName, [stateParameters], options)
+## stateRouter.makePath(stateName, [stateParameters, [options]])
 
 Returns a path to the state, starting with an [optional](#options) octothorpe `#`, suitable for inserting straight into the `href` attribute of a link.
 
