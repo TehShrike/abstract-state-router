@@ -1,6 +1,6 @@
 const hashRouterFactory = require(`hash-brown-router`)
 const hashLocationMockFactory = require(`hash-brown-router/hash-location-mock`)
-const stateRouterFactory = require(`../../`)
+const stateRouterFactory = require(`../../index.js`)
 const defaultRouterOptions = require(`../../default-router-options.js`)
 const mockRenderFn = require(`./renderer-mock`)
 

@@ -1,3 +1,7 @@
+# [7.2.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.2.0)
+
+- Coerce parameter values to strings for comparison in `stateIsActive` [#151](https://github.com/TehShrike/abstract-state-router/pull/151)
+
 # [7.1.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.1.0)
 
 - Give an explicit/useful error message if you forget to add a `ui-view` element to a parent template [#148](https://github.com/TehShrike/abstract-state-router/pull/148)

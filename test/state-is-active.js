@@ -129,3 +129,28 @@ test(`null parameters passed to stateIsActive are equivalent to passing in nothi
 
 	stateRouter.go(`parent.child`, { butts: `yes` })
 })
+
+test(`stateIsActive coerces parameters to strings before comparing them to the querystring`, t => {
+	const stateRouter = getTestState(t).stateRouter
+
+	stateRouter.addState({
+		name: `parent`,
+		template: ``,
+		route: `/parent`,
+	})
+
+	stateRouter.addState({
+		name: `parent.child`,
+		template: ``,
+		route: `/child`,
+	})
+
+	stateRouter.on(`stateChangeEnd`, () => {
+		t.ok(stateRouter.stateIsActive(`parent.child`, { butts: `420` }))
+		t.ok(stateRouter.stateIsActive(`parent.child`, { butts: 420 }))
+		t.notOk(stateRouter.stateIsActive(`parent.child`, { butts: null }))
+		t.end()
+	})
+
+	stateRouter.go(`parent.child`, { butts: 420 })
+})

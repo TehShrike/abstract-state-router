@@ -24,9 +24,9 @@ I occasionally have dreams of [a rewrite](https://github.com/TehShrike/abstract-
 
 # Browser compatibility
 
-This project is currently published as CommonJS ES5-compatible code.
+This project is currently published as CommonJS with modern JS syntax.
 
-If you're supporting old browsers, you'll need to use polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/), it makes life super-easy.
+If you're supporting old browsers, you'll need to compile to whatever older syntax you target and use polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/) for automatic polyfills, it makes life super-easy.
 
 # Current renderer implementations
 
