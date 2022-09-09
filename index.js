@@ -375,7 +375,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		const parametersWereNotPassedIn = !parameters
 
 		return stateNameMatches
-			&& (parametersWereNotPassedIn || Object.keys(parameters).every(key => parameters[key]?.toString() === currentState.parameters[key]))
+			&& (parametersWereNotPassedIn || Object.keys(parameters).every(key => parameters[key] + `` === currentState.parameters[key]))
 	}
 
 	const renderer = makeRenderer(stateProviderEmitter)
