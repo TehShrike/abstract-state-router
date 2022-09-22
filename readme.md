@@ -392,7 +392,7 @@ It could be added by  me, but probably not in the near future, since I will most
 
 If I use the abstract-state-router on an app where I want to support clients without JS, then I'll start working through those tasks in the issue above.
 
-If anyone else has need of this functionality and wants to get keep making progress on it, I'd be happy to help.  Stop by the [chat room](https://gitter.im/TehShrike/abstract-state-router) to ask any questions.
+If anyone else has need of this functionality and wants to get keep making progress on it, I'd be happy to help.  Stop by the [chat room](https://discord.gg/G8FrErC) to ask any questions.
 
 # Maintainers
 
