@@ -180,13 +180,10 @@ stateRouter.addState({
 	route: '/app',
 	template: '',
 	defaultChild: 'tab1',
-	resolve: function(data, parameters, cb) {
-		// Sync or async stuff; just call the callback when you're done
-		isLoggedIn(function(err, isLoggedIn) {
-			cb(err, isLoggedIn)
-		})
+	async resolve(data, parameters) {
+		return isLoggedIn()
 	},
-	activate: function(context) {
+	activate(context) {
 		// Normally, you would set data in your favorite view library
 		var isLoggedIn = context.content
 		var ele = document.getElementById('status')
@@ -199,10 +196,10 @@ stateRouter.addState({
 	data: {},
 	route: '/tab_1',
 	template: '',
-	resolve: function(data, parameters, cb) {
-		getTab1Data(cb)
+	async resolve(data, parameters) {
+		return getTab1Data()
 	},
-	activate: function(context) {
+	activate(context) {
 		document.getElementById('tab').innerText = context.content
 
 		var intervalId = setInterval(function() {
@@ -220,10 +217,10 @@ stateRouter.addState({
 	data: {},
 	route: '/tab_2',
 	template: '',
-	resolve: function(data, parameters, cb) {
-		getTab2Data(cb)
+	async resolve(data, parameters) {
+		return getTab2Data()
 	},
-	activate: function(context) {
+	activate(context) {
 		document.getElementById('tab').innerText = context.content
 	}
 })
