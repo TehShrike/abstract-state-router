@@ -10,6 +10,8 @@ For renderers that "reset" states by destroying the existing component and re-co
 
 Existing renderers don't need to change to work with this version of ASR, it's just that their `reset` function won't get called any more.
 
+The `beforeResetState` and `afterResetState` should not be fired any more.
+
 # [7.2.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.2.0)
 
 - Coerce parameter values to strings for comparison in `stateIsActive` [#151](https://github.com/TehShrike/abstract-state-router/pull/151)
