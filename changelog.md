@@ -1,3 +1,7 @@
+# [7.3.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.3.1)
+
+Fixes an issue where when a state was destroyed and resolved during the same state change, the result of its `resolve` function would get tossed out.
+
 # [7.3.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.3.0)
 
 Removes the concept of resetting states.

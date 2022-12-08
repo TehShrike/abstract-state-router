@@ -152,3 +152,37 @@ test(`a state with changing querystring gets destroyed`, t => {
 
 	stateRouter.go(`parent.child1`)
 })
+
+test(`When navigating to the same state as before, make sure the data from the child's resolve gets passed along`, t => {
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
+
+	let activations = 0
+
+	t.plan(2)
+
+	stateRouter.addState({
+		name: `parent`,
+		route: `/parent`,
+		template: null,
+		querystringParameters: [ `aParam` ],
+		async resolve() {
+			return {
+				legit: true,
+			}
+		},
+		activate({ content }) {
+			activations++
+
+			t.equal(content.legit, true)
+
+			if (activations === 2) {
+				t.end()
+			} else {
+				stateRouter.go(`parent`, { aParam: `something different` })
+			}
+		},
+	})
+
+	stateRouter.go(`parent`)
+})
