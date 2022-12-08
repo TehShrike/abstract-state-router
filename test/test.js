@@ -285,27 +285,6 @@ test(`render fn receives parameters`, t => {
 	stateRouter.go(`x`, { foo: `abc` })
 })
 
-test(`reset fn receives parameters`, t => {
-	t.plan(1)
-	const stateRouter = getTestState(t, () => ({
-		render(context, cb) {
-			cb()
-		},
-		reset(context) {
-			t.deepEqual(context.parameters, { foo: `def` })
-		},
-	})).stateRouter
-	stateRouter.addState({
-		name: `x`,
-		route: `/x/:foo`,
-		template: ``,
-	})
-	stateRouter.on(`stateChangeEnd`, () => {
-		stateRouter.go(`x`, { foo: `def` })
-	})
-	stateRouter.go(`x`, { foo: `abc` })
-})
-
 test(`go uses current state when no stateName is provided`, t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter

@@ -13,8 +13,8 @@ module.exports = function assertingRendererFactory(t, expectedTemplates) {
 					})
 				})
 			},
-			reset: function reset(context, cb) {
-				setTimeout(cb, 100)
+			reset: function reset() {
+				throw new Error(`Reset should not be called`)
 			},
 			destroy: function destroy(renderedTemplateApi, cb) {
 				setTimeout(cb, 100)

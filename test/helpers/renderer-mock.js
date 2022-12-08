@@ -1,44 +1,30 @@
-function myArbitraryRenderFunction(parent, cb) {
+async function myArbitraryRenderFunction(parent) {
 	const child = {}
 
 	const newObject = {
-		reset: function whatever() {},
 		getChildElement() {
 			return child
 		},
 		teardown() {
 			newObject.getChildElement = null
-			newObject.reset = null
 			newObject.teardown = null
 		},
 	}
 
-	setTimeout(() => {
-		cb(newObject)
-	}, 100)
+	return newObject
 }
 
 module.exports = function makeRenderer(stateRouter) {
 	return {
-		render: function render(context, cb) {
+		async render(context) {
 			const element = context.element
-			myArbitraryRenderFunction(element, renderedTemplateApi => {
-				cb(null, renderedTemplateApi)
-			})
+			return await myArbitraryRenderFunction(element)
 		},
-		reset: function reset(context, cb) {
-			const renderedTemplateApi = context.domApi
-			renderedTemplateApi.reset()
-			setTimeout(cb, 100)
+		async destroy(renderedTemplateApi) {
+			await renderedTemplateApi.teardown()
 		},
-		destroy: function destroy(renderedTemplateApi, cb) {
-			renderedTemplateApi.teardown()
-			setTimeout(cb, 100)
-		},
-		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			setTimeout(() => {
-				cb(null, renderedTemplateApi.getChildElement(`ui-view`))
-			}, 100)
+		async getChildElement(renderedTemplateApi) {
+			return await renderedTemplateApi.getChildElement(`ui-view`)
 		},
 	}
 }

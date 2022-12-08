@@ -36,7 +36,8 @@ test(`All dom functions called in order`, t => {
 		`activate top`,
 		`activate top.first`,
 		`destroy topFirstTemplate`,
-		`reset topTemplate`,
+		`destroy topTemplate`,
+		`render topTemplate on body`,
 		`getChild topTemplate`,
 		`render topSecondTemplate on topTemplate child`,
 		`activate top`,
@@ -73,61 +74,11 @@ test(`All dom functions called in order`, t => {
 		activate() {
 			actions.push(`activate top.second`)
 			expectedActions.forEach((planned, index) => {
-				t.equal(actions[index], planned, planned)
+				t.equal(actions[index], planned, `Action ${index} should be "${planned}"`)
 			})
 			t.end()
 		},
 	})
 
 	state.stateRouter.go(`top.first`)
-})
-
-test(`Supplying a value to reset replaces the active DOM API`, t => {
-	const originalDomApi = {}
-	const domApiAfterReset = {}
-
-	function makeRenderer() {
-		return {
-			render: function render(context, cb) {
-				cb(null, originalDomApi)
-			},
-			reset: function reset(context, cb) {
-				t.equal(originalDomApi, context.domApi)
-				cb(null, domApiAfterReset)
-			},
-			destroy: function destroy(renderedTemplateApi, cb) {
-				cb()
-			},
-			getChildElement: function getChildElement(renderedTemplateApi, cb) {
-				cb()
-			},
-		}
-	}
-
-	const state = getTestState(t, makeRenderer)
-	let firstActivation = true
-
-	state.stateRouter.addState({
-		name: `top`,
-		template: `topTemplate`,
-		querystringParameters: [ `myFancyParam` ],
-		activate(context) {
-			if (firstActivation) {
-				t.equal(context.domApi, originalDomApi)
-				firstActivation = false
-
-				state.stateRouter.go(`top`, {
-					myFancyParam: `new value`,
-				})
-			} else {
-				t.equal(context.domApi, domApiAfterReset)
-				t.end()
-			}
-		},
-	})
-
-
-	state.stateRouter.go(`top`, {
-		myFancyParam: `original value`,
-	})
 })

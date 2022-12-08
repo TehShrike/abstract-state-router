@@ -1,3 +1,17 @@
+# [7.3.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.3.0)
+
+Removes the concept of resetting states.
+
+The concept of resetting breaks down if your component library doesn't support
+- slots
+- resetting the state of a component without resetting the contents of slots
+
+For renderers that "reset" states by destroying the existing component and re-constructing it, stuff would break in any case where a parent and child state were both told to reset at once.  Whenever the parent would reset and destroy its part of the DOM, the child would get wiped out.
+
+Existing renderers don't need to change to work with this version of ASR, it's just that their `reset` function won't get called any more.
+
+The `beforeResetState` and `afterResetState` should not be fired any more.
+
 # [7.2.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.2.0)
 
 - Coerce parameter values to strings for comparison in `stateIsActive` [#151](https://github.com/TehShrike/abstract-state-router/pull/151)

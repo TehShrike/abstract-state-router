@@ -77,7 +77,7 @@ var createStateRouter = require('abstract-state-router')
 var stateRouter = createStateRouter(makeRenderer, rootElement, options)
 ```
 
-The `makeRenderer` should be a function that returns an object with four properties: render, destroy, getChildElement, and reset.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
+The `makeRenderer` should be a function that returns an object with these properties: render, destroy, and getChildElement.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
 
 The `rootElement` is the element where the first-generation states will be created.
 
@@ -180,13 +180,10 @@ stateRouter.addState({
 	route: '/app',
 	template: '',
 	defaultChild: 'tab1',
-	resolve: function(data, parameters, cb) {
-		// Sync or async stuff; just call the callback when you're done
-		isLoggedIn(function(err, isLoggedIn) {
-			cb(err, isLoggedIn)
-		})
+	async resolve(data, parameters) {
+		return isLoggedIn()
 	},
-	activate: function(context) {
+	activate(context) {
 		// Normally, you would set data in your favorite view library
 		var isLoggedIn = context.content
 		var ele = document.getElementById('status')
@@ -199,10 +196,10 @@ stateRouter.addState({
 	data: {},
 	route: '/tab_1',
 	template: '',
-	resolve: function(data, parameters, cb) {
-		getTab1Data(cb)
+	async resolve(data, parameters) {
+		return getTab1Data()
 	},
-	activate: function(context) {
+	activate(context) {
 		document.getElementById('tab').innerText = context.content
 
 		var intervalId = setInterval(function() {
@@ -220,10 +217,10 @@ stateRouter.addState({
 	data: {},
 	route: '/tab_2',
 	template: '',
-	resolve: function(data, parameters, cb) {
-		getTab2Data(cb)
+	async resolve(data, parameters) {
+		return getTab2Data()
 	},
-	activate: function(context) {
+	activate(context) {
 		document.getElementById('tab').innerText = context.content
 	}
 })
@@ -317,8 +314,6 @@ stateRouter.on('routeNotFound', function(route, parameters) {
 
 - `beforeCreateState({state, content, parameters})`
 - `afterCreateState({state, domApi, content, parameters})`
-- `beforeResetState({state, domApi, content, parameters})`
-- `afterResetState({state, domApi, content, parameters})`
 - `beforeDestroyState({state, domApi})`
 - `afterDestroyState({state})`
 
@@ -336,9 +331,8 @@ To run the unit tests:
 - call all resolve functions
 - resolve functions return
 - **NO LONGER AT PREVIOUS STATE**
-- destroy the contexts of all "destroy" and "change" states
+- destroy the contexts of all "destroy" states
 - destroy appropriate dom elements
-- reset "change"ing dom elements
 - call render functions for "create"ed states
 - call all activate functions
 - emit stateChangeEnd
@@ -346,7 +340,6 @@ To run the unit tests:
 # Every state change does this to states
 
 - destroy: states that are no longer active at all.  The contexts are destroyed, and the DOM elements are destroyed.
-- change: states that remain around, but with different parameter values - the DOM sticks around, but the contexts are destroyed and resolve/activate are called again.
 - create: states that weren't active at all before.  The DOM elements are rendered, and resolve/activate are called.
 
 # HTML5/pushState routing
