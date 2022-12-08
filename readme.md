@@ -77,7 +77,7 @@ var createStateRouter = require('abstract-state-router')
 var stateRouter = createStateRouter(makeRenderer, rootElement, options)
 ```
 
-The `makeRenderer` should be a function that returns an object with four properties: render, destroy, and getChildElement.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
+The `makeRenderer` should be a function that returns an object with these properties: render, destroy, and getChildElement.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
 
 The `rootElement` is the element where the first-generation states will be created.
 
