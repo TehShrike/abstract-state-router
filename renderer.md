@@ -17,25 +17,17 @@ It's a function that returns an object with four methods:
 ```js
 module.exports = function makeRenderer(stateRouter) {
 	return {
-		render: function render(context, cb) {
+		async render(context) {
 			const element = context.element
-			myArbitraryRenderFunction(element, function(renderedTemplateApi) {
-				cb(null, renderedTemplateApi)
-			})
+			const renderedTemplateApi = await myArbitraryRenderFunction(element)
+
+			return renderedTemplateApi
 		},
-		reset: function reset(context, cb) {
-			const renderedTemplateApi = context.domApi
-			renderedTemplateApi.reset()
-			setTimeout(cb, 100)
+		async destroy(renderedTemplateApi) {
+			await renderedTemplateApi.teardown()
 		},
-		destroy: function destroy(renderedTemplateApi, cb) {
-			renderedTemplateApi.teardown()
-			setTimeout(cb, 100)
-		},
-		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			setTimeout(function() {
-				cb(null, renderedTemplateApi.getChildElement('ui-view'))
-			}, 100)
+		async getChildElement(renderedTemplateApi) {
+			return renderedTemplateApi.getChildElement('ui-view')
 		},
 	}
 }
@@ -44,9 +36,9 @@ module.exports = function makeRenderer(stateRouter) {
 You'll pass it to the state router like this:
 
 ```js
-var StateRouter = require('abstract-state-router')
+const StateRouter = require('abstract-state-router')
 
-var stateRouter = StateRouter(yourRendererFunction, 'body')
+const stateRouter = StateRouter(yourRendererFunction, 'body')
 ```
 
 Your renderer function will be passed a single argument which is the state router object itself.
@@ -65,14 +57,15 @@ Is passed an object with four properties:
 - **parameters**: the state parameters
 
 ```js
-function render(context, cb) {
-  var myHtml = myTemplateParser(context.template, context.content) // Compile template and content
+function render(context) {
+  const myHtml = myTemplateParser(context.template, context.content) // Compile template and content
   $(context.element).html(myHtml) // Apply to the DOM
 
   // domApi is a jquery object in these examples
   // You should expose the interface provided by your dom manipulation library of choice
-  var domApi = $(context.element)
-  cb(null, domApi)
+  const domApi = $(context.element)
+
+  return domApi
 }
 ```
 
@@ -87,42 +80,11 @@ This `getChildElement` function must return the element in the DOM where a child
 Convention in the renderers so far is to find a `<ui-view></ui-view>` element, in a nod to ui-router.  This is totally up to you, though - whatever you choose to to use as child elements, make sure to document in your renderer's readme.
 
 ```js
-function getChildElement(domApi, cb) {
+function getChildElement(domApi) {
   // domApi is a jquery object in these examples
-  var child = domApi.children('ui-view').first()
-  cb(null, child)
-}
-```
+  const child = domApi.children('ui-view').first()
 
-### `reset`
-
-Is passed an object with four properties:
-
-- **domApi**: the object returned by your `render` function
-- **content**: the result of the user's `resolve` function - the same kind of thing passed to `render` above
-- **template**: the template provided to the `stateRouter.addState` call, same as above
-- **parameters**: the state parameters
-
-This function is similar in function to the `render` function above, but with a difference - the template has already been rendered.
-
-This `reset` option exists so that if a state changes, but the template is the same as the old state, the whole thing doesn't need to be destroyed, and then all of the DOM elements re-created.
-
-Your reset implementation should
-
-- wipe out all content/state in `domApi`
-- apply the new `content` to the same `domApi`
-
-This function doesn't have to return anything, it's totally fine to call the callback or return a resolved promise without any value once the resetting is complete.  The router will assume that the previous DOM API is still valid.
-
-If you do pass a truthy value to the callback or in the promise, the router will assume that the value is the new DOM API which should replace the previous one.
-
-```js
-function reset(context, cb) {
-  // Note the similarity to `render()`
-  var myHtml = myTemplateParser(context.template, context.content) // Compile template and content
-  // context.domApi is a jquery object in these examples
-  context.domApi.html(myHtml) // Apply to the DOM
-  cb(null)
+  return child
 }
 ```
 
@@ -135,7 +97,7 @@ Here, all you need to do is whatever it is that wipes out the contents in the DO
 **NOTE**: only clean up things having to do with the templating/DOM.  You shouldn't be signalling to your code that it's cleanup time, the code should be watching for the `destroy` event to be emitted on the context object passed to the `activate` function.
 
 ```js
-function destroy(domApi, cb) {
+function destroy(domApi) {
   // domApi is a jquery object in these examples
   domApi.remove()
 }

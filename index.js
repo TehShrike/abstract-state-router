@@ -48,7 +48,6 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	let destroyDom = null
 	let getDomChild = null
 	let renderDom = null
-	let resetDom = null
 
 	let activeStateResolveContent = {}
 	const activeDomApis = {}
@@ -84,46 +83,14 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 
-	function resetStateName(parameters, stateName) {
-		const domApi = activeDomApis[stateName]
-		const content = getContentObject(activeStateResolveContent, stateName)
-		const state = prototypalStateHolder.get(stateName)
-
-		stateProviderEmitter.emit(`beforeResetState`, {
-			domApi,
-			content,
-			state,
-			parameters,
-		})
-
-		activeEmitters[stateName].emit(`destroy`)
-		delete activeEmitters[stateName]
-
-		return resetDom({
-			domApi,
-			content,
-			template: state.template,
-			parameters,
-		}).then(newDomApi => {
-			if (newDomApi) {
-				activeDomApis[stateName] = newDomApi
-			}
-
-			stateProviderEmitter.emit(`afterResetState`, {
-				domApi: activeDomApis[stateName],
-				content,
-				state,
-				parameters,
-			})
-		})
-	}
-
 	function getChildElementForStateName(stateName) {
 		return new Promise(resolve => {
 			const parent = prototypalStateHolder.getParent(stateName)
 			if (parent) {
 				resolve(getDomChild(activeDomApis[parent.name]).then(childDomApi => {
-					if (!childDomApi) return Promise.reject(new Error(`getDomChild returned a falsey element, did you forget to add a place for a child state to go?`))
+					if (!childDomApi) {
+						return Promise.reject(new Error(`getDomChild returned a falsey element, did you forget to add a place for a child state to go?`))
+					}
 					return childDomApi
 				}))
 			} else {
@@ -220,7 +187,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function getStatesToResolve(stateChanges) {
-		return stateChanges.change.concat(stateChanges.create).map(prototypalStateHolder.get)
+		return stateChanges.create.map(prototypalStateHolder.get)
 	}
 
 	function emitEventAndAttemptStateChange(newStateName, parameters) {
@@ -274,15 +241,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					transition.cancellable = false
 
 					const activateAll = () => activateStates(
-						stateChanges.change.concat(stateChanges.create),
+						stateChanges.create,
 					)
 
 					activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
 
-					return series(reverse(stateChanges.destroy), destroyStateName).then(() => series(
-						reverse(stateChanges.change),
-						stateName => resetStateName(extend(parameters), stateName),
-					)).then(
+					return series(reverse(stateChanges.destroy), destroyStateName).then(
 						() => renderAll(stateChanges.create, extend(parameters)).then(activateAll),
 					)
 				}))
@@ -383,7 +347,6 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	destroyDom = denodeify(renderer.destroy)
 	getDomChild = denodeify(renderer.getChildElement)
 	renderDom = denodeify(renderer.render)
-	resetDom = denodeify(renderer.reset)
 
 	return stateProviderEmitter
 }

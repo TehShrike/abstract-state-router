@@ -26,7 +26,6 @@ test(`State change logic`, t => {
 		nameAfter: `app.main.tab2`,
 	}], {
 		destroy: [ `app.main.tab1` ],
-		change: [],
 		create: [ `app.main.tab2` ],
 	})
 
@@ -47,7 +46,6 @@ test(`State change logic`, t => {
 		nameAfter: `app.main.tab1`,
 	}], {
 		destroy: [ `login` ],
-		change: [],
 		create: [ `app`, `app.main`, `app.main.tab1` ],
 	})
 
@@ -68,7 +66,6 @@ test(`State change logic`, t => {
 		nameAfter: undefined,
 	}], {
 		destroy: [ `app`, `app.main`, `app.main.tab2` ],
-		change: [],
 		create: [ `logout` ],
 	})
 
@@ -88,9 +85,8 @@ test(`State change logic`, t => {
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab1`,
 	}], {
-		destroy: [],
-		change: [ `app.main`, `app.main.tab1` ],
-		create: [],
+		destroy: [ `app.main`, `app.main.tab1` ],
+		create: [ `app.main`, `app.main.tab1` ],
 	})
 
 	check(`changing mid-level parameter and low-level name`, [{
@@ -109,9 +105,8 @@ test(`State change logic`, t => {
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab2`,
 	}], {
-		destroy: [ `app.main.tab1` ],
-		change: [ `app.main` ],
-		create: [ `app.main.tab2` ],
+		destroy: [ `app.main`, `app.main.tab1` ],
+		create: [ `app.main`, `app.main.tab2` ],
 	})
 
 	check(`changing highest-level parameter`, [{
@@ -130,9 +125,8 @@ test(`State change logic`, t => {
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab1`,
 	}], {
-		destroy: [],
-		change: [ `app`, `app.main`, `app.main.tab1` ],
-		create: [],
+		destroy: [ `app`, `app.main`, `app.main.tab1` ],
+		create: [ `app`, `app.main`, `app.main.tab1` ],
 	})
 
 	t.end()

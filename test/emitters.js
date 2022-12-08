@@ -216,7 +216,7 @@ test(`emitting dom api create`, t => {
 			cb(null, originalDomApi)
 		},
 		reset(context, cb) {
-			cb(null)
+			t.ok(false, `Reset should not be called`)
 		},
 		destroy(renderedTemplateApi, cb) {
 			cb(null)
@@ -284,7 +284,7 @@ test(`emitting dom api destroy`, t => {
 			cb(null, originalDomApi)
 		},
 		reset(context, cb) {
-			cb(null)
+			t.ok(false, `Reset should not be called`)
 		},
 		destroy(renderedTemplateApi, cb) {
 			t.ok(beforeEventFired)
@@ -339,85 +339,6 @@ test(`emitting dom api destroy`, t => {
 	})
 
 	stateRouter.go(`state`, {})
-})
-
-test(`emitting dom api reset`, t => {
-	const originalDomApi = {}
-	const secondDomApi = {}
-	const domApis = [ originalDomApi, secondDomApi ]
-	let beforeEventFired = false
-	let afterEventFired = false
-	let resetCalled = false
-
-	t.plan(16)
-
-	const state = getTestState(t, () => ({
-		render(context, cb) {
-			cb(null, domApis.shift())
-		},
-		reset(context, cb) {
-			if (!resetCalled) {
-				t.ok(beforeEventFired)
-				t.notOk(afterEventFired)
-				resetCalled = true
-			}
-
-			cb(null)
-		},
-		destroy(renderedTemplateApi, cb) {
-			cb(null)
-		},
-		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			cb(null, {})
-		},
-	}))
-	const stateRouter = state.stateRouter
-
-	const originalStateObject = {
-		name: `state`,
-		route: `/state`,
-		template: {},
-		querystringParameters: [ `wat` ],
-		resolve(data, params, cb) {
-			cb(null, {
-				value: `legit`,
-			})
-		},
-		activate() {
-			setTimeout(() => {
-				stateRouter.go(`state`, { wat: `20` })
-			}, 10)
-		},
-	}
-
-	stateRouter.addState(originalStateObject)
-
-	stateRouter.on(`beforeResetState`, context => {
-		t.notOk(beforeEventFired)
-		t.notOk(resetCalled)
-		t.notOk(afterEventFired)
-		beforeEventFired = true
-
-		t.equal(context.state, originalStateObject)
-		t.equal(context.domApi, originalDomApi)
-		t.equal(context.content.value, `legit`)
-		t.equal(context.parameters.wat, `20`)
-	})
-
-	stateRouter.on(`afterResetState`, context => {
-		t.ok(beforeEventFired)
-		t.ok(resetCalled)
-		t.notOk(afterEventFired)
-		afterEventFired = true
-
-		t.equal(context.state, originalStateObject)
-		t.equal(context.domApi, originalDomApi)
-		t.equal(context.content.value, `legit`)
-		t.equal(context.parameters.wat, `20`)
-		t.end()
-	})
-
-	stateRouter.go(`state`, { wat: `10` })
 })
 
 test(`emitting routeNotFound`, t => {

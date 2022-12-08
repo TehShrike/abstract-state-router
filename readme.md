@@ -77,7 +77,7 @@ var createStateRouter = require('abstract-state-router')
 var stateRouter = createStateRouter(makeRenderer, rootElement, options)
 ```
 
-The `makeRenderer` should be a function that returns an object with four properties: render, destroy, getChildElement, and reset.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
+The `makeRenderer` should be a function that returns an object with four properties: render, destroy, and getChildElement.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
 
 The `rootElement` is the element where the first-generation states will be created.
 
@@ -317,8 +317,6 @@ stateRouter.on('routeNotFound', function(route, parameters) {
 
 - `beforeCreateState({state, content, parameters})`
 - `afterCreateState({state, domApi, content, parameters})`
-- `beforeResetState({state, domApi, content, parameters})`
-- `afterResetState({state, domApi, content, parameters})`
 - `beforeDestroyState({state, domApi})`
 - `afterDestroyState({state})`
 
@@ -336,9 +334,8 @@ To run the unit tests:
 - call all resolve functions
 - resolve functions return
 - **NO LONGER AT PREVIOUS STATE**
-- destroy the contexts of all "destroy" and "change" states
+- destroy the contexts of all "destroy" states
 - destroy appropriate dom elements
-- reset "change"ing dom elements
 - call render functions for "create"ed states
 - call all activate functions
 - emit stateChangeEnd
