@@ -283,8 +283,8 @@ test(`emitting dom api destroy`, t => {
 		render(context, cb) {
 			cb(null, originalDomApi)
 		},
-		reset(context, cb) {
-			t.ok(false, `Reset should not be called`)
+		reset() {
+			t.fail(`Reset should not be called`)
 		},
 		destroy(renderedTemplateApi, cb) {
 			t.ok(beforeEventFired)
