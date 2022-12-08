@@ -244,10 +244,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 						stateChanges.create,
 					)
 
-					activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
-
 					return series(reverse(stateChanges.destroy), destroyStateName).then(
-						() => renderAll(stateChanges.create, extend(parameters)).then(activateAll),
+						() => {
+							activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
+							return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
+						},
 					)
 				}))
 
