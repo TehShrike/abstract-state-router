@@ -340,7 +340,6 @@ To run the unit tests:
 # Every state change does this to states
 
 - destroy: states that are no longer active at all.  The contexts are destroyed, and the DOM elements are destroyed.
-- change: states that remain around, but with different parameter values - the DOM sticks around, but the contexts are destroyed and resolve/activate are called again.
 - create: states that weren't active at all before.  The DOM elements are rendered, and resolve/activate are called.
 
 # HTML5/pushState routing
