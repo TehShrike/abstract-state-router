@@ -154,3 +154,29 @@ test(`stateIsActive coerces parameters to strings before comparing them to the q
 
 	stateRouter.go(`parent.child`, { butts: 420 })
 })
+
+test(`null state name passed to stateIsActive is equivalent to passing in the current state name`, t => {
+	const stateRouter = getTestState(t).stateRouter
+
+	stateRouter.addState({
+		name: `parent`,
+		template: ``,
+		route: `/parent`,
+	})
+
+	stateRouter.addState({
+		name: `parent.child`,
+		template: ``,
+		route: `/child`,
+	})
+
+	stateRouter.on(`stateChangeEnd`, () => {
+		t.notOk(stateRouter.stateIsActive(null, { butts: `no` }))
+		t.ok(stateRouter.stateIsActive(null, { butts: `yes` }))
+		t.ok(stateRouter.stateIsActive(null, null))
+
+		t.end()
+	})
+
+	stateRouter.go(`parent.child`, { butts: `yes` })
+})

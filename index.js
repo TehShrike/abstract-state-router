@@ -334,9 +334,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}).catch(err => handleError(`stateError`, err))
 	stateProviderEmitter.makePath = (stateName, parameters, options) => pathPrefix + makePath(stateName, parameters, options)
 	stateProviderEmitter.getActiveState = () => lastCompletelyLoadedState.get()
-	stateProviderEmitter.stateIsActive = (stateName, parameters = null) => {
+	stateProviderEmitter.stateIsActive = (stateName = null, parameters = null) => {
 		const currentState = lastCompletelyLoadedState.get()
-		const stateNameMatches = currentState.name === stateName || currentState.name.indexOf(stateName + `.`) === 0
+		const stateNameMatches = currentState.name === stateName
+			|| currentState.name.indexOf(stateName + `.`) === 0
+			|| stateName === null
 		const parametersWereNotPassedIn = !parameters
 
 		return stateNameMatches

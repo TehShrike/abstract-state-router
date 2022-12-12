@@ -1,3 +1,7 @@
+# [7.4.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.4.0)
+
+Support passing in a `null` state name to `stateIsActive`.
+
 # [7.3.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.3.1)
 
 Fixes an issue where when a state was destroyed and resolved during the same state change, the result of its `resolve` function would get tossed out.

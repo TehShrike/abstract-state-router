@@ -251,11 +251,13 @@ You'll want to call this once you've added all your initial states.  It causes t
 stateRouter.evaluateCurrentRoute('app.home')
 ```
 
-## stateRouter.stateIsActive(stateName, [stateParameters])
+## stateRouter.stateIsActive([stateName, [stateParameters]])
 
 Returns true if `stateName` is the current active state, or an ancestor of the current active state...
 
 ...And all of the properties of `stateParameters` match the current state parameter values.
+
+You can pass in `null` as the state name to see if the current state is active with a given set of parameters.
 
 ```js
 // Current state name: app.tab1
@@ -263,6 +265,7 @@ Returns true if `stateName` is the current active state, or an ancestor of the c
 stateRouter.stateIsActive('app.tab1', { fancy: 'yes' }) // => true
 stateRouter.stateIsActive('app.tab1', { fancy: 'no' }) // => false
 stateRouter.stateIsActive('app') // => true
+stateRouter.stateIsActive(null, { fancy: 'yes' }) // => true
 ```
 
 ## stateRouter.makePath(stateName, [stateParameters, [options]])
