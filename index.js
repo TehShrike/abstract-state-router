@@ -145,7 +145,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					},
 				}),
 			)
-			const statesNamesToCheck = change.concat(destroy)
+			const statesNamesToCheck = change?.concat(destroy) ?? destroy ?? []
 			const allowStateChange = statesNamesToCheck.every(stateName => {
 				const state = prototypalStateHolder.get(stateName)
 				if (state?.allowStateChange && typeof state.allowStateChange === 'function') {
