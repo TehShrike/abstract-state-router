@@ -167,15 +167,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function onRouteChange(state, parameters) {
-		if (!allowStateChangeOrRevert(state, parameters)) {
-			return
-		}
 		try {
 			const finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
-			if (finalDestinationStateName === state.name) {
+			if (finalDestinationStateName === state.name && allowStateChangeOrRevert(state, parameters)) {
 				emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
-			} else {
+			} else if (finalDestinationStateName !== state.name) {
 				// There are default child states that need to be applied
 
 				const theRouteWeNeedToEndUpAt = makePath(finalDestinationStateName, parameters)
