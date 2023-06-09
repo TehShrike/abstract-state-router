@@ -149,7 +149,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			const allowStateChange = statesNamesToCheck.every(stateName => {
 				const state = prototypalStateHolder.get(stateName)
 				if (state?.allowStateChange && typeof state.allowStateChange === 'function') {
-					return state.allowStateChange(activeDomApis[stateName])
+					const stateChangeAllowed = state.allowStateChange(activeDomApis[stateName])
+					if (!stateChangeAllowed) {
+						stateProviderEmitter.emit('stateChangePrevented', stateName)
+					}
+					return stateChangeAllowed
 				}
 				return true
 			})
