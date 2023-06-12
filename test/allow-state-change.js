@@ -72,7 +72,39 @@ test(`allowStateChange false prevents state change`, t => {
 		})
 	})
 
-	// TODO: I'm not sure how to write a test for the hashRouter
+	t.test(`by changing the URL`, t => {
+		const testState = startTest(t)
+		const stateRouter = testState.stateRouter
+		const hashRouter = testState.hashRouter
+
+		hashRouter.go(`/guarded`)
+
+		let arrivedAtStart = false
+
+		stateRouter.on('stateChangeStart', state => {
+			if (state.name === 'unreachable') {
+				t.fail(`state change should not start ${ state.name }`)
+			}
+		})
+
+		stateRouter.on('stateChangeEnd', state => {
+			const stateName = state.name
+
+			if (stateName === 'guarded' && !arrivedAtStart) {
+				arrivedAtStart = true
+				hashRouter.go(`/unreachable`)
+			}
+		})
+
+		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+			if (stateThatPreventedChange === 'guarded') {
+				t.pass(`state change was prevented`)
+			} else {
+				t.fail(`state change was prevented by the wrong state`)
+			}
+			t.end()
+		})
+	})
 
 	t.end()
 })
@@ -138,7 +170,33 @@ test(`allowStateChange true lets the state change`, t => {
 		})
 	})
 
-	// TODO: I'm not sure how to write a test for the hashRouter
+	t.test(`by changing the URL`, t => {
+		const testState = startTest(t)
+		const stateRouter = testState.stateRouter
+		const hashRouter = testState.hashRouter
+
+		hashRouter.go(`/start`)
+
+		let arrivedAtStart = false
+
+		stateRouter.on(`stateChangeEnd`, state => {
+			const stateName = state.name
+
+			if (stateName === 'start' && !arrivedAtStart) {
+				arrivedAtStart = true
+				hashRouter.go(`/end`)
+			}
+
+			if (stateName === 'end') {
+				t.pass(`state change was allowed`)
+				t.end()
+			}
+		})
+
+		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+			t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+		})
+	})
 })
 
 test(`allowStateChange can access domApi`, t => {
@@ -199,8 +257,6 @@ test(`allowStateChange can access domApi`, t => {
 			}
 		})
 	})
-
-	// TODO: I'm not sure how to write a test for the hashRouter
 })
 
 test(`allowStateChange will only fire once when getting redirected to a child`, t => {
@@ -284,6 +340,4 @@ test(`allowStateChange will only fire once when getting redirected to a child`, 
 
 		stateRouter.go(`start`)
 	})
-
-	// TODO: I'm not sure how to write a test for the hashRouter
 })
