@@ -259,7 +259,7 @@ test(`allowStateChange can access domApi`, t => {
 	})
 })
 
-test(`allowStateChange will only fire once when getting redirected to a child`, t => {
+test(`allowStateChange will only fire once`, t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
@@ -309,7 +309,7 @@ test(`allowStateChange will only fire once when getting redirected to a child`, 
 		return state
 	}
 
-	t.test(`with state.go and applying default child`, t => {
+	t.test(`Applying default child`, t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
@@ -318,14 +318,14 @@ test(`allowStateChange will only fire once when getting redirected to a child`, 
 
 			if (stateName === 'start' && !arrivedAtStart) {
 				arrivedAtStart = true
-				stateRouter.go(`end`)
+				stateRouter.go(`end`, { coolParameters: true })
 			}
 		})
 
 		stateRouter.go(`start`)
 	})
 
-	t.test(`with state.go and going directly to child`, t => {
+	t.test(`Going directly to child`, t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
@@ -334,10 +334,143 @@ test(`allowStateChange will only fire once when getting redirected to a child`, 
 
 			if (stateName === 'start' && !arrivedAtStart) {
 				arrivedAtStart = true
-				stateRouter.go(`end.child`)
+				stateRouter.go(`end.child`, { coolParameters: true })
 			}
 		})
 
 		stateRouter.go(`start`)
+	})
+
+	t.test(`Applying default parameters`, t => {
+		const stateRouter = startTest(t).stateRouter
+		let arrivedAtStart = false
+
+		stateRouter.addState({
+			name: `parameters`,
+			route: `/parameters`,
+			querystringParameters: [ `foo` ],
+			defaultParameters: {
+				foo: `bar`,
+			},
+			template: {},
+			resolve() {
+				return Promise.resolve()
+			},
+			activate() {
+				t.end()
+			},
+		})
+
+		stateRouter.on(`stateChangeEnd`, state => {
+			const stateName = state.name
+
+			if (stateName === 'start' && !arrivedAtStart) {
+				arrivedAtStart = true
+				stateRouter.go(`parameters`)
+			}
+		})
+
+		stateRouter.go(`start`)
+	})
+
+	t.test(`Getting redirected with parameters`, t => {
+		const stateRouter = startTest(t).stateRouter
+		let arrivedAtStart = false
+
+		stateRouter.addState({
+			name: `will-redirect`,
+			route: `/will-redirect`,
+			querystringParameters: [ `redirected` ],
+			defaultParameters: {
+				redirected: false,
+			},
+			template: {},
+			resolve(data, parameters) {
+				if (parameters.redirected === 'false') {
+					return Promise.reject({
+						redirectTo: {
+							name: `will-redirect`,
+							params: {
+								redirected: true,
+							},
+						},
+					})
+				}
+				return Promise.resolve()
+			},
+			activate() {
+				t.end()
+			},
+		})
+
+		stateRouter.on(`stateChangeEnd`, state => {
+			const stateName = state.name
+
+			if (stateName === 'start' && !arrivedAtStart) {
+				arrivedAtStart = true
+				stateRouter.go(`will-redirect`)
+			}
+		})
+
+		stateRouter.go(`start`)
+	})
+
+	t.test(`Getting redirected to a different state`, t => {
+		const stateRouter = startTest(t).stateRouter
+		let arrivedAtStart = false
+
+		stateRouter.addState({
+			name: `will-redirect`,
+			route: `/will-redirect`,
+			template: {},
+			resolve() {
+				throw {
+					redirectTo: {
+						name: `end`,
+					},
+				}
+			},
+			activate() {
+				t.fail('should not activate')
+			},
+		})
+
+		stateRouter.on(`stateChangeEnd`, state => {
+			const stateName = state.name
+
+			if (stateName === 'start' && !arrivedAtStart) {
+				arrivedAtStart = true
+				stateRouter.go(`will-redirect`)
+			}
+		})
+
+		stateRouter.go(`start`)
+	})
+
+	t.test(`From a child of a guarded state`, t => {
+		const stateRouter = startTest(t).stateRouter
+		let arrivedAtStart = false
+
+		stateRouter.addState({
+			name: `start.child`,
+			route: `child`,
+			template: {},
+			resolve() {
+				return Promise.resolve()
+			},
+			activate() {
+			},
+		})
+
+		stateRouter.on(`stateChangeEnd`, state => {
+			const stateName = state.name
+
+			if (stateName === 'start.child' && !arrivedAtStart) {
+				arrivedAtStart = true
+				stateRouter.go(`end`)
+			}
+		})
+
+		stateRouter.go(`start.child`)
 	})
 })

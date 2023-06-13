@@ -133,8 +133,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	function allowStateChangeOrRevert(newState, newParameters) {
-		const lastState = stateProviderEmitter.getActiveState()
-		if (lastState.name) {
+		const lastState = lastCompletelyLoadedState.get()
+		if (lastState.name && lastState.name === lastStateStartedActivating.get().name) {
 			// Check allowStateChange for all states that will be destroyed or changed
 			const { change, destroy } = stateChangeLogic(
 				compareStartAndEndStates({
