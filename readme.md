@@ -115,6 +115,8 @@ If the viewer navigates to a state that has a default child, the router will red
 
 For backwards compatibility reasons, `defaultQuerystringParameters` will work as well (though it does not function any differently).
 
+`allowStateChange` is an optional function with the state's domApi as its sole argument. If it returns `false`, navigation from the state will be prevented. If it is returns `true` or is left `undefined`, state changes will not be prevented.
+
 ### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
 
 `data` is the data object you passed to the addState call.  `parameters` is an object containing the parameters that were parsed out of the route and the query string.
