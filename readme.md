@@ -55,19 +55,19 @@ Want to use the abstract-state-router without messing with bundlers or package m
 # API
 
 - [Instantiate](#instantiate)
-  - [`options`](#options)
+	- [`options`](#options)
 - [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
-  - [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
-  - [`activate`](#activatecontext)
-  - [Examples](#addstate-examples)
+	- [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
+	- [`activate`](#activatecontext)
+	- [Examples](#addstate-examples)
 - [`go`](#stateroutergostatename-stateparameters-options)
 - [`evaluateCurrentRoute`](#staterouterevaluatecurrentroutefallbackstatename-fallbackstateparameters)
 - [`stateIsActive`](#staterouterstateisactivestatename-stateparameters)
 - [`makePath`](#stateroutermakepathstatename-stateparameters-options)
 - [`getActiveState`](#stateroutergetactivestate)
 - [Events](#events)
-  - [State change](#state-change)
-  - [DOM API interactions](#dom-api-interactions)
+	- [State change](#state-change)
+	- [DOM API interactions](#dom-api-interactions)
 
 ## Instantiate
 
@@ -89,7 +89,7 @@ Possible properties of the `options` object are:
 - `router` defaults to an instance of a [hash brown router@3.x](https://github.com/TehShrike/hash-brown-router/).  The abstract-state-router unit tests use the [hash brown router stub](https://github.com/TehShrike/hash-brown-router/#testability).  To use pushState, pass in a hash brown router created with [sausage-router](https://github.com/TehShrike/sausage-router).
 - `throwOnError` defaults to true, because you get way better stack traces in Chrome when you throw than if you `console.log(err)` or emit `'error'` events.  The unit tests disable this.
 
-## stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters, defaultParameters})
+## stateRouter.addState({name, route, defaultChild, data, template, resolve, activate, querystringParameters, defaultParameters, canLeaveState})
 
 The addState function takes a single object of options. All of them are optional, unless stated otherwise.
 
