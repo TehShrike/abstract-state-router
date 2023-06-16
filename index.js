@@ -22,7 +22,7 @@ const isFunction = property => obj => typeof obj[property] === `function`
 const isThenable = object => object && (typeof object === `object` || typeof object === `function`) && typeof object.then === `function`
 const promiseMe = (fn, ...args) => new Promise(resolve => resolve(fn(...args)))
 
-const expectedPropertiesOfAddState = [ `name`, `route`, `defaultChild`, `data`, `template`, `resolve`, `activate`, `querystringParameters`, `defaultQuerystringParameters`, `defaultParameters` ]
+const expectedPropertiesOfAddState = [ `name`, `route`, `defaultChild`, `data`, `template`, `resolve`, `activate`, `querystringParameters`, `defaultQuerystringParameters`, `defaultParameters`, `canLeaveState` ]
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions = {}) {
 	const prototypalStateHolder = StateState()
@@ -132,24 +132,69 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return series(stateNames, stateName => renderStateName(parameters, stateName))
 	}
 
+	function statesAreEquivalent(stateA, stateB) {
+		const { create, destroy } = stateChangeLogic(
+			compareStartAndEndStates({
+				original: stateA,
+				destination: stateB,
+			}),
+		)
+
+		return create.length === 0 && destroy.length === 0
+	}
+
+	function allowStateChangeOrRevert(newStateName, newParameters) {
+		const lastState = lastCompletelyLoadedState.get()
+		if (lastState.name && statesAreEquivalent(lastState, lastStateStartedActivating.get())) {
+			// Check canLeaveState for all states that will be destroyed or changed
+			const { create, destroy } = stateChangeLogic(
+				compareStartAndEndStates({
+					original: lastState,
+					destination: {
+						name: newStateName,
+						parameters: newParameters,
+					},
+				}),
+			)
+			const statesNamesToCheck = [ ...create, ...destroy ]
+			const canLeaveState = statesNamesToCheck.every(stateName => {
+				const state = prototypalStateHolder.get(stateName)
+				if (state?.canLeaveState && typeof state.canLeaveState === 'function') {
+					const stateChangeAllowed = state.canLeaveState(activeDomApis[stateName])
+					if (!stateChangeAllowed) {
+						stateProviderEmitter.emit('stateChangePrevented', stateName)
+					}
+					return stateChangeAllowed
+				}
+				return true
+			})
+
+			if (!canLeaveState) {
+				stateProviderEmitter.go(lastState.name, lastState.parameters, { replace: true })
+			}
+			return canLeaveState
+		}
+		return true
+	}
+
 	function onRouteChange(state, parameters) {
 		try {
 			const finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
-			if (finalDestinationStateName === state.name) {
+			if (finalDestinationStateName === state.name && allowStateChangeOrRevert(state.name, parameters)) {
 				emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
-			} else {
+			} else if (finalDestinationStateName !== state.name) {
 				// There are default child states that need to be applied
 
 				const theRouteWeNeedToEndUpAt = makePath(finalDestinationStateName, parameters)
 				const currentRoute = router.location.get()
 
-				if (theRouteWeNeedToEndUpAt === currentRoute) {
-					// the child state has the same route as the current one, just start navigating there
-					emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
-				} else {
+				if (theRouteWeNeedToEndUpAt !== currentRoute) {
 					// change the url to match the full default child state route
 					stateProviderEmitter.go(finalDestinationStateName, parameters, { replace: true })
+				} else if (allowStateChangeOrRevert(finalDestinationStateName, parameters)) {
+					// the child state has the same route as the current one, just start navigating there
+					emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
 				}
 			}
 		} catch (err) {
@@ -337,12 +382,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	stateProviderEmitter.stateIsActive = (stateName = null, parameters = null) => {
 		const currentState = lastCompletelyLoadedState.get()
 		const stateNameMatches = currentState.name === stateName
-			|| currentState.name.indexOf(stateName + `.`) === 0
+			|| currentState.name.indexOf(`${stateName }.`) === 0
 			|| stateName === null
 		const parametersWereNotPassedIn = !parameters
 
 		return stateNameMatches
-			&& (parametersWereNotPassedIn || Object.keys(parameters).every(key => parameters[key] + `` === currentState.parameters[key]))
+			&& (parametersWereNotPassedIn || Object.keys(parameters).every(key => `${ parameters[key] }` === currentState.parameters[key]))
 	}
 
 	const renderer = makeRenderer(stateProviderEmitter)
