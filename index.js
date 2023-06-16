@@ -22,7 +22,7 @@ const isFunction = property => obj => typeof obj[property] === `function`
 const isThenable = object => object && (typeof object === `object` || typeof object === `function`) && typeof object.then === `function`
 const promiseMe = (fn, ...args) => new Promise(resolve => resolve(fn(...args)))
 
-const expectedPropertiesOfAddState = [ `name`, `route`, `defaultChild`, `data`, `template`, `resolve`, `activate`, `querystringParameters`, `defaultQuerystringParameters`, `defaultParameters`, `allowStateChange` ]
+const expectedPropertiesOfAddState = [ `name`, `route`, `defaultChild`, `data`, `template`, `resolve`, `activate`, `querystringParameters`, `defaultQuerystringParameters`, `defaultParameters`, `canLeaveState` ]
 
 module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions = {}) {
 	const prototypalStateHolder = StateState()
@@ -132,24 +132,35 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return series(stateNames, stateName => renderStateName(parameters, stateName))
 	}
 
-	function allowStateChangeOrRevert(newState, newParameters) {
+	function statesAreEquivalent(stateA, stateB) {
+		const { create, destroy } = stateChangeLogic(
+			compareStartAndEndStates({
+				original: stateA,
+				destination: stateB,
+			}),
+		)
+
+		return create.length === 0 && destroy.length === 0
+	}
+
+	function allowStateChangeOrRevert(newStateName, newParameters) {
 		const lastState = lastCompletelyLoadedState.get()
-		if (lastState.name && lastState.name === lastStateStartedActivating.get().name) {
-			// Check allowStateChange for all states that will be destroyed or changed
-			const { change, destroy } = stateChangeLogic(
+		if (lastState.name && statesAreEquivalent(lastState, lastStateStartedActivating.get())) {
+			// Check canLeaveState for all states that will be destroyed or changed
+			const { create, destroy } = stateChangeLogic(
 				compareStartAndEndStates({
 					original: lastState,
 					destination: {
-						name: newState.name,
+						name: newStateName,
 						parameters: newParameters,
 					},
 				}),
 			)
-			const statesNamesToCheck = change?.concat(destroy) ?? destroy ?? []
-			const allowStateChange = statesNamesToCheck.every(stateName => {
+			const statesNamesToCheck = [ ...create, ...destroy ]
+			const canLeaveState = statesNamesToCheck.every(stateName => {
 				const state = prototypalStateHolder.get(stateName)
-				if (state?.allowStateChange && typeof state.allowStateChange === 'function') {
-					const stateChangeAllowed = state.allowStateChange(activeDomApis[stateName])
+				if (state?.canLeaveState && typeof state.canLeaveState === 'function') {
+					const stateChangeAllowed = state.canLeaveState(activeDomApis[stateName])
 					if (!stateChangeAllowed) {
 						stateProviderEmitter.emit('stateChangePrevented', stateName)
 					}
@@ -158,10 +169,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				return true
 			})
 
-			if (!allowStateChange) {
+			if (!canLeaveState) {
 				stateProviderEmitter.go(lastState.name, lastState.parameters, { replace: true })
 			}
-			return allowStateChange
+			return canLeaveState
 		}
 		return true
 	}
@@ -170,7 +181,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		try {
 			const finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
-			if (finalDestinationStateName === state.name && allowStateChangeOrRevert(state, parameters)) {
+			if (finalDestinationStateName === state.name && allowStateChangeOrRevert(state.name, parameters)) {
 				emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
 			} else if (finalDestinationStateName !== state.name) {
 				// There are default child states that need to be applied
@@ -178,12 +189,12 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				const theRouteWeNeedToEndUpAt = makePath(finalDestinationStateName, parameters)
 				const currentRoute = router.location.get()
 
-				if (theRouteWeNeedToEndUpAt === currentRoute) {
-					// the child state has the same route as the current one, just start navigating there
-					emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
-				} else {
+				if (theRouteWeNeedToEndUpAt !== currentRoute) {
 					// change the url to match the full default child state route
 					stateProviderEmitter.go(finalDestinationStateName, parameters, { replace: true })
+				} else if (allowStateChangeOrRevert(finalDestinationStateName, parameters)) {
+					// the child state has the same route as the current one, just start navigating there
+					emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
 				}
 			}
 		} catch (err) {

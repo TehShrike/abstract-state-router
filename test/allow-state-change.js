@@ -1,7 +1,7 @@
 const test = require(`tape-catch`)
 const getTestState = require(`./helpers/test-state-factory`)
 
-test(`allowStateChange false prevents state change`, t => {
+test(`canLeaveState false prevents state change`, t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
@@ -11,8 +11,8 @@ test(`allowStateChange false prevents state change`, t => {
 			name: `guarded`,
 			route: `/guarded`,
 			template: {},
-			allowStateChange: () => {
-				t.ok(true, `allowStateChange called`)
+			canLeaveState: () => {
+				t.ok(true, `canLeaveState called`)
 				return false
 			},
 			resolve() {
@@ -109,7 +109,7 @@ test(`allowStateChange false prevents state change`, t => {
 	t.end()
 })
 
-test(`allowStateChange true lets the state change`, t => {
+test(`canLeaveState true lets the state change`, t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
@@ -119,8 +119,8 @@ test(`allowStateChange true lets the state change`, t => {
 			name: `start`,
 			route: `/start`,
 			template: {},
-			allowStateChange: () => {
-				t.ok(true, `allowStateChange called`)
+			canLeaveState: () => {
+				t.ok(true, `canLeaveState called`)
 				return true
 			},
 			resolve() {
@@ -199,7 +199,7 @@ test(`allowStateChange true lets the state change`, t => {
 	})
 })
 
-test(`allowStateChange can access domApi`, t => {
+test(`canLeaveState can access domApi`, t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
@@ -209,8 +209,8 @@ test(`allowStateChange can access domApi`, t => {
 			name: `start`,
 			route: `/start`,
 			template: {},
-			allowStateChange: domApi => {
-				t.ok(true, `allowStateChange called`)
+			canLeaveState: domApi => {
+				t.ok(true, `canLeaveState called`)
 				if (domApi.teardown && domApi.getChildElement) {
 					t.pass(`can access domApi`)
 				}
@@ -259,20 +259,20 @@ test(`allowStateChange can access domApi`, t => {
 	})
 })
 
-test(`allowStateChange will only fire once`, t => {
+test(`canLeaveState will only fire once`, t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		let allowStateChangeCalls = 0
+		let canLeaveStateCalls = 0
 		t.plan(1)
 
 		stateRouter.addState({
 			name: `start`,
 			route: `/start`,
 			template: {},
-			allowStateChange: () => {
-				t.ok(allowStateChangeCalls === 0, `allowStateChange called`)
-				allowStateChangeCalls++
+			canLeaveState: () => {
+				t.ok(canLeaveStateCalls === 0, `canLeaveState called`)
+				canLeaveStateCalls++
 				return true
 			},
 			resolve() {
@@ -373,7 +373,7 @@ test(`allowStateChange will only fire once`, t => {
 		stateRouter.go(`start`)
 	})
 
-	t.test(`Getting redirected with parameters`, t => {
+	t.test(`Getting redirected to self with different parameters`, t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 

@@ -55,19 +55,19 @@ Want to use the abstract-state-router without messing with bundlers or package m
 # API
 
 - [Instantiate](#instantiate)
-	- [`options`](#options)
+  - [`options`](#options)
 - [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
-	- [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
-	- [`activate`](#activatecontext)
-	- [Examples](#addstate-examples)
+  - [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
+  - [`activate`](#activatecontext)
+  - [Examples](#addstate-examples)
 - [`go`](#stateroutergostatename-stateparameters-options)
 - [`evaluateCurrentRoute`](#staterouterevaluatecurrentroutefallbackstatename-fallbackstateparameters)
 - [`stateIsActive`](#staterouterstateisactivestatename-stateparameters)
 - [`makePath`](#stateroutermakepathstatename-stateparameters-options)
 - [`getActiveState`](#stateroutergetactivestate)
 - [Events](#events)
-	- [State change](#state-change)
-	- [DOM API interactions](#dom-api-interactions)
+  - [State change](#state-change)
+  - [DOM API interactions](#dom-api-interactions)
 
 ## Instantiate
 
@@ -115,7 +115,7 @@ If the viewer navigates to a state that has a default child, the router will red
 
 For backwards compatibility reasons, `defaultQuerystringParameters` will work as well (though it does not function any differently).
 
-`allowStateChange` is an optional function with the state's domApi as its sole argument. If it returns `false`, navigation from the state will be prevented. If it is returns `true` or is left `undefined`, state changes will not be prevented.
+`canLeaveState` is an optional function with the state's domApi as its sole argument. If it returns `false`, navigation from the state will be prevented. If it is returns `true` or is left `undefined`, state changes will not be prevented.
 
 ### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
 
