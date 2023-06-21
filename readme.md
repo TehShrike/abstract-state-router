@@ -24,9 +24,9 @@ I occasionally have dreams of [a rewrite](https://github.com/TehShrike/abstract-
 
 # Browser compatibility
 
-This project is currently published as CommonJS with modern JS syntax.
+This project is currently published as CommonJS with modern JS syntax.  If you're targeting browsers more than 2-3 years old, I assume you're already compiling your code for your target environments.
 
-If you're supporting old browsers, you'll need to compile to whatever older syntax you target and use polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/) for automatic polyfills, it makes life super-easy.
+If you're supporting really old browsers pre-ES2015 browsers, you'll need polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/) for automatic polyfills, it makes life super-easy.
 
 # Current renderer implementations
 
@@ -40,17 +40,11 @@ If you want to use the state router with any other templating/dom manipulation l
 
 # Install
 
-Using npm + your favorite CommonJS bundler is easiest.
-
 ```sh
-
-npm install abstract-state-router -S
-
+npm i abstract-state-router
 ```
 
-You can also [download the stand-alone build from bundle.run](https://bundle.run/abstract-state-router@latest).  If you include it in a `<script>` tag, a `abstractStateRouter` function will be included on the global scope.
-
-Want to use the abstract-state-router without messing with bundlers or package managers?  Check out the minimum-viable-project code (in a single HTML file!) over at the [simplest-abstract-state-router-usage](https://github.com/TehShrike/simplest-abstract-state-router-usage).
+Your CommonJS-supporting bundler should be able to `import make_state_router from 'abstract-state-router'` without issue.
 
 # API
 
