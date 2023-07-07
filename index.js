@@ -156,7 +156,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					},
 				}),
 			)
-			const statesNamesToCheck = [ ...create, ...destroy ]
+			const statesNamesToCheck = Array.from(new Set([ ...create, ...destroy ]).values())
 			const canLeaveState = statesNamesToCheck.every(stateName => {
 				const state = prototypalStateHolder.get(stateName)
 				if (state?.canLeaveState && typeof state.canLeaveState === 'function') {
