@@ -1,3 +1,7 @@
+# [7.5.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.5.1)
+
+Fix a bug that could cause `canLeaveState` to be called twice.  [#155](https://github.com/TehShrike/abstract-state-router/pull/155)
+
 # [7.5.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.5.0)
 
 Add `canLeaveState` to `addState`, so you can implement route guards to prevent people from navigating away from a state if they e.g. have unsaved state.  [#154](https://github.com/TehShrike/abstract-state-router/pull/154)
