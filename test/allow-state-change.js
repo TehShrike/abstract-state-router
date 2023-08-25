@@ -474,3 +474,58 @@ test(`canLeaveState will only fire once`, t => {
 		stateRouter.go(`start.child`)
 	})
 })
+
+test(`canLeaveState will not fire on state load`, t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(1)
+
+		stateRouter.addState({
+			name: `start`,
+			route: `/start`,
+			querystringParameters: [ `foo` ],
+			template: {},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		stateRouter.addState({
+			name: `end`,
+			route: `/end`,
+			template: {},
+			canLeaveState: () => {
+				t.fail(`canLeaveState should not be called`)
+				return false
+			},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		return state
+	}
+
+	const stateRouter = startTest(t).stateRouter
+	let started = false
+
+	stateRouter.on(`stateChangeEnd`, state => {
+		const stateName = state.name
+		if (stateName === 'start') {
+			if (!started) {
+				started = true
+				stateRouter.go(`end`)
+			}
+		} else if (stateName === 'end') {
+			t.pass('state change was allowed')
+			t.end()
+		}
+	})
+
+	stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+		t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+	})
+
+	stateRouter.go(`start`, { foo: `bar` })
+})
