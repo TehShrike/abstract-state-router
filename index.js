@@ -146,8 +146,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	function allowStateChangeOrRevert(newStateName, newParameters) {
 		const lastState = lastCompletelyLoadedState.get()
 		if (lastState.name && statesAreEquivalent(lastState, lastStateStartedActivating.get())) {
-			// Check canLeaveState for all states that will be destroyed or changed
-			const { create, destroy } = stateChangeLogic(
+			const { destroy } = stateChangeLogic(
 				compareStartAndEndStates({
 					original: lastState,
 					destination: {
@@ -156,10 +155,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 					},
 				}),
 			)
-			const statesNamesToCheck = Array.from(new Set([ ...create, ...destroy ]).values())
-			const canLeaveState = statesNamesToCheck.every(stateName => {
+
+			const canLeaveStates = destroy.every(stateName => {
 				const state = prototypalStateHolder.get(stateName)
-				if (state?.canLeaveState && typeof state.canLeaveState === 'function') {
+				if (state.canLeaveState && typeof state.canLeaveState === 'function') {
 					const stateChangeAllowed = state.canLeaveState(activeDomApis[stateName])
 					if (!stateChangeAllowed) {
 						stateProviderEmitter.emit('stateChangePrevented', stateName)
@@ -169,10 +168,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				return true
 			})
 
-			if (!canLeaveState) {
+			if (!canLeaveStates) {
 				stateProviderEmitter.go(lastState.name, lastState.parameters, { replace: true })
 			}
-			return canLeaveState
+			return canLeaveStates
 		}
 		return true
 	}

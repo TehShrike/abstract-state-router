@@ -1,3 +1,7 @@
+# [7.5.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.5.2)
+
+Fix: only call `canLeaveState` on states that are going to be destroyed, not the ones that are going to get created.
+
 # [7.5.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.5.1)
 
 Fix a bug that could cause `canLeaveState` to be called twice.  [#155](https://github.com/TehShrike/abstract-state-router/pull/155)
