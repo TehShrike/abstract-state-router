@@ -26,7 +26,7 @@ I occasionally have dreams of [a rewrite](https://github.com/TehShrike/abstract-
 
 This project is currently published as CommonJS with modern JS syntax.  If you're targeting browsers more than 2-3 years old, I assume you're already compiling your code for your target environments.
 
-If you're supporting really old browsers pre-ES2015 browsers, you'll need polyfills for `Promise` and `Object.assign`.  Check out [polyfill.io](https://polyfill.io/) for automatic polyfills, it makes life super-easy.
+If you're supporting really old browsers pre-ES2015 browsers, you'll need polyfills for `Promise` and `Object.assign`.  Check out [polyfill-fastly.net](https://polyfill-fastly.net/) for automatic polyfills, it makes life super-easy.
 
 # Current renderer implementations
 
