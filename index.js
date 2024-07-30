@@ -7,7 +7,6 @@ const StateTransitionManager = require(`./lib/state-transition-manager`)
 const defaultRouterOptions = require(`./default-router-options.js`)
 
 const series = require(`./lib/promise-map-series`)
-const extend = require(`./lib/extend.js`)
 
 const denodeify = require(`then-denodeify`)
 const EventEmitter = require(`eventemitter3`)
@@ -20,7 +19,6 @@ const getProperty = name => obj => obj[name]
 const reverse = ary => ary.slice().reverse()
 const isFunction = property => obj => typeof obj[property] === `function`
 const isThenable = object => object && (typeof object === `object` || typeof object === `function`) && typeof object.then === `function`
-const promiseMe = (fn, ...args) => new Promise(resolve => resolve(fn(...args)))
 
 const expectedPropertiesOfAddState = [ `name`, `route`, `defaultChild`, `data`, `template`, `resolve`, `activate`, `querystringParameters`, `defaultQuerystringParameters`, `defaultParameters`, `canLeaveState` ]
 
@@ -34,10 +32,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	const stateNameToArrayofStates = stateName => parse(stateName).map(prototypalStateHolder.get)
 
 	StateTransitionManager(stateProviderEmitter)
-	const { throwOnError, pathPrefix } = extend({
+	const { throwOnError, pathPrefix } = {
 		throwOnError: true,
 		pathPrefix: `#`,
-	}, stateRouterOptions)
+		...stateRouterOptions,
+	}
 
 	const router = stateRouterOptions.router || newHashBrownRouter(defaultRouterOptions)
 
@@ -253,7 +252,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			}
 		}
 
-		return promiseMe(prototypalStateHolder.guaranteeAllStatesExist, newStateName)
+		return Promise.resolve(prototypalStateHolder.guaranteeAllStatesExist(newStateName))
 			.then(function applyDefaultParameters() {
 				const state = prototypalStateHolder.get(newStateName)
 				const defaultParams = state.defaultParameters || state.defaultQuerystringParameters || {}
@@ -262,7 +261,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				})
 
 				if (needToApplyDefaults) {
-					throw redirector(newStateName, extend(computeDefaultParams(defaultParams), parameters))
+					throw redirector(newStateName, { ...computeDefaultParams(defaultParams), ...parameters })
 				}
 				return state
 			}).then(ifNotCancelled(state => {
@@ -278,7 +277,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				})
 				return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
 			}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
-				return resolveStates(getStatesToResolve(stateChanges), extend(parameters)).catch(function onResolveError(e) {
+				return resolveStates(getStatesToResolve(stateChanges), Object.assign({}, parameters)).catch(function onResolveError(e) {
 					e.stateChangeError = true
 					throw e
 				}).then(ifNotCancelled(function destroyAndActivate(stateResolveResultsObject) {
@@ -290,8 +289,8 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 					return series(reverse(stateChanges.destroy), destroyStateName).then(
 						() => {
-							activeStateResolveContent = extend(activeStateResolveContent, stateResolveResultsObject)
-							return renderAll(stateChanges.create, extend(parameters)).then(activateAll)
+							activeStateResolveContent = { ...activeStateResolveContent, ...stateResolveResultsObject }
+							return renderAll(stateChanges.create, Object.assign({}, parameters)).then(activateAll)
 						},
 					)
 				}))
@@ -346,7 +345,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			return lastStateStartedActivating.get()
 		}
 		if (options && options.inherit) {
-			parameters = extend(getGuaranteedPreviousState().parameters, parameters)
+			parameters = { ...(getGuaranteedPreviousState().parameters), ...parameters }
 		}
 
 		const destinationStateName = stateName === null ? getGuaranteedPreviousState().name : stateName
@@ -354,7 +353,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		const destinationState = prototypalStateHolder.get(destinationStateName) || {}
 		const defaultParams = destinationState.defaultParameters || destinationState.defaultQuerystringParameters || {}
 
-		parameters = extend(computeDefaultParams(defaultParams), parameters)
+		parameters = { ...computeDefaultParams(defaultParams), ...parameters }
 
 		prototypalStateHolder.guaranteeAllStatesExist(destinationStateName)
 		const route = prototypalStateHolder.buildFullStateRoute(destinationStateName)
@@ -367,13 +366,18 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 
 	stateProviderEmitter.addState = addState
 	stateProviderEmitter.go = (newStateName, parameters, options) => {
-		options = extend(defaultOptions, options)
+		options = { ...defaultOptions, ...options }
 		const goFunction = options.replace ? router.replace : router.go
 
-		return promiseMe(makePath, newStateName, parameters, options)
-			.then(goFunction, err => handleError(`stateChangeError`, err))
+		return new Promise((resolve, reject) => {
+			try {
+				resolve(makePath(newStateName, parameters, options))
+			} catch (err) {
+				reject(err)
+			}
+		}).then(goFunction, err => handleError(`stateChangeError`, err))
 	}
-	stateProviderEmitter.evaluateCurrentRoute = (defaultState, defaultParams) => promiseMe(makePath, defaultState, defaultParams).then(defaultPath => {
+	stateProviderEmitter.evaluateCurrentRoute = (defaultState, defaultParams) => Promise.resolve(makePath(defaultState, defaultParams)).then(defaultPath => {
 		router.evaluateCurrent(defaultPath)
 	}).catch(err => handleError(`stateError`, err))
 	stateProviderEmitter.makePath = (stateName, parameters, options) => pathPrefix + makePath(stateName, parameters, options)
@@ -403,7 +407,9 @@ function getContentObject(stateResolveResultsObject, stateName) {
 
 	return allPossibleResolvedStateNames
 		.filter(stateName => stateResolveResultsObject[stateName])
-		.reduce((obj, stateName) => extend(obj, stateResolveResultsObject[stateName]), {})
+		.reduce((obj, stateName) => {
+			return { ...obj, ...stateResolveResultsObject[stateName] }
+		}, {})
 }
 
 function redirector(newStateName, parameters) {
