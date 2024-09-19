@@ -584,3 +584,83 @@ test(`canLeaveState async`, t => {
 
 	stateRouter.go(`start`, { foo: `bar` })
 })
+
+test('canLeaveState passes destination parameters', t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(2)
+
+		stateRouter.addState({
+			name: `start`,
+			route: `/start`,
+			querystringParameters: [ `foo` ],
+			template: {},
+			canLeaveState: (_domApi, destinationState) => {
+				t.ok(destinationState.parameters.foo === 'bar', 'destination parameters are passed')
+				t.ok(destinationState.name === 'start', 'destination state is passed')
+				return true
+			},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		return state
+	}
+
+	const stateRouter = startTest(t).stateRouter
+
+	stateRouter.on('stateChangePrevented', (stateThatPreventedChange, destinationState) => {
+		t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+	})
+
+	stateRouter.on('stateChangeEnd', (state, parameters) => {
+		if (state.name === 'start' && !parameters.foo) {
+			stateRouter.go(null, { foo: 'bar' })
+		}
+	})
+
+	stateRouter.go(`start`)
+})
+
+test('stateChangePrevented passes destination parameters', t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(2)
+
+		stateRouter.addState({
+			name: `start`,
+			route: `/start`,
+			querystringParameters: [ `foo` ],
+			template: {},
+			canLeaveState: () => {
+				return false
+			},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		return state
+	}
+
+	const stateRouter = startTest(t).stateRouter
+
+	stateRouter.on('stateChangePrevented', (_stateThatPreventedChange, destinationState) => {
+		t.ok(destinationState.name === 'start', 'destination state is passed')
+		t.ok(destinationState.parameters.foo === 'bar', 'destination parameters are passed')
+		t.end()
+	})
+
+	let started = false
+	stateRouter.on('stateChangeEnd', () => {
+		if (!started) {
+			started = true
+			stateRouter.go(null, { foo: 'bar' })
+		}
+	})
+
+	stateRouter.go(`start`)
+})

@@ -158,9 +158,15 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			const canLeaveStates = (await Promise.all(destroy.map(async stateName => {
 				const state = prototypalStateHolder.get(stateName)
 				if (state.canLeaveState && typeof state.canLeaveState === 'function') {
-					const stateChangeAllowed = await Promise.resolve(state.canLeaveState(activeDomApis[stateName]))
+					const stateChangeAllowed = await Promise.resolve(state.canLeaveState(activeDomApis[stateName], {
+						name: newStateName,
+						parameters: newParameters,
+					}))
 					if (!stateChangeAllowed) {
-						stateProviderEmitter.emit('stateChangePrevented', stateName)
+						stateProviderEmitter.emit('stateChangePrevented', stateName, {
+							name: newStateName,
+							parameters: newParameters,
+						})
 					}
 					return stateChangeAllowed
 				}
