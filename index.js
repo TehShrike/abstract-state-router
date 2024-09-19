@@ -142,7 +142,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return create.length === 0 && destroy.length === 0
 	}
 
-	function allowStateChangeOrRevert(newStateName, newParameters) {
+	async function allowStateChangeOrRevert(newStateName, newParameters) {
 		const lastState = lastCompletelyLoadedState.get()
 		if (lastState.name && statesAreEquivalent(lastState, lastStateStartedActivating.get())) {
 			const { destroy } = stateChangeLogic(
@@ -155,17 +155,17 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				}),
 			)
 
-			const canLeaveStates = destroy.every(stateName => {
+			const canLeaveStates = (await Promise.all(destroy.map(async stateName => {
 				const state = prototypalStateHolder.get(stateName)
 				if (state.canLeaveState && typeof state.canLeaveState === 'function') {
-					const stateChangeAllowed = state.canLeaveState(activeDomApis[stateName])
+					const stateChangeAllowed = await Promise.resolve(state.canLeaveState(activeDomApis[stateName]))
 					if (!stateChangeAllowed) {
 						stateProviderEmitter.emit('stateChangePrevented', stateName)
 					}
 					return stateChangeAllowed
 				}
 				return true
-			})
+			}))).every(Boolean)
 
 			if (!canLeaveStates) {
 				stateProviderEmitter.go(lastState.name, lastState.parameters, { replace: true })
@@ -175,11 +175,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		return true
 	}
 
-	function onRouteChange(state, parameters) {
+	async function onRouteChange(state, parameters) {
 		try {
 			const finalDestinationStateName = prototypalStateHolder.applyDefaultChildStates(state.name)
 
-			if (finalDestinationStateName === state.name && allowStateChangeOrRevert(state.name, parameters)) {
+			if (finalDestinationStateName === state.name && await allowStateChangeOrRevert(state.name, parameters)) {
 				emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
 			} else if (finalDestinationStateName !== state.name) {
 				// There are default child states that need to be applied
@@ -190,7 +190,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 				if (theRouteWeNeedToEndUpAt !== currentRoute) {
 					// change the url to match the full default child state route
 					stateProviderEmitter.go(finalDestinationStateName, parameters, { replace: true })
-				} else if (allowStateChangeOrRevert(finalDestinationStateName, parameters)) {
+				} else if (await allowStateChangeOrRevert(finalDestinationStateName, parameters)) {
 					// the child state has the same route as the current one, just start navigating there
 					emitEventAndAttemptStateChange(finalDestinationStateName, parameters)
 				}
