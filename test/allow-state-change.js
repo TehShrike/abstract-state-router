@@ -664,3 +664,49 @@ test('stateChangePrevented passes destination parameters', t => {
 
 	stateRouter.go(`start`)
 })
+
+test(`canLeaveState async race condition`, t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(1)
+
+		stateRouter.addState({
+			name: `start`,
+			route: `/start`,
+			querystringParameters: [ `foo` ],
+			template: {},
+			canLeaveState: async(_domApi, destinationState) => {
+				const res = await new Promise(resolve => setTimeout(() => resolve(true), destinationState.parameters.delay))
+				return res
+			},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		stateRouter.addState({
+			name: `end`,
+			route: `/end`,
+			template: {},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		return state
+	}
+
+	const stateRouter = startTest(t).stateRouter
+
+	stateRouter.on('stateChangeEnd', (state, parameters) => {
+		if (state.name === 'start') {
+			stateRouter.go('end', { delay: 100 })
+			setTimeout(() => stateRouter.go('end', { delay: 0 }), 10)
+		} else if (state.name === 'end') {
+			t.ok(parameters.delay === '0', 'second state change wins')
+		}
+	})
+
+	stateRouter.go(`start`, { foo: `bar` })
+})
