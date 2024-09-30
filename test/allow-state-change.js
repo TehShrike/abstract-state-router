@@ -63,7 +63,7 @@ test(`canLeaveState false prevents state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			if (stateThatPreventedChange === 'guarded') {
+			if (stateThatPreventedChange.name === 'guarded') {
 				t.pass(`state change was prevented`)
 			} else {
 				t.fail(`state change was prevented by the wrong state`)
@@ -97,7 +97,7 @@ test(`canLeaveState false prevents state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			if (stateThatPreventedChange === 'guarded') {
+			if (stateThatPreventedChange.name === 'guarded') {
 				t.pass(`state change was prevented`)
 			} else {
 				t.fail(`state change was prevented by the wrong state`)
@@ -166,7 +166,7 @@ test(`canLeaveState true lets the state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+			t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
 		})
 	})
 
@@ -194,7 +194,7 @@ test(`canLeaveState true lets the state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+			t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
 		})
 	})
 })
@@ -524,7 +524,7 @@ test(`canLeaveState will not fire on state load`, t => {
 	})
 
 	stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-		t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+		t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
 	})
 
 	stateRouter.go(`start`, { foo: `bar` })
@@ -556,8 +556,8 @@ test('canLeaveState passes destination parameters', t => {
 
 	const stateRouter = startTest(t).stateRouter
 
-	stateRouter.on('stateChangePrevented', (stateThatPreventedChange, destinationState) => {
-		t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+	stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+		t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
 	})
 
 	stateRouter.on('stateChangeEnd', (state, parameters) => {
@@ -569,11 +569,11 @@ test('canLeaveState passes destination parameters', t => {
 	stateRouter.go(`start`)
 })
 
-test('stateChangePrevented passes destination parameters', t => {
+test('stateChangePrevented passes source and destination parameters', t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(2)
+		t.plan(4)
 
 		stateRouter.addState({
 			name: `start`,
@@ -593,7 +593,9 @@ test('stateChangePrevented passes destination parameters', t => {
 
 	const stateRouter = startTest(t).stateRouter
 
-	stateRouter.on('stateChangePrevented', (_stateThatPreventedChange, destinationState) => {
+	stateRouter.on('stateChangePrevented', (stateThatPreventedChange, destinationState) => {
+		t.ok(stateThatPreventedChange.name === 'start', 'source state is passed')
+		t.ok(stateThatPreventedChange.parameters.foo === 'baz', 'source parameters are passed')
 		t.ok(destinationState.name === 'start', 'destination state is passed')
 		t.ok(destinationState.parameters.foo === 'bar', 'destination parameters are passed')
 		t.end()
@@ -607,5 +609,5 @@ test('stateChangePrevented passes destination parameters', t => {
 		}
 	})
 
-	stateRouter.go(`start`)
+	stateRouter.go(`start`, { foo: 'baz' })
 })
