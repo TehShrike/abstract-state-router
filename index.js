@@ -163,7 +163,10 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 						parameters: newParameters,
 					})
 					if (!stateChangeAllowed) {
-						stateProviderEmitter.emit('stateChangePrevented', stateName, {
+						stateProviderEmitter.emit('stateChangePrevented', {
+							name: stateName,
+							parameters: lastState.parameters,
+						}, {
 							name: newStateName,
 							parameters: newParameters,
 						})
