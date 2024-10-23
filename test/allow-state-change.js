@@ -63,7 +63,7 @@ test(`canLeaveState false prevents state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			if (stateThatPreventedChange === 'guarded') {
+			if (stateThatPreventedChange.name === 'guarded') {
 				t.pass(`state change was prevented`)
 			} else {
 				t.fail(`state change was prevented by the wrong state`)
@@ -97,7 +97,7 @@ test(`canLeaveState false prevents state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			if (stateThatPreventedChange === 'guarded') {
+			if (stateThatPreventedChange.name === 'guarded') {
 				t.pass(`state change was prevented`)
 			} else {
 				t.fail(`state change was prevented by the wrong state`)
@@ -166,7 +166,7 @@ test(`canLeaveState true lets the state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+			t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
 		})
 	})
 
@@ -194,7 +194,7 @@ test(`canLeaveState true lets the state change`, t => {
 		})
 
 		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			t.fail(`state change was prevented by ${ stateThatPreventedChange }`)
+			t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
 		})
 	})
 })
@@ -473,4 +473,141 @@ test(`canLeaveState will only fire once`, t => {
 
 		stateRouter.go(`start.child`)
 	})
+})
+
+test(`canLeaveState will not fire on state load`, t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(1)
+
+		stateRouter.addState({
+			name: `start`,
+			route: `/start`,
+			querystringParameters: [ `foo` ],
+			template: {},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		stateRouter.addState({
+			name: `end`,
+			route: `/end`,
+			template: {},
+			canLeaveState: () => {
+				t.fail(`canLeaveState should not be called`)
+				return false
+			},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		return state
+	}
+
+	const stateRouter = startTest(t).stateRouter
+	let started = false
+
+	stateRouter.on(`stateChangeEnd`, state => {
+		const stateName = state.name
+		if (stateName === 'start') {
+			if (!started) {
+				started = true
+				stateRouter.go(`end`)
+			}
+		} else if (stateName === 'end') {
+			t.pass('state change was allowed')
+			t.end()
+		}
+	})
+
+	stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+		t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
+	})
+
+	stateRouter.go(`start`, { foo: `bar` })
+})
+
+test('canLeaveState passes destination parameters', t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(2)
+
+		stateRouter.addState({
+			name: `start`,
+			route: `/start`,
+			querystringParameters: [ `foo` ],
+			template: {},
+			canLeaveState: (_domApi, destinationState) => {
+				t.ok(destinationState.parameters.foo === 'bar', 'destination parameters are passed')
+				t.ok(destinationState.name === 'start', 'destination state is passed')
+				return true
+			},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		return state
+	}
+
+	const stateRouter = startTest(t).stateRouter
+
+	stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+		t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
+	})
+
+	stateRouter.on('stateChangeEnd', (state, parameters) => {
+		if (state.name === 'start' && !parameters.foo) {
+			stateRouter.go(null, { foo: 'bar' })
+		}
+	})
+
+	stateRouter.go(`start`)
+})
+
+test('stateChangePrevented passes source and destination parameters', t => {
+	function startTest(t) {
+		const state = getTestState(t)
+		const stateRouter = state.stateRouter
+		t.plan(4)
+
+		stateRouter.addState({
+			name: `start`,
+			route: `/start`,
+			querystringParameters: [ `foo` ],
+			template: {},
+			canLeaveState: () => {
+				return false
+			},
+			resolve() {
+				return Promise.resolve()
+			},
+		})
+
+		return state
+	}
+
+	const stateRouter = startTest(t).stateRouter
+
+	stateRouter.on('stateChangePrevented', (stateThatPreventedChange, destinationState) => {
+		t.ok(stateThatPreventedChange.name === 'start', 'source state is passed')
+		t.ok(stateThatPreventedChange.parameters.foo === 'baz', 'source parameters are passed')
+		t.ok(destinationState.name === 'start', 'destination state is passed')
+		t.ok(destinationState.parameters.foo === 'bar', 'destination parameters are passed')
+		t.end()
+	})
+
+	let started = false
+	stateRouter.on('stateChangeEnd', () => {
+		if (!started) {
+			started = true
+			stateRouter.go(null, { foo: 'bar' })
+		}
+	})
+
+	stateRouter.go(`start`, { foo: 'baz' })
 })
