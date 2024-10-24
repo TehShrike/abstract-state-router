@@ -1,3 +1,8 @@
+# [7.6.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.6.0)
+
+- feature: the `canLeaveState` function now gets passed a second argument with the name+parameters of the state that the user is trying to navigate to
+- technically a breaking change: the previously undocumented `stateChangePrevented` function now gets passed a name+parameters object as its first argument, instead of just the name of the current state.  Also, it gets passed a second argument with the name+parameters of the state that the user attempted to visit.
+
 # [7.5.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.5.2)
 
 Fix: only call `canLeaveState` on states that are going to be destroyed, not the ones that are going to get created.

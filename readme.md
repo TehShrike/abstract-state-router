@@ -109,7 +109,7 @@ If the viewer navigates to a state that has a default child, the router will red
 
 For backwards compatibility reasons, `defaultQuerystringParameters` will work as well (though it does not function any differently).
 
-`canLeaveState` is an optional function with the state's domApi as its sole argument. If it returns `false`, navigation from the state will be prevented. If it is returns `true` or is left `undefined`, state changes will not be prevented.
+`canLeaveState` is an optional function that takes two arguments: the state's domApi, and an object with the `name` and `parameters` of the state that the user is attempting to navigate to.  It can return either a boolean, or a promise that resolves to a boolean.  If `canLeaveState` returns `false`, navigation from the current state will be prevented. If the function returns `true` the state change will continue.
 
 ### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
 
@@ -296,6 +296,7 @@ These are all emitted on the state router object.
 - `stateChangeStart(state, parameters, states)` - emitted after the state name and parameters have been validated
 - `stateChangeCancelled(err)` - emitted if a redirect is issued in a resolve function
 - `stateChangeEnd(state, parameters, states)` - after all activate functions are called
+- `stateChangePrevented(oldState: { name, parameters }, attemptedNavigationState: { name, parameters })`
 - `stateChangeError(err)` - emitted if an error occurs while trying to navigate to a new state - including if you try to navigate to a state that doesn't exist
 - `stateError(err)` - emitted if an error occurs in an activation function, or somewhere else that doesn't directly interfere with changing states. Should probably be combined with `stateChangeError` at some point since they're not that different?
 - `routeNotFound(route, parameters)` - emitted if the user or some errant code changes the location hash to a route that does not have any states associated with it.  If you have a generic "not found" page you want to redirect people to, you can do so like this:
