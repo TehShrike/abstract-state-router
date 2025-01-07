@@ -45,7 +45,7 @@ Your renderer function will be passed a single argument which is the state route
 
 This function should return an object with four properties (all functions), which are described below.
 
-All of the functions are asynchronous, and take an error-first callback function as the final argument - but if you're more of a promises type, you can return a promise instead, no problem.
+All of the functions are asynchronous, returning a promise.
 
 ### `render`
 
@@ -69,7 +69,7 @@ function render(context) {
 }
 ```
 
-Your render function should return in the promise/callback whatever object your chosen template library uses to represent an instantiated template.  This is the object that is passed to the consumer's activate function as the `domApi` property, and is also passed in to...
+Your render function should return a promise that resolves to whatever object your chosen template library uses to represent an instantiated template.  This is the object that is passed to the consumer's activate function as the `domApi` property, and is also passed in to...
 
 ### `getChildElement`
 

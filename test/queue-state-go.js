@@ -14,8 +14,8 @@ test(`test queue with a basic activate-in-order test`, t => {
 			name: `valid`,
 			route: `/valid`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
 				t.notOk(parentActivated, `Should only activate once`)
@@ -27,8 +27,8 @@ test(`test queue with a basic activate-in-order test`, t => {
 			name: `valid.valid1`,
 			route: `/valid1`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
 				t.fail(`should not activate`)
@@ -48,8 +48,8 @@ test(`test queue with a basic activate-in-order test`, t => {
 			name: `valid.valid3`,
 			route: `/valid3`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
 				t.pass(`valid.valid3 activated`)
@@ -94,8 +94,8 @@ test(`test queue a state.go happening during a render`, t => {
 		name: `valid`,
 		route: `/valid`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 100)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
 			t.notOk(parentActivated, `Should only activate once`)
@@ -107,11 +107,13 @@ test(`test queue a state.go happening during a render`, t => {
 		name: `valid.valid1`,
 		route: `/valid1`,
 		template: {},
-		resolve(data, params, cb) {
+		resolve(data, params) {
 			t.pass(`valid.valid1 resolve called`)
-			setTimeout(cb, 100)
-			process.nextTick(() => {
-				stateRouter.go(`valid.valid2`)
+			return new Promise(resolve => {
+				setTimeout(resolve, 100)
+				process.nextTick(() => {
+					stateRouter.go(`valid.valid2`)
+				})
 			})
 		},
 		activate() {
@@ -123,8 +125,8 @@ test(`test queue a state.go happening during a render`, t => {
 		name: `valid.valid2`,
 		route: `/valid2`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 100)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
 			t.pass(`valid.valid2 activated`)
@@ -147,8 +149,8 @@ test(`test queue a state.go when the last transition is in the middle of activat
 		name: `valid`,
 		route: `/valid`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 100)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
 			if (firstTimeParentHasBeenActivated) {
@@ -162,9 +164,9 @@ test(`test queue a state.go when the last transition is in the middle of activat
 		name: `valid.valid1`,
 		route: `/valid1`,
 		template: {},
-		resolve(data, params, cb) {
+		resolve(data, params) {
 			t.pass(`valid.valid1 resolve called`)
-			setTimeout(cb, 100)
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
 			t.notOk(valid2Activated, `valid2 should not be activated yet`)
@@ -176,8 +178,8 @@ test(`test queue a state.go when the last transition is in the middle of activat
 		name: `valid.valid2`,
 		route: `/valid2`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 50)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 50))
 		},
 		activate() {
 			valid2Activated = true

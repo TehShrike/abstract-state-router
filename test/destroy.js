@@ -23,8 +23,8 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 			name: `hey`,
 			route: `/hay`,
 			template: grandparentTemplate,
-			resolve(data, parameters, cb) {
-				setTimeout(cb, 0, null)
+			resolve(data, parameters) {
+				return new Promise(resolve => setTimeout(resolve, 0))
 			},
 			activate(context) {
 				context.on(`destroy`, () => {
@@ -37,8 +37,8 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 			name: `hey.rofl`,
 			route: `/routeButt`,
 			template: parentTemplate,
-			resolve(data, parameters, cb) {
-				setTimeout(cb, 10, null)
+			resolve(data, parameters) {
+				return new Promise(resolve => setTimeout(resolve, 10))
 			},
 			querystringParameters: [ `wat` ],
 			activate(context) {
@@ -53,8 +53,8 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 			name: `hey.rofl.copter`,
 			route: `/lolcopter`,
 			template: childTemplate,
-			resolve(data, parameters, cb) {
-				setTimeout(cb, 0, null)
+			resolve(data, parameters) {
+				return new Promise(resolve => setTimeout(resolve, 0))
 			},
 			activate(context) {
 				context.on(`destroy`, () => {
@@ -106,13 +106,15 @@ test(`a state with changing querystring gets destroyed`, t => {
 		route: `/parent`,
 		template: null,
 		querystringParameters: [ `aParam` ],
-		resolve(data, parameters, cb) {
-			parentResolveCalled++
-			if (parentResolveCalled === 2) {
-				t.equal(parameters.aParam, `3`, `parameter was set correctly in second resolve`)
-			}
+		resolve(data, parameters) {
+			return new Promise(resolve => {
+				parentResolveCalled++
+				if (parentResolveCalled === 2) {
+					t.equal(parameters.aParam, `3`, `parameter was set correctly in second resolve`)
+				}
 
-			cb(null, {})
+				resolve({})
+			})
 		},
 		activate(context) {
 			parentActivated++
@@ -166,6 +168,7 @@ test(`When navigating to the same state as before, make sure the data from the c
 		route: `/parent`,
 		template: null,
 		querystringParameters: [ `aParam` ],
+		// eslint-disable-next-line require-await
 		async resolve() {
 			return {
 				legit: true,

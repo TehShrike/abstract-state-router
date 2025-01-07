@@ -49,19 +49,19 @@ Your CommonJS-supporting bundler should be able to `import make_state_router fro
 # API
 
 - [Instantiate](#instantiate)
-	- [`options`](#options)
+ 	- [`options`](#options)
 - [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
-	- [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
-	- [`activate`](#activatecontext)
-	- [Examples](#addstate-examples)
+ 	- [`resolve`](#resolvedata-parameters)
+ 	- [`activate`](#activatecontext)
+ 	- [Examples](#addstate-examples)
 - [`go`](#stateroutergostatename-stateparameters-options)
 - [`evaluateCurrentRoute`](#staterouterevaluatecurrentroutefallbackstatename-fallbackstateparameters)
 - [`stateIsActive`](#staterouterstateisactivestatename-stateparameters)
 - [`makePath`](#stateroutermakepathstatename-stateparameters-options)
 - [`getActiveState`](#stateroutergetactivestate)
 - [Events](#events)
-	- [State change](#state-change)
-	- [DOM API interactions](#dom-api-interactions)
+ 	- [State change](#state-change)
+ 	- [DOM API interactions](#dom-api-interactions)
 
 ## Instantiate
 
@@ -111,15 +111,13 @@ For backwards compatibility reasons, `defaultQuerystringParameters` will work as
 
 `canLeaveState` is an optional function that takes two arguments: the state's domApi, and an object with the `name` and `parameters` of the state that the user is attempting to navigate to.  It can return either a boolean, or a promise that resolves to a boolean.  If `canLeaveState` returns `false`, navigation from the current state will be prevented. If the function returns `true` the state change will continue.
 
-### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
+### resolve(data, parameters)
 
 `data` is the data object you passed to the addState call.  `parameters` is an object containing the parameters that were parsed out of the route and the query string.
 
 #### Returning values
 
-Your `resolve` function can either return a promise, or call the callback.
-
-Properties on the returned object will be set as attributes on the state's component.
+Your `resolve` function must return a promise. Properties on the resolved object will be set as attributes on the state's component.
 
 ```js
 async function resolve(data, parameters) {
@@ -137,15 +135,13 @@ async function resolve(data, parameters) {
 
 #### Errors/redirecting
 
-If you return a rejected promise or call `callback(err, content)` with a truthy `err` value, the state change will be cancelled and the previous state will remain active.
+If you return a rejected promise with a truthy value the state change will be cancelled and the previous state will remain active.
 
-If you call `callback.redirect(stateName, [stateParameters])`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
-
-To cause a redirect with promises, return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values for the state to redirect to:
+If you return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history:
 
 ```js
-function resolve(data, parameters) {
-	return Promise.reject({
+async function resolve(data, parameters) {
+	throw new Error({
 		redirectTo: {
 			name: 'otherCoolState',
 			params: {
@@ -163,7 +159,7 @@ The activate function is called when the state becomes active.  It is passed an 
 - `domApi`: the DOM API returned by the renderer
 - `data`: the data object given to the addState call
 - `parameters`: the route/querystring parameters
-- `content`: the object passed into the resolveFunction's callback
+- `content`: the object returned in the resolve function
 
 The `context` object is also an event emitter that emits a `'destroy'` event when the state is being transitioned away from.  You should listen to this event to clean up any workers that may be ongoing.
 
