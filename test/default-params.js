@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import getTestState from './helpers/test-state-factory.js'
 
 test(`default querystring parameters`, t => {
 	function basicTest(testName, params, expectParams, expectLocation, defaultParamsPropertyName) {
@@ -87,7 +87,6 @@ test(`race conditions on redirects`, t => {
 			t.end()
 		},
 	})
-
 
 	stateRouter.go(`state1`, {}) // redirects
 })

@@ -1,6 +1,6 @@
-const test = require(`tape-catch`)
-const qs = require(`querystring`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import qs from 'querystring'
+import getTestState from './helpers/test-state-factory.js'
 
 function basicRouterSetup(t, options) {
 	const stateRouter = getTestState(t, null, options).stateRouter

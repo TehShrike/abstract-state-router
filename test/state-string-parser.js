@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const parse = require(`../lib/state-string-parser`)
+import test from 'tape-catch'
+import parse from '../lib/state-string-parser.js'
 
 function testParsing(t, input, output) {
 	t.deepEqual(parse(input), output, `${ input } produces ${ output.length } results`)

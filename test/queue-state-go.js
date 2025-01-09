@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import getTestState from './helpers/test-state-factory.js'
 
 test(`test queue with a basic activate-in-order test`, t => {
 	function startTest(t) {

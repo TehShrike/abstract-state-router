@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import getTestState from './helpers/test-state-factory.js'
 
 test(`getActiveState with no parameters`, t => {
 	const stateRouter = getTestState(t).stateRouter
@@ -33,7 +33,6 @@ test(`getActiveState with no parameters`, t => {
 
 	stateRouter.go(`parent.child`)
 })
-
 
 test(`getActiveState returns parameters`, t => {
 	const stateRouter = getTestState(t).stateRouter

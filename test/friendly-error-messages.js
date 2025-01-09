@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import getTestState from './helpers/test-state-factory.js'
 
 test(`friendly error message for missing state`, t => {
 	const stateRouter = getTestState(t).stateRouter
@@ -43,7 +43,7 @@ test(`name and template are the only required options`, t => {
 
 	function failure(prefix) {
 		return function(err) {
-			t.fail(prefix + ` ` + (err ? err.message : `no message`))
+			t.fail(`${prefix } ${ err ? err.message : `no message`}`)
 		}
 	}
 

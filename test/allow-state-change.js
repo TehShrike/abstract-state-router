@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import getTestState from './helpers/test-state-factory.js'
 
 test(`canLeaveState false prevents state change`, t => {
 	function startTest(t) {

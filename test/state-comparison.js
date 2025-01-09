@@ -1,6 +1,6 @@
-const test = require(`tape-catch`)
-const StateState = require(`../lib/state-state.js`)
-const stateComparison = require(`../lib/state-comparison.js`)
+import test from 'tape-catch'
+import StateState from '../lib/state-state.js'
+import stateComparison from '../lib/state-comparison.js'
 
 function simpleState(name, querystringParameters, route = ``) {
 	return {

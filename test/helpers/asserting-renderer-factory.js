@@ -1,4 +1,4 @@
-module.exports = function assertingRendererFactory(t, expectedTemplates) {
+export default function assertingRendererFactory(t, expectedTemplates) {
 	const makeRenderer = function makeRenderer() {
 		return {
 			render: function render(context) {

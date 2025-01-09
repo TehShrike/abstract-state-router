@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import getTestState from './helpers/test-state-factor.js'
 
 test(`propertiesInRoute`, t => {
 	const testState = getTestState(t)

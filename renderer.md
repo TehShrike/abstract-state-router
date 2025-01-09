@@ -15,7 +15,7 @@ Implementing that basic todo app is a good functional test for your renderer, an
 It's a function that returns an object with four methods:
 
 ```js
-module.exports = function makeRenderer(stateRouter) {
+export default function makeRenderer(stateRouter) {
 	return {
 		async render(context) {
 			const element = context.element
@@ -36,7 +36,7 @@ module.exports = function makeRenderer(stateRouter) {
 You'll pass it to the state router like this:
 
 ```js
-const StateRouter = require('abstract-state-router')
+import StateRouter from 'abstract-state-router'
 
 const stateRouter = StateRouter(yourRendererFunction, 'body')
 ```

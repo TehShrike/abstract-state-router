@@ -14,7 +14,7 @@ async function myArbitraryRenderFunction(parent) {
 	return newObject
 }
 
-module.exports = function makeRenderer(stateRouter) {
+export default function makeRenderer(stateRouter) {
 	return {
 		async render(context) {
 			const element = context.element

@@ -1,6 +1,6 @@
-const test = require(`tape-catch`)
-const assertingRendererFactory = require(`./helpers/asserting-renderer-factory`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import assertingRendererFactory from './helpers/asserting-renderer-factory.js'
+import getTestState from './helpers/test-state-factory.js'
 
 test(`moving from x.y.z to x destroys z then y`, t => {
 	function basicTest(t) {

@@ -1,5 +1,5 @@
-const test = require(`tape-catch`)
-const StateState = require(`../lib/state-state`)
+import test from 'tape-catch'
+import StateState from '../lib/state-state.js'
 
 /*
 stateState.add
@@ -64,7 +64,7 @@ const parentTests = (() => {
 stateState.buildFullStateRoute
 */
 const buildTests = (() => {
-	const stateRouteSets = [{
+	const stateRouteSets = [ {
 		add: [
 			{ name: `a`, state: { route: `copter` } },
 			{ name: `a.b`, state: { route: `rofl` } },
@@ -110,7 +110,7 @@ const buildTests = (() => {
 		expect: `/`,
 		message: `all states lacking a state.route`,
 	}, {
-		add: [{ name: `a`, state: `not a route here` }],
+		add: [ { name: `a`, state: `not a route here` } ],
 		route: `a`,
 		expect: `/`,
 		message: `single state lacks a state.route`,
@@ -122,7 +122,7 @@ const buildTests = (() => {
 		route: `a`,
 		expect: `/um`,
 		message: `multiple concurrent slashes are deleted`,
-	}]
+	} ]
 
 	function Build(t, ss) {
 		return function bld(set) {
@@ -145,7 +145,7 @@ const buildTests = (() => {
 stateState.applyDefaultChildStates
 */
 const defaultChildTests = (() => {
-	const defaultChildSets = [{
+	const defaultChildSets = [ {
 		add: [
 			{ name: `a`, state: { defaultChild: `b` } },
 			{ name: `a.b`, state: { defaultChild: `c` } },
@@ -184,7 +184,7 @@ const defaultChildTests = (() => {
 		],
 		expect: `a`,
 		message: `all states lacking a state.defaultChild`,
-	}]
+	} ]
 
 	function DefaultChild(t, ss) {
 		return function bld(set) {

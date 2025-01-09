@@ -66,9 +66,9 @@ Your CommonJS-supporting bundler should be able to `import make_state_router fro
 ## Instantiate
 
 ```js
-var createStateRouter = require('abstract-state-router')
+import createStateRouter from 'abstract-state-router'
 
-var stateRouter = createStateRouter(makeRenderer, rootElement, options)
+const stateRouter = createStateRouter(makeRenderer, rootElement, options)
 ```
 
 The `makeRenderer` should be a function that returns an object with these properties: render, destroy, and getChildElement.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
@@ -343,11 +343,11 @@ To run the unit tests:
 pushState routing is technically supported.  To use it, pass in an options object with a `router` hash-brown-router constructed with a [sausage-router](https://github.com/TehShrike/sausage-router), and then set the `pathPrefix` option to an empty string.
 
 ```js
-var makeStateRouter = require('abstract-state-router')
-var sausage = require('sausage-router')
-var makeRouter = require('hash-brown-router')
+import makeStateRouter from 'abstract-state-router'
+import sausage from 'sausage-router'
+import makeRouter from 'hash-brown-router'
 
-var stateRouter = makeStateRouter(makeRenderer, rootElement, {
+const stateRouter = makeStateRouter(makeRenderer, rootElement, {
 	pathPrefix: '',
 	router: makeRouter(sausage())
 })

@@ -1,1 +1,2 @@
-require('tap-browser-color')()
+import tapBrowserColor from 'tap-browser-color'
+tapBrowserColor()

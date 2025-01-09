@@ -3,6 +3,7 @@
   "version": "7.6.0",
   "description": "Like ui-router, but without all the Angular. The best way to structure a single-page webapp.",
   "main": "bundle.js",
+  "type": "module",
   "scripts": {
     "build": "rollup -c",
     "test": "npm run build && tape test/*.js | faucet",

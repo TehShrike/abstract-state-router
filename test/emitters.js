@@ -1,6 +1,6 @@
-const test = require(`tape-catch`)
-const assertingRendererFactory = require(`./helpers/asserting-renderer-factory`)
-const getTestState = require(`./helpers/test-state-factory`)
+import test from 'tape-catch'
+import assertingRendererFactory from './helpers/asserting-renderer-factory.js'
+import getTestState from './helpers/test-state-factory.js'
 
 test(`Emitting errors when attempting to navigate to invalid states`, t => {
 	function testGoingTo(description, invalidStateName) {
