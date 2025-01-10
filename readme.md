@@ -159,7 +159,7 @@ The activate function is called when the state becomes active.  It is passed an 
 - `domApi`: the DOM API returned by the renderer
 - `data`: the data object given to the addState call
 - `parameters`: the route/querystring parameters
-- `content`: the object returned in the resolve function
+- `content`: the object returned by the resolve function
 
 The `context` object is also an event emitter that emits a `'destroy'` event when the state is being transitioned away from.  You should listen to this event to clean up any workers that may be ongoing.
 
