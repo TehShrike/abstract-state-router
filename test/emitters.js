@@ -209,20 +209,21 @@ test(`emitting dom api create`, t => {
 	t.plan(16)
 
 	const state = getTestState(t, () => ({
-		render(context, cb) {
+		render(context) {
 			t.ok(beforeEventFired)
 			renderCalled = true
 			t.notOk(afterEventFired)
-			cb(null, originalDomApi)
+			return Promise.resolve(originalDomApi)
 		},
 		reset() {
 			t.fail(`Reset should not be called`)
+			return Promise.resolve()
 		},
-		destroy(renderedTemplateApi, cb) {
-			cb(null)
+		destroy(renderedTemplateApi) {
+			return Promise.resolve()
 		},
-		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			cb(null, {})
+		getChildElement: function getChildElement(renderedTemplateApi) {
+			return Promise.resolve({})
 		},
 	}))
 
@@ -234,8 +235,8 @@ test(`emitting dom api create`, t => {
 		template: {},
 		querystringParameters: [ `wat`, `much` ],
 		defaultQuerystringParameters: { wat: `lol`, much: `neat` },
-		resolve(data, params, cb) {
-			cb(null, {
+		resolve(data, params) {
+			return Promise.resolve({
 				value: `legit`,
 			})
 		},
@@ -280,21 +281,22 @@ test(`emitting dom api destroy`, t => {
 	let destroyCalled = false
 
 	const state = getTestState(t, () => ({
-		render(context, cb) {
-			cb(null, originalDomApi)
+		render(context) {
+			return Promise.resolve(originalDomApi)
 		},
 		reset() {
 			t.fail(`Reset should not be called`)
+			return Promise.resolve()
 		},
-		destroy(renderedTemplateApi, cb) {
+		destroy(renderedTemplateApi) {
 			t.ok(beforeEventFired)
 			t.notOk(afterEventFired)
 			destroyCalled = true
 
-			cb(null)
+			return Promise.resolve()
 		},
-		getChildElement: function getChildElement(renderedTemplateApi, cb) {
-			cb(null, {})
+		getChildElement: function getChildElement(renderedTemplateApi) {
+			return Promise.resolve({})
 		},
 	}))
 	const stateRouter = state.stateRouter

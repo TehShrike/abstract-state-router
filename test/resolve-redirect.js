@@ -14,8 +14,8 @@ test(`test redirecting activating the correct states`, t => {
 			name: `valid`,
 			route: `/valid`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 50)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 50))
 			},
 			activate() {
 				t.notOk(parentActivated, `The parent should only activate once`)
@@ -27,8 +27,8 @@ test(`test redirecting activating the correct states`, t => {
 			name: `valid.valid1`,
 			route: `/valid1`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb.redirect, 100, `valid.valid2`)
+			resolve(data, params) {
+				return new Promise((_resolve, reject) => setTimeout(reject, 100, { redirectTo: { name: `valid.valid2` } }))
 			},
 			activate() {
 				t.fail(`should not activate`)
@@ -39,8 +39,8 @@ test(`test redirecting activating the correct states`, t => {
 			name: `valid.valid2`,
 			route: `/valid2`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb.redirect, 100, `valid.valid3`)
+			resolve(data, params) {
+				return new Promise((_resolve, reject) => setTimeout(reject, 100, { redirectTo: { name: `valid.valid3` } }))
 			},
 			activate() {
 				t.fail(`should not activate`)
@@ -51,8 +51,8 @@ test(`test redirecting activating the correct states`, t => {
 			name: `valid.valid3`,
 			route: `/valid3`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
 				t.pass(`valid.valid3 activated`)
@@ -93,8 +93,8 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 			name: `valid`,
 			route: `/valid`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 50)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 50))
 			},
 			activate() {},
 		})
@@ -103,9 +103,11 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 			name: `valid.valid1`,
 			route: `/valid1`,
 			template: {},
-			resolve(data, params, cb) {
-				cb.redirect(`valid.valid3`)
-				cb.redirect(`valid.valid2`)
+			resolve(data, params) {
+				return new Promise((resolve, reject) => {
+					reject({ redirectTo: { name: `valid.valid3` } })
+					reject({ redirectTo: { name: `valid.valid2` } })
+				})
 			},
 			activate() {
 				t.fail(`should not activate`)
@@ -125,8 +127,8 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 			name: `valid.valid3`,
 			route: `/valid3`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
 				t.pass(`valid.valid3 activated`)
