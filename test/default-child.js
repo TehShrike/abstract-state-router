@@ -1,9 +1,8 @@
 const test = require(`tape-catch`)
 const getTestState = require(`./helpers/test-state-factory`)
 
-
-function resolve(data, parameters, cb) {
-	setTimeout(cb, 5, null)
+function resolve(data, parameters) {
+	return new Promise(resolve => setTimeout(resolve, 5, null))
 }
 
 function RememberActivation(location) {
@@ -17,8 +16,8 @@ function RememberActivation(location) {
 	}
 	function onEnd(t, stateName, expectedUrl) {
 		return function assertions() {
-			t.equal(lastActivatedState, stateName, `last activated state should be "` + stateName + `"`)
-			t.equal(lastLocation, expectedUrl, `last observed url should be "` + lastLocation + `"`)
+			t.equal(lastActivatedState, stateName, `last activated state should be "${ stateName }"`)
+			t.equal(lastLocation, expectedUrl, `last observed url should be "${ lastLocation }"`)
 			t.end()
 		}
 	}
@@ -27,7 +26,6 @@ function RememberActivation(location) {
 		onEnd,
 	}
 }
-
 
 test(`default grandchild`, t => {
 	const testState = getTestState(t)
@@ -85,7 +83,6 @@ test(`default grandchild`, t => {
 	})
 })
 
-
 test(`bad defaults`, t => {
 	const stateRouter = getTestState(t).stateRouter
 
@@ -112,7 +109,6 @@ test(`bad defaults`, t => {
 
 	stateRouter.go(`hey`)
 })
-
 
 test(`functions as parameters`, t => {
 	const testState = getTestState(t)

@@ -32,13 +32,15 @@ test(`normal, error-less state activation flow for two states`, t => {
 			route: `/routeButt`,
 			data: parentData,
 			template: parentTemplate,
-			resolve(data, parameters, cb) {
-				t.equal(data, parentData, `got back the correct parent data object in the activate function`)
-				t.equal(parameters.wat, `wut`, `got the parameter value in the parent resolve function`)
-				setTimeout(() => {
-					parentResolveFinished = true
-					cb(null, parentResolveContent)
-				}, 200)
+			resolve(data, parameters) {
+				return new Promise(resolve => {
+					t.equal(data, parentData, `got back the correct parent data object in the activate function`)
+					t.equal(parameters.wat, `wut`, `got the parameter value in the parent resolve function`)
+					setTimeout(() => {
+						parentResolveFinished = true
+						resolve(parentResolveContent)
+					}, 200)
+				})
 			},
 			querystringParameters: [ `wat` ],
 			activate(context) {
@@ -65,13 +67,15 @@ test(`normal, error-less state activation flow for two states`, t => {
 			route: `/lolcopter`,
 			data: childData,
 			template: childTemplate,
-			resolve(data, parameters, cb) {
-				t.equal(data, childData, `got back the correct child data object in the child resolve function`)
-				t.equal(parameters.wat, `wut`, `got the parent's querystring value in the child resolve function`)
-				setTimeout(() => {
-					childResolveFinished = true
-					cb(null, childResolveContent)
-				}, 100)
+			resolve(data, parameters) {
+				return new Promise(resolve => {
+					t.equal(data, childData, `got back the correct child data object in the child resolve function`)
+					t.equal(parameters.wat, `wut`, `got the parent's querystring value in the child resolve function`)
+					setTimeout(() => {
+						childResolveFinished = true
+						resolve(childResolveContent)
+					}, 100)
+				})
 			},
 			activate(context) {
 				const domApi = context.domApi
@@ -105,7 +109,6 @@ test(`normal, error-less state activation flow for two states`, t => {
 		hashRouter.go(`/routeButt/lolcopter?wat=wut`)
 	})
 })
-
 
 test(`undefined data, querystring, and resolve function`, t => {
 	function basicTest(t) {
@@ -164,7 +167,6 @@ test(`normal, error-less state activation flow for two states`, t => {
 		child2Property: `whatever man`,
 	}
 
-
 	const renderer = assertingRendererFactory(t, [ parentTemplate, child1Template, child2Template ])
 	const state = getTestState(t, renderer)
 	const stateRouter = state.stateRouter
@@ -182,12 +184,12 @@ test(`normal, error-less state activation flow for two states`, t => {
 		route: `/parent`,
 		data: parentData,
 		template: parentTemplate,
-		resolve(data, parameters, cb) {
-			t.notOk(parentResolveCalled, `parent resolve function hasn't been called before`)
-			parentResolveCalled = true
-			setTimeout(() => {
-				cb(null, parentResolveContent)
-			}, 50)
+		resolve(data, parameters) {
+			return new Promise(resolve => {
+				t.notOk(parentResolveCalled, `parent resolve function hasn't been called before`)
+				parentResolveCalled = true
+				setTimeout(() => resolve(parentResolveContent), 50)
+			})
 		},
 		querystringParameters: [ `wat` ],
 		activate(context) {
@@ -201,13 +203,13 @@ test(`normal, error-less state activation flow for two states`, t => {
 		route: `/child1`,
 		data: child1Data,
 		template: child1Template,
-		resolve(data, parameters, cb) {
-			t.notOk(child1ResolveCalled, `child1 resolve function hasn't been called before`)
-			child1ResolveCalled = true
+		resolve(data, parameters) {
+			return new Promise(resolve => {
+				t.notOk(child1ResolveCalled, `child1 resolve function hasn't been called before`)
+				child1ResolveCalled = true
 
-			setTimeout(() => {
-				cb(null, child1ResolveContent)
-			}, 50)
+				setTimeout(() => resolve(child1ResolveContent), 50)
+			})
 		},
 		activate(context) {
 			t.notOk(child1Activated, `child1 hasn't been activated before`)
@@ -223,13 +225,13 @@ test(`normal, error-less state activation flow for two states`, t => {
 		route: `/child2`,
 		data: child2Data,
 		template: child2Template,
-		resolve(data, parameters, cb) {
-			t.equal(data, child2Data, `got back the correct child2 data object in the child2 resolve function`)
-			t.equal(parameters.wat, `some value`, `got the parent's querystring value in the child2 resolve function`)
+		resolve(data, parameters) {
+			return new Promise(resolve => {
+				t.equal(data, child2Data, `got back the correct child2 data object in the child2 resolve function`)
+				t.equal(parameters.wat, `some value`, `got the parent's querystring value in the child2 resolve function`)
 
-			setTimeout(() => {
-				cb(null, child2ResolveContent)
-			}, 50)
+				setTimeout(() => resolve(child2ResolveContent), 50)
+			})
 		},
 		activate(context) {
 			t.equal(context.domApi.template, child2Template, `got back the correct DOM API`)
@@ -363,13 +365,22 @@ test(`calling redirect with no stateName in resolve should use current state`, t
 		route: `SCONDE`,
 		template: ``,
 		querystringParameters: [ `wut` ],
-		resolve(data, parameters, cb) {
-			if (isFirstResolve) {
-				isFirstResolve = false
-				cb.redirect(null, { wut: `butt` })
-			} else {
-				cb()
-			}
+		resolve(data, parameters) {
+			return new Promise((resolve, reject) => {
+				if (isFirstResolve) {
+					isFirstResolve = false
+					reject({
+						redirectTo: {
+							name: null,
+							params: {
+								wut: `butt`,
+							},
+						},
+					})
+				} else {
+					resolve()
+				}
+			})
 		},
 		activate(context) {
 			// this should never get hit the first time since redirect gets called in resolve

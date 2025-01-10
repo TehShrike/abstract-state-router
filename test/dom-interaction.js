@@ -6,23 +6,23 @@ test(`All dom functions called in order`, t => {
 
 	function makeRenderer() {
 		return {
-			render: function render(context, cb) {
+			render: function render(context) {
 				const element = context.element
 				const template = context.template
 				actions.push(`render ${ template } on ${ element }`)
-				cb(null, template)
+				return Promise.resolve(template)
 			},
-			reset: function reset(context, cb) {
+			reset: function reset(context) {
 				actions.push(`reset ${ context.domApi }`)
-				cb()
+				return Promise.resolve()
 			},
-			destroy: function destroy(renderedTemplateApi, cb) {
+			destroy: function destroy(renderedTemplateApi) {
 				actions.push(`destroy ${ renderedTemplateApi }`)
-				cb()
+				return Promise.resolve()
 			},
-			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+			getChildElement: function getChildElement(renderedTemplateApi) {
 				actions.push(`getChild ${ renderedTemplateApi }`)
-				cb(null, renderedTemplateApi + ` child`)
+				return Promise.resolve(`${renderedTemplateApi } child`)
 			},
 		}
 	}

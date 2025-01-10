@@ -18,7 +18,6 @@ const nextTick = require(`iso-next-tick`)
 const getProperty = name => obj => obj[name]
 const reverse = ary => ary.slice().reverse()
 const isFunction = property => obj => typeof obj[property] === `function`
-const isThenable = object => object && (typeof object === `object` || typeof object === `function`) && typeof object.then === `function`
 
 const expectedPropertiesOfAddState = [ `name`, `route`, `defaultChild`, `data`, `template`, `resolve`, `activate`, `querystringParameters`, `defaultQuerystringParameters`, `defaultParameters`, `canLeaveState` ]
 
@@ -62,7 +61,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 
-	function destroyStateName(stateName) {
+	async function destroyStateName(stateName) {
 		const state = prototypalStateHolder.get(stateName)
 		stateProviderEmitter.emit(`beforeDestroyState`, {
 			state,
@@ -74,57 +73,53 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		delete activeEmitters[stateName]
 		delete activeStateResolveContent[stateName]
 
-		return destroyDom(activeDomApis[stateName]).then(() => {
-			delete activeDomApis[stateName]
-			stateProviderEmitter.emit(`afterDestroyState`, {
-				state,
-			})
+		await destroyDom(activeDomApis[stateName])
+		delete activeDomApis[stateName]
+		stateProviderEmitter.emit(`afterDestroyState`, {
+			state,
 		})
 	}
 
-	function getChildElementForStateName(stateName) {
-		return new Promise(resolve => {
-			const parent = prototypalStateHolder.getParent(stateName)
-			if (parent) {
-				resolve(getDomChild(activeDomApis[parent.name]).then(childDomApi => {
-					if (!childDomApi) {
-						return Promise.reject(new Error(`getDomChild returned a falsey element, did you forget to add a place for a child state to go?`))
-					}
-					return childDomApi
-				}))
-			} else {
-				resolve(rootElement)
+	async function getChildElementForStateName(stateName) {
+		const parent = prototypalStateHolder.getParent(stateName)
+		if (parent) {
+			const childDomApi = await getDomChild(activeDomApis[parent.name])
+			if (!childDomApi) {
+				throw new Error(`getDomChild returned a falsey element, did you forget to add a place for a child state to go?`)
 			}
-		})
+			return childDomApi
+		} else {
+			return rootElement
+		}
 	}
 
-	function renderStateName(parameters, stateName) {
-		return getChildElementForStateName(stateName).then(element => {
-			const state = prototypalStateHolder.get(stateName)
-			const content = getContentObject(activeStateResolveContent, stateName)
+	async function renderStateName(parameters, stateName) {
+		const element = await getChildElementForStateName(stateName)
 
-			stateProviderEmitter.emit(`beforeCreateState`, {
-				state,
-				content,
-				parameters,
-			})
+		const state = prototypalStateHolder.get(stateName)
+		const content = getContentObject(activeStateResolveContent, stateName)
 
-			return renderDom({
-				template: state.template,
-				element,
-				content,
-				parameters,
-			}).then(domApi => {
-				activeDomApis[stateName] = domApi
-				stateProviderEmitter.emit(`afterCreateState`, {
-					state,
-					domApi,
-					content,
-					parameters,
-				})
-				return domApi
-			})
+		stateProviderEmitter.emit(`beforeCreateState`, {
+			state,
+			content,
+			parameters,
 		})
+
+		const domApi = await renderDom({
+			template: state.template,
+			element,
+			content,
+			parameters,
+		})
+
+		activeDomApis[stateName] = domApi
+		stateProviderEmitter.emit(`afterCreateState`, {
+			state,
+			domApi,
+			content,
+			parameters,
+		})
+		return domApi
 	}
 
 	function renderAll(stateNames, parameters) {
@@ -248,11 +243,11 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		})
 	}
 
-	function attemptStateChange(newStateName, parameters, transition) {
+	async function attemptStateChange(newStateName, parameters, transition) {
 		function ifNotCancelled(fn) {
 			return (...args) => {
 				if (transition.cancelled) {
-					const err = new Error(`The transition to ${ newStateName } was cancelled`)
+					const err = new Error(`The transition to ${newStateName} was cancelled`)
 					err.wasCancelledBySomeoneElse = true
 					throw err
 				} else {
@@ -261,89 +256,99 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			}
 		}
 
-		return Promise.resolve(prototypalStateHolder.guaranteeAllStatesExist(newStateName))
-			.then(function applyDefaultParameters() {
-				const state = prototypalStateHolder.get(newStateName)
-				const defaultParams = state.defaultParameters || state.defaultQuerystringParameters || {}
-				const needToApplyDefaults = Object.keys(defaultParams).some(function missingParameterValue(param) {
-					return typeof parameters[param] === `undefined`
-				})
+		try {
+			await prototypalStateHolder.guaranteeAllStatesExist(newStateName)
 
-				if (needToApplyDefaults) {
-					throw redirector(newStateName, { ...computeDefaultParams(defaultParams), ...parameters })
-				}
-				return state
-			}).then(ifNotCancelled(state => {
-				stateProviderEmitter.emit(`stateChangeStart`, state, parameters, stateNameToArrayofStates(state.name))
+			const state = prototypalStateHolder.get(newStateName)
+			const defaultParams = state.defaultParameters || state.defaultQuerystringParameters || {}
+			const needToApplyDefaults = Object.keys(defaultParams).some(param => typeof parameters[param] === 'undefined')
+
+			if (needToApplyDefaults) {
+				throw redirector(newStateName, { ...computeDefaultParams(defaultParams), ...parameters })
+			}
+
+			await ifNotCancelled(() => {
+				stateProviderEmitter.emit(
+					`stateChangeStart`,
+					state,
+					parameters,
+					stateNameToArrayofStates(state.name),
+				)
 				lastStateStartedActivating.set(state.name, parameters)
-			})).then(function getStateChanges() {
-				const stateComparisonResults = compareStartAndEndStates({
-					original: lastCompletelyLoadedState.get(),
-					destination: {
-						name: newStateName,
-						parameters,
-					},
-				})
-				return stateChangeLogic(stateComparisonResults) // { destroy, change, create }
-			}).then(ifNotCancelled(function resolveDestroyAndActivateStates(stateChanges) {
-				return resolveStates(getStatesToResolve(stateChanges), Object.assign({}, parameters)).catch(function onResolveError(e) {
+			})()
+
+			const stateComparisonResults = compareStartAndEndStates({
+				original: lastCompletelyLoadedState.get(),
+				destination: {
+					name: newStateName,
+					parameters,
+				},
+			})
+
+			const stateChanges = await stateChangeLogic(stateComparisonResults)
+
+			const stateResolveResultsObject = await ifNotCancelled(async() => {
+				try {
+					return await resolveStates(getStatesToResolve(stateChanges), { ...parameters })
+				} catch (e) {
 					e.stateChangeError = true
 					throw e
-				}).then(ifNotCancelled(function destroyAndActivate(stateResolveResultsObject) {
-					transition.cancellable = false
+				}
+			})()
 
-					const activateAll = () => activateStates(
-						stateChanges.create,
-					)
+			await ifNotCancelled(async() => {
+				transition.cancellable = false
 
-					return series(reverse(stateChanges.destroy), destroyStateName).then(
-						() => {
-							activeStateResolveContent = { ...activeStateResolveContent, ...stateResolveResultsObject }
-							return renderAll(stateChanges.create, Object.assign({}, parameters)).then(activateAll)
-						},
-					)
-				}))
+				const activateAll = () => activateStates(stateChanges.create)
 
-				function activateStates(stateNames) {
-					return stateNames.map(prototypalStateHolder.get).forEach(state => {
-						const emitter = new EventEmitter()
-						const context = Object.create(emitter)
-						context.domApi = activeDomApis[state.name]
-						context.data = state.data
-						context.parameters = parameters
-						context.content = getContentObject(activeStateResolveContent, state.name)
-						activeEmitters[state.name] = emitter
+				await series(reverse(stateChanges.destroy), destroyStateName)
+				activeStateResolveContent = { ...activeStateResolveContent, ...stateResolveResultsObject }
+				await renderAll(stateChanges.create, { ...parameters })
+				activateAll()
+			})()
 
-						try {
-							state.activate && state.activate(context)
-						} catch (e) {
-							nextTick(() => {
-								throw e
-							})
-						}
+			lastCompletelyLoadedState.set(newStateName, parameters)
+
+			try {
+				stateProviderEmitter.emit(
+					`stateChangeEnd`,
+					prototypalStateHolder.get(newStateName),
+					parameters,
+					stateNameToArrayofStates(newStateName),
+				)
+			} catch (e) {
+				handleError(`stateError`, e)
+			}
+		} catch (err) {
+			if (transition.cancelled && err.wasCancelledBySomeoneElse) {
+				// Silently handle cancellations by others
+			} else if (err.redirectTo) {
+				stateProviderEmitter.emit(`stateChangeCancelled`, err)
+				await stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
+			} else {
+				handleError(`stateChangeError`, err)
+			}
+		}
+
+		function activateStates(stateNames) {
+			stateNames.map(prototypalStateHolder.get).forEach(state => {
+				const emitter = new EventEmitter()
+				const context = Object.create(emitter)
+				context.domApi = activeDomApis[state.name]
+				context.data = state.data
+				context.parameters = parameters
+				context.content = getContentObject(activeStateResolveContent, state.name)
+				activeEmitters[state.name] = emitter
+
+				try {
+					state.activate && state.activate(context)
+				} catch (e) {
+					nextTick(() => {
+						throw e
 					})
 				}
-			})).then(function stateChangeComplete() {
-				lastCompletelyLoadedState.set(newStateName, parameters)
-				try {
-					stateProviderEmitter.emit(`stateChangeEnd`, prototypalStateHolder.get(newStateName), parameters, stateNameToArrayofStates(newStateName))
-				} catch (e) {
-					handleError(`stateError`, e)
-				}
-			}).catch(ifNotCancelled(function handleStateChangeError(err) {
-				if (err && err.redirectTo) {
-					stateProviderEmitter.emit(`stateChangeCancelled`, err)
-					return stateProviderEmitter.go(err.redirectTo.name, err.redirectTo.params, { replace: true })
-				} else if (err) {
-					handleError(`stateChangeError`, err)
-				}
-			})).catch(function handleCancellation(err) {
-				if (err && err.wasCancelledBySomeoneElse) {
-					// we don't care, the state transition manager has already emitted the stateChangeCancelled for us
-				} else {
-					throw new Error(`This probably shouldn't happen, maybe file an issue or something ${ err }`)
-				}
 			})
+		}
 	}
 
 	function makePath(stateName, parameters, options) {
@@ -374,21 +379,26 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	}
 
 	stateProviderEmitter.addState = addState
-	stateProviderEmitter.go = (newStateName, parameters, options) => {
+	stateProviderEmitter.go = async(newStateName, parameters, options) => {
 		options = { ...defaultOptions, ...options }
 		const goFunction = options.replace ? router.replace : router.go
 
-		return new Promise((resolve, reject) => {
-			try {
-				resolve(makePath(newStateName, parameters, options))
-			} catch (err) {
-				reject(err)
-			}
-		}).then(goFunction, err => handleError(`stateChangeError`, err))
+		try {
+			const path = makePath(newStateName, parameters, options)
+			await goFunction(path)
+		} catch (err) {
+			handleError(`stateChangeError`, err)
+		}
 	}
-	stateProviderEmitter.evaluateCurrentRoute = (defaultState, defaultParams) => Promise.resolve(makePath(defaultState, defaultParams)).then(defaultPath => {
-		router.evaluateCurrent(defaultPath)
-	}).catch(err => handleError(`stateError`, err))
+	// eslint-disable-next-line require-await
+	stateProviderEmitter.evaluateCurrentRoute = async(defaultState, defaultParams) => {
+		try {
+			const defaultPath = makePath(defaultState, defaultParams)
+			router.evaluateCurrent(defaultPath)
+		} catch (err) {
+			handleError(`stateError`, err)
+		}
+	}
 	stateProviderEmitter.makePath = (stateName, parameters, options) => pathPrefix + makePath(stateName, parameters, options)
 	stateProviderEmitter.getActiveState = () => lastCompletelyLoadedState.get()
 	stateProviderEmitter.stateIsActive = (stateName = null, parameters = null) => {
@@ -431,30 +441,17 @@ function redirector(newStateName, parameters) {
 }
 
 // { [stateName]: resolveResult }
-function resolveStates(states, parameters) {
+async function resolveStates(states, parameters) {
 	const statesWithResolveFunctions = states.filter(isFunction(`resolve`))
 	const stateNamesWithResolveFunctions = statesWithResolveFunctions.map(getProperty(`name`))
 
-	const resolves = Promise.all(statesWithResolveFunctions.map(state => new Promise((resolve, reject) => {
-		const resolveCb = (err, content) => err ? reject(err) : resolve(content)
+	const resolveResults = await Promise.all(statesWithResolveFunctions.map(state => state.resolve(state.data, parameters)))
 
-		resolveCb.redirect = (newStateName, parameters) => {
-			reject(redirector(newStateName, parameters))
-		}
-
-		const res = state.resolve(state.data, parameters, resolveCb)
-		if (isThenable(res)) {
-			resolve(res)
-		}
-	})))
-
-	return resolves.then(resolveResults =>
-		combine({
-			stateName: stateNamesWithResolveFunctions,
-			resolveResult: resolveResults,
-		}).reduce((obj, result) => {
-			obj[result.stateName] = result.resolveResult
-			return obj
-		}, {}),
-	)
+	return combine({
+		stateName: stateNamesWithResolveFunctions,
+		resolveResult: resolveResults,
+	}).reduce((obj, result) => {
+		obj[result.stateName] = result.resolveResult
+		return obj
+	}, {})
 }
