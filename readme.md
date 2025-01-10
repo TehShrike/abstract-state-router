@@ -141,14 +141,14 @@ If you return a rejected promise with an object containing a `redirectTo` proper
 
 ```js
 async function resolve(data, parameters) {
-	throw new Error({
+	throw {
 		redirectTo: {
 			name: 'otherCoolState',
 			params: {
 				extraCool: true
 			}
 		}
-	})
+	}
 }
 ```
 
