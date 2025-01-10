@@ -135,7 +135,7 @@ async function resolve(data, parameters) {
 
 #### Errors/redirecting
 
-If you return a rejected promise with a truthy value the state change will be cancelled and the previous state will remain active.
+If you return a rejected promise the state change will be cancelled and the previous state will remain active.
 
 If you return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history:
 
