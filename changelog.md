@@ -1,3 +1,7 @@
+# [7.7.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.7.0)
+
+- feature: the state name is now passed to the three current renderer functions: `render`, `getChildElement`, and `destroy`.  [#164](https://github.com/TehShrike/abstract-state-router/pull/164)
+
 # [7.6.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.6.0)
 
 - feature: the `canLeaveState` function now gets passed a second argument with the name+parameters of the state that the user is trying to navigate to
