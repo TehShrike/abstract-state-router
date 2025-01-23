@@ -81,7 +81,7 @@ This `getChildElement` function must return the element in the DOM where a child
 Convention in the renderers so far is to find a `<ui-view></ui-view>` element, in a nod to ui-router.  This is totally up to you, though - whatever you choose to to use as child elements, make sure to document in your renderer's readme.
 
 ```js
-function getChildElement(domApi) {
+function getChildElement(domApi, { name }) {
   // domApi is a jquery object in these examples
   const child = domApi.children('ui-view').first()
 
@@ -98,7 +98,7 @@ Here, all you need to do is whatever it is that wipes out the contents in the DO
 **NOTE**: only clean up things having to do with the templating/DOM.  You shouldn't be signalling to your code that it's cleanup time, the code should be watching for the `destroy` event to be emitted on the context object passed to the `activate` function.
 
 ```js
-function destroy(domApi) {
+function destroy(domApi, { name }) {
   // domApi is a jquery object in these examples
   domApi.remove()
 }
