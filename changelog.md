@@ -1,6 +1,10 @@
+# [7.7.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.7.1)
+
+- Fixed lying changelog
+
 # [7.7.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.7.0)
 
-- feature: the state name is now passed to the three current renderer functions: `render`, `getChildElement`, and `destroy`.  [#164](https://github.com/TehShrike/abstract-state-router/pull/164)
+- Accidentally published this new version because I wasn't paying attention to branch names when I merged a PR.  No real changes occurred
 
 # [7.6.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.6.0)
 
