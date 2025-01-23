@@ -73,7 +73,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 		delete activeEmitters[stateName]
 		delete activeStateResolveContent[stateName]
 
-		await destroyDom(activeDomApis[stateName])
+		await destroyDom(activeDomApis[stateName], { name: stateName })
 		delete activeDomApis[stateName]
 		stateProviderEmitter.emit(`afterDestroyState`, {
 			state,
@@ -83,7 +83,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 	async function getChildElementForStateName(stateName) {
 		const parent = prototypalStateHolder.getParent(stateName)
 		if (parent) {
-			const childDomApi = await getDomChild(activeDomApis[parent.name])
+			const childDomApi = await getDomChild(activeDomApis[parent.name], { name: stateName })
 			if (!childDomApi) {
 				throw new Error(`getDomChild returned a falsey element, did you forget to add a place for a child state to go?`)
 			}
@@ -110,6 +110,7 @@ module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOp
 			element,
 			content,
 			parameters,
+			name: stateName,
 		})
 
 		activeDomApis[stateName] = domApi
