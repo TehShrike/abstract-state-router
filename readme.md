@@ -50,7 +50,7 @@ Your CommonJS-supporting bundler should be able to `import make_state_router fro
 
 - [Instantiate](#instantiate)
 	- [`options`](#options)
-- [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
+- [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters-canleavestate)
 	- [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
 	- [`activate`](#activatecontext)
 	- [Examples](#addstate-examples)
