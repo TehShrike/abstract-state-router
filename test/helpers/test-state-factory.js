@@ -1,3 +1,4 @@
+import assert from 'node:assert'
 import hashRouterFactory from 'hash-brown-router'
 import hashLocationMockFactory from 'hash-brown-router/hash-location-mock.js'
 import stateRouterFactory from '../../index.js'
@@ -15,7 +16,7 @@ export default function getTestState(t, renderFn, options) {
 		route: `/dummy`,
 		data: {},
 		template: null,
-		activate: t.fail.bind(t, `dummy route was called`),
+		activate: () => assert.fail(`dummy route was called`),
 	})
 
 	return {

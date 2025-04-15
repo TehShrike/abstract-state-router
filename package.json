@@ -1,47 +1,40 @@
 {
-  "name": "abstract-state-router",
-  "version": "7.6.0",
-  "description": "Like ui-router, but without all the Angular. The best way to structure a single-page webapp.",
-  "main": "bundle.js",
-  "type": "module",
-  "scripts": {
-    "build": "rollup -c",
-    "test": "npm run build && tape test/*.js | faucet",
-    "test:browser": "npm run build && browserify test/*.js | tape-run"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/TehShrike/abstract-state-router.git"
-  },
-  "keywords": [
-    "router",
-    "ui-router"
-  ],
-  "author": "TehShrike",
-  "license": "WTFPL",
-  "bugs": {
-    "url": "https://github.com/TehShrike/abstract-state-router/issues"
-  },
-  "homepage": "https://github.com/TehShrike/abstract-state-router",
-  "dependencies": {
-    "combine-arrays": "~1.0.2",
-    "eventemitter3": "4.0.7",
-    "hash-brown-router": "~3.4.1",
-    "iso-next-tick": "1.0.0",
-    "page-path-builder": "~1.0.4",
-    "path-to-regexp-with-reversible-keys": "~1.0.3",
-    "then-denodeify": "~1.0.1"
-  },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^19.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "browserify": "^17.0.0",
-    "faucet": "0.0.1",
-    "rollup": "^2.53.1",
-    "rollup-plugin-visualizer": "^4.2.0",
-    "tap-browser-color": "0.1.2",
-    "tape": "^5.1.1",
-    "tape-catch": "1.0.6",
-    "tape-run": "^9.0.0"
-  }
+	"name": "abstract-state-router",
+	"version": "7.6.0",
+	"description": "Like ui-router, but without all the Angular. The best way to structure a single-page webapp.",
+	"main": "bundle.js",
+	"type": "module",
+	"scripts": {
+		"build": "rollup -c",
+		"test": "npm run build && node --test test/*.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/TehShrike/abstract-state-router.git"
+	},
+	"keywords": [
+		"router",
+		"ui-router"
+	],
+	"author": "TehShrike",
+	"license": "WTFPL",
+	"bugs": {
+		"url": "https://github.com/TehShrike/abstract-state-router/issues"
+	},
+	"homepage": "https://github.com/TehShrike/abstract-state-router",
+	"dependencies": {
+		"combine-arrays": "~1.0.2",
+		"eventemitter3": "4.0.7",
+		"hash-brown-router": "~3.4.1",
+		"iso-next-tick": "1.0.0",
+		"page-path-builder": "~1.0.4",
+		"path-to-regexp-with-reversible-keys": "~1.0.3",
+		"then-denodeify": "~1.0.1"
+	},
+	"devDependencies": {
+		"@rollup/plugin-commonjs": "^19.0.0",
+		"@rollup/plugin-node-resolve": "^13.0.0",
+		"rollup": "^2.53.1",
+		"rollup-plugin-visualizer": "^4.2.0"
+	}
 }

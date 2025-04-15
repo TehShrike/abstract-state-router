@@ -1,18 +1,18 @@
-import test from 'tape-catch'
+import { test } from 'node:test'
+import assert from 'node:assert'
 import getTestState from './helpers/test-state-factory.js'
 
-test(`canLeaveState false prevents state change`, t => {
+test(`canLeaveState false prevents state change`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(2)
 
 		stateRouter.addState({
 			name: `guarded`,
 			route: `/guarded`,
 			template: {},
 			canLeaveState: () => {
-				t.ok(true, `canLeaveState called`)
+				assert.ok(true, `canLeaveState called`)
 				return false
 			},
 			resolve() {
@@ -20,7 +20,7 @@ test(`canLeaveState false prevents state change`, t => {
 			},
 			activate(context) {
 				context.on(`destroy`, () => {
-					t.pass(`should not destroy guarded state`)
+					assert.fail(`should not destroy guarded state`)
 				})
 			},
 		})
@@ -30,7 +30,7 @@ test(`canLeaveState false prevents state change`, t => {
 			route: `/unreachable`,
 			template: {},
 			resolve() {
-				t.fail(`Should not resolve`)
+				assert.fail(`Should not resolve`)
 				return Promise.resolve()
 			},
 			activate() {
@@ -41,86 +41,87 @@ test(`canLeaveState false prevents state change`, t => {
 		return state
 	}
 
-	t.test(`with state.go`, t => {
+	await t.test(`with state.go`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.go(`guarded`)
+		await new Promise(resolve => {
+			stateRouter.go(`guarded`)
 
-		stateRouter.on('stateChangeStart', state => {
-			if (state.name === 'unreachable') {
-				t.fail(`state change should not start ${ state.name }`)
-			}
-		})
+			stateRouter.on('stateChangeStart', state => {
+				if (state.name === 'unreachable') {
+					assert.fail(`state change should not start ${state.name}`)
+				}
+			})
 
-		stateRouter.on('stateChangeEnd', state => {
-			const stateName = state.name
+			stateRouter.on('stateChangeEnd', state => {
+				const stateName = state.name
 
-			if (stateName === 'guarded' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`unreachable`)
-			}
-		})
+				if (stateName === 'guarded' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`unreachable`)
+				}
+			})
 
-		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			if (stateThatPreventedChange.name === 'guarded') {
-				t.pass(`state change was prevented`)
-			} else {
-				t.fail(`state change was prevented by the wrong state`)
-			}
-			t.end()
+			stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+				if (stateThatPreventedChange.name === 'guarded') {
+					assert.ok(true, `state change was prevented`)
+				} else {
+					assert.fail(`state change was prevented by the wrong state`)
+				}
+				resolve()
+			})
 		})
 	})
 
-	t.test(`by changing the URL`, t => {
+	await t.test(`by changing the URL`, async t => {
 		const testState = startTest(t)
 		const stateRouter = testState.stateRouter
 		const hashRouter = testState.hashRouter
 
-		hashRouter.go(`/guarded`)
+		await new Promise(resolve => {
+			hashRouter.go(`/guarded`)
 
-		let arrivedAtStart = false
+			let arrivedAtStart = false
 
-		stateRouter.on('stateChangeStart', state => {
-			if (state.name === 'unreachable') {
-				t.fail(`state change should not start ${ state.name }`)
-			}
-		})
+			stateRouter.on('stateChangeStart', state => {
+				if (state.name === 'unreachable') {
+					assert.fail(`state change should not start ${state.name}`)
+				}
+			})
 
-		stateRouter.on('stateChangeEnd', state => {
-			const stateName = state.name
+			stateRouter.on('stateChangeEnd', state => {
+				const stateName = state.name
 
-			if (stateName === 'guarded' && !arrivedAtStart) {
-				arrivedAtStart = true
-				hashRouter.go(`/unreachable`)
-			}
-		})
+				if (stateName === 'guarded' && !arrivedAtStart) {
+					arrivedAtStart = true
+					hashRouter.go(`/unreachable`)
+				}
+			})
 
-		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			if (stateThatPreventedChange.name === 'guarded') {
-				t.pass(`state change was prevented`)
-			} else {
-				t.fail(`state change was prevented by the wrong state`)
-			}
-			t.end()
+			stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+				if (stateThatPreventedChange.name === 'guarded') {
+					assert.ok(true, `state change was prevented`)
+				} else {
+					assert.fail(`state change was prevented by the wrong state`)
+				}
+				resolve()
+			})
 		})
 	})
-
-	t.end()
 })
 
-test(`canLeaveState true lets the state change`, t => {
+test(`canLeaveState true lets the state change`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(2)
 
 		stateRouter.addState({
 			name: `start`,
 			route: `/start`,
 			template: {},
 			canLeaveState: () => {
-				t.ok(true, `canLeaveState called`)
+				assert.ok(true, `canLeaveState called`)
 				return true
 			},
 			resolve() {
@@ -145,74 +146,77 @@ test(`canLeaveState true lets the state change`, t => {
 		return state
 	}
 
-	t.test(`with state.go`, t => {
+	await t.test(`with state.go`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.go(`start`)
+		await new Promise(resolve => {
+			stateRouter.go(`start`)
 
-		stateRouter.on(`stateChangeEnd`, state => {
-			const stateName = state.name
+			stateRouter.on(`stateChangeEnd`, state => {
+				const stateName = state.name
 
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`end`)
-			}
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`end`)
+				}
 
-			if (stateName === 'end') {
-				t.pass(`state change was allowed`)
-				t.end()
-			}
-		})
+				if (stateName === 'end') {
+					assert.ok(true, `state change was allowed`)
+					resolve()
+				}
+			})
 
-		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
+			stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+				assert.fail(`state change was prevented by ${stateThatPreventedChange.name}`)
+			})
 		})
 	})
 
-	t.test(`by changing the URL`, t => {
+	await t.test(`by changing the URL`, async t => {
 		const testState = startTest(t)
 		const stateRouter = testState.stateRouter
 		const hashRouter = testState.hashRouter
 
-		hashRouter.go(`/start`)
+		await new Promise(resolve => {
+			hashRouter.go(`/start`)
 
-		let arrivedAtStart = false
+			let arrivedAtStart = false
 
-		stateRouter.on(`stateChangeEnd`, state => {
-			const stateName = state.name
+			stateRouter.on(`stateChangeEnd`, state => {
+				const stateName = state.name
 
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				hashRouter.go(`/end`)
-			}
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					hashRouter.go(`/end`)
+				}
 
-			if (stateName === 'end') {
-				t.pass(`state change was allowed`)
-				t.end()
-			}
-		})
+				if (stateName === 'end') {
+					assert.ok(true, `state change was allowed`)
+					resolve()
+				}
+			})
 
-		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-			t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
+			stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+				assert.fail(`state change was prevented by ${stateThatPreventedChange.name}`)
+			})
 		})
 	})
 })
 
-test(`canLeaveState can access domApi`, t => {
+test(`canLeaveState can access domApi`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(2)
 
 		stateRouter.addState({
 			name: `start`,
 			route: `/start`,
 			template: {},
 			canLeaveState: domApi => {
-				t.ok(true, `canLeaveState called`)
+				assert.ok(true, `canLeaveState called`)
 				if (domApi.teardown && domApi.getChildElement) {
-					t.pass(`can access domApi`)
+					assert.ok(true, `can access domApi`)
 				}
 				return true
 			},
@@ -238,40 +242,41 @@ test(`canLeaveState can access domApi`, t => {
 		return state
 	}
 
-	t.test(`with state.go`, t => {
+	await t.test(`with state.go`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.go(`start`)
+		await new Promise(resolve => {
+			stateRouter.go(`start`)
 
-		stateRouter.on(`stateChangeEnd`, () => {
-			const stateName = stateRouter.getActiveState().name
+			stateRouter.on(`stateChangeEnd`, () => {
+				const stateName = stateRouter.getActiveState().name
 
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`end`)
-			}
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`end`)
+				}
 
-			if (stateName === 'end') {
-				t.end()
-			}
+				if (stateName === 'end') {
+					resolve()
+				}
+			})
 		})
 	})
 })
 
-test(`canLeaveState will only fire once`, t => {
+test(`canLeaveState will only fire once`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
 		let canLeaveStateCalls = 0
-		t.plan(1)
 
 		stateRouter.addState({
 			name: `start`,
 			route: `/start`,
 			template: {},
 			canLeaveState: () => {
-				t.ok(canLeaveStateCalls === 0, `canLeaveState called`)
+				assert.strictEqual(canLeaveStateCalls, 0, `canLeaveState called`)
 				canLeaveStateCalls++
 				return true
 			},
@@ -302,184 +307,210 @@ test(`canLeaveState will only fire once`, t => {
 				return Promise.resolve()
 			},
 			activate() {
-				t.end()
 			},
 		})
 
 		return state
 	}
 
-	t.test(`Applying default child`, t => {
+	await t.test(`Applying default child`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.on(`stateChangeEnd`, () => {
-			const stateName = stateRouter.getActiveState().name
+		await new Promise(resolve => {
+			stateRouter.on(`stateChangeEnd`, () => {
+				const stateName = stateRouter.getActiveState().name
 
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`end`, { coolParameters: true })
-			}
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`end`, { coolParameters: true })
+				}
+
+				if (stateName === 'end.child') {
+					resolve()
+				}
+			})
+
+			stateRouter.go(`start`)
 		})
-
-		stateRouter.go(`start`)
 	})
 
-	t.test(`Going directly to child`, t => {
+	await t.test(`Going directly to child`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.on(`stateChangeEnd`, () => {
-			const stateName = stateRouter.getActiveState().name
+		await new Promise(resolve => {
+			stateRouter.on(`stateChangeEnd`, () => {
+				const stateName = stateRouter.getActiveState().name
 
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`end.child`, { coolParameters: true })
-			}
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`end.child`, { coolParameters: true })
+				}
+
+				if (stateName === 'end.child') {
+					resolve()
+				}
+			})
+
+			stateRouter.go(`start`)
 		})
-
-		stateRouter.go(`start`)
 	})
 
-	t.test(`Applying default parameters`, t => {
+	await t.test(`Applying default parameters`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.addState({
-			name: `parameters`,
-			route: `/parameters`,
-			querystringParameters: [ `foo` ],
-			defaultParameters: {
-				foo: `bar`,
-			},
-			template: {},
-			resolve() {
-				return Promise.resolve()
-			},
-			activate() {
-				t.end()
-			},
+		await new Promise(resolve => {
+			stateRouter.addState({
+				name: `parameters`,
+				route: `/parameters`,
+				querystringParameters: [ `foo` ],
+				defaultParameters: {
+					foo: `bar`,
+				},
+				template: {},
+				resolve() {
+					return Promise.resolve()
+				},
+				activate() {
+					resolve()
+				},
+			})
+
+			stateRouter.on(`stateChangeEnd`, state => {
+				const stateName = state.name
+
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`parameters`)
+				}
+			})
+
+			stateRouter.go(`start`)
 		})
-
-		stateRouter.on(`stateChangeEnd`, state => {
-			const stateName = state.name
-
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`parameters`)
-			}
-		})
-
-		stateRouter.go(`start`)
 	})
 
-	t.test(`Getting redirected to self with different parameters`, t => {
+	await t.test(`Getting redirected to self with different parameters`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.addState({
-			name: `will-redirect`,
-			route: `/will-redirect`,
-			querystringParameters: [ `redirected` ],
-			defaultParameters: {
-				redirected: false,
-			},
-			template: {},
-			resolve(data, parameters) {
-				if (parameters.redirected === 'false') {
-					return Promise.reject({
-						redirectTo: {
-							name: `will-redirect`,
-							params: {
-								redirected: true,
+		await new Promise(resolve => {
+			stateRouter.addState({
+				name: `will-redirect`,
+				route: `/will-redirect`,
+				querystringParameters: [ `redirected` ],
+				defaultParameters: {
+					redirected: false,
+				},
+				template: {},
+				resolve(data, parameters) {
+					if (parameters.redirected === 'false') {
+						return Promise.reject({
+							redirectTo: {
+								name: `will-redirect`,
+								params: {
+									redirected: true,
+								},
 							},
+						})
+					}
+					return Promise.resolve()
+				},
+				activate() {
+					resolve()
+				},
+			})
+
+			stateRouter.on(`stateChangeEnd`, state => {
+				const stateName = state.name
+
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`will-redirect`)
+				}
+			})
+
+			stateRouter.go(`start`)
+		})
+	})
+
+	await t.test(`Getting redirected to a different state`, async t => {
+		const stateRouter = startTest(t).stateRouter
+		let arrivedAtStart = false
+
+		await new Promise(resolve => {
+			stateRouter.addState({
+				name: `will-redirect`,
+				route: `/will-redirect`,
+				template: {},
+				resolve() {
+					throw {
+						redirectTo: {
+							name: `end`,
 						},
-					})
+					}
+				},
+				activate() {
+					assert.fail('should not activate')
+				},
+			})
+
+			stateRouter.on(`stateChangeEnd`, state => {
+				const stateName = state.name
+
+				if (stateName === 'start' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`will-redirect`)
 				}
-				return Promise.resolve()
-			},
-			activate() {
-				t.end()
-			},
+
+				if (stateName === 'end.child') {
+					resolve()
+				}
+			})
+
+			stateRouter.go(`start`)
 		})
-
-		stateRouter.on(`stateChangeEnd`, state => {
-			const stateName = state.name
-
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`will-redirect`)
-			}
-		})
-
-		stateRouter.go(`start`)
 	})
 
-	t.test(`Getting redirected to a different state`, t => {
+	await t.test(`From a child of a guarded state`, async t => {
 		const stateRouter = startTest(t).stateRouter
 		let arrivedAtStart = false
 
-		stateRouter.addState({
-			name: `will-redirect`,
-			route: `/will-redirect`,
-			template: {},
-			resolve() {
-				throw {
-					redirectTo: {
-						name: `end`,
-					},
+		await new Promise(resolve => {
+			stateRouter.addState({
+				name: `start.child`,
+				route: `child`,
+				template: {},
+				resolve() {
+					return Promise.resolve()
+				},
+				activate() {
+				},
+			})
+
+			stateRouter.on(`stateChangeEnd`, state => {
+				const stateName = state.name
+
+				if (stateName === 'start.child' && !arrivedAtStart) {
+					arrivedAtStart = true
+					stateRouter.go(`end`)
 				}
-			},
-			activate() {
-				t.fail('should not activate')
-			},
+
+				if (stateName === 'end.child') {
+					resolve()
+				}
+			})
+
+			stateRouter.go(`start.child`)
 		})
-
-		stateRouter.on(`stateChangeEnd`, state => {
-			const stateName = state.name
-
-			if (stateName === 'start' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`will-redirect`)
-			}
-		})
-
-		stateRouter.go(`start`)
-	})
-
-	t.test(`From a child of a guarded state`, t => {
-		const stateRouter = startTest(t).stateRouter
-		let arrivedAtStart = false
-
-		stateRouter.addState({
-			name: `start.child`,
-			route: `child`,
-			template: {},
-			resolve() {
-				return Promise.resolve()
-			},
-			activate() {
-			},
-		})
-
-		stateRouter.on(`stateChangeEnd`, state => {
-			const stateName = state.name
-
-			if (stateName === 'start.child' && !arrivedAtStart) {
-				arrivedAtStart = true
-				stateRouter.go(`end`)
-			}
-		})
-
-		stateRouter.go(`start.child`)
 	})
 })
 
-test(`canLeaveState will not fire on state load`, t => {
+test(`canLeaveState will not fire on state load`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(1)
 
 		stateRouter.addState({
 			name: `start`,
@@ -496,7 +527,7 @@ test(`canLeaveState will not fire on state load`, t => {
 			route: `/end`,
 			template: {},
 			canLeaveState: () => {
-				t.fail(`canLeaveState should not be called`)
+				assert.fail(`canLeaveState should not be called`)
 				return false
 			},
 			resolve() {
@@ -510,31 +541,32 @@ test(`canLeaveState will not fire on state load`, t => {
 	const stateRouter = startTest(t).stateRouter
 	let started = false
 
-	stateRouter.on(`stateChangeEnd`, state => {
-		const stateName = state.name
-		if (stateName === 'start') {
-			if (!started) {
-				started = true
-				stateRouter.go(`end`)
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, state => {
+			const stateName = state.name
+			if (stateName === 'start') {
+				if (!started) {
+					started = true
+					stateRouter.go(`end`)
+				}
+			} else if (stateName === 'end') {
+				assert.ok(true, 'state change was allowed')
+				resolve()
 			}
-		} else if (stateName === 'end') {
-			t.pass('state change was allowed')
-			t.end()
-		}
-	})
+		})
 
-	stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-		t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
-	})
+		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+			assert.fail(`state change was prevented by ${stateThatPreventedChange.name}`)
+		})
 
-	stateRouter.go(`start`, { foo: `bar` })
+		stateRouter.go(`start`, { foo: `bar` })
+	})
 })
 
-test('canLeaveState passes destination parameters', t => {
+test('canLeaveState passes destination parameters', async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(2)
 
 		stateRouter.addState({
 			name: `start`,
@@ -542,8 +574,8 @@ test('canLeaveState passes destination parameters', t => {
 			querystringParameters: [ `foo` ],
 			template: {},
 			canLeaveState: (_domApi, destinationState) => {
-				t.ok(destinationState.parameters.foo === 'bar', 'destination parameters are passed')
-				t.ok(destinationState.name === 'start', 'destination state is passed')
+				assert.strictEqual(destinationState.parameters.foo, 'bar', 'destination parameters are passed')
+				assert.strictEqual(destinationState.name, 'start', 'destination state is passed')
 				return true
 			},
 			resolve() {
@@ -556,24 +588,29 @@ test('canLeaveState passes destination parameters', t => {
 
 	const stateRouter = startTest(t).stateRouter
 
-	stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
-		t.fail(`state change was prevented by ${ stateThatPreventedChange.name }`)
-	})
+	await new Promise(resolve => {
+		stateRouter.on('stateChangePrevented', stateThatPreventedChange => {
+			assert.fail(`state change was prevented by ${stateThatPreventedChange.name}`)
+		})
 
-	stateRouter.on('stateChangeEnd', (state, parameters) => {
-		if (state.name === 'start' && !parameters.foo) {
-			stateRouter.go(null, { foo: 'bar' })
-		}
-	})
+		stateRouter.on('stateChangeEnd', (state, parameters) => {
+			if (state.name === 'start' && !parameters.foo) {
+				stateRouter.go(null, { foo: 'bar' })
+			}
 
-	stateRouter.go(`start`)
+			if (state.name === 'start' && parameters.foo === 'bar') {
+				resolve()
+			}
+		})
+
+		stateRouter.go(`start`)
+	})
 })
 
-test('stateChangePrevented passes source and destination parameters', t => {
+test('stateChangePrevented passes source and destination parameters', async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(4)
 
 		stateRouter.addState({
 			name: `start`,
@@ -593,21 +630,23 @@ test('stateChangePrevented passes source and destination parameters', t => {
 
 	const stateRouter = startTest(t).stateRouter
 
-	stateRouter.on('stateChangePrevented', (stateThatPreventedChange, destinationState) => {
-		t.ok(stateThatPreventedChange.name === 'start', 'source state is passed')
-		t.ok(stateThatPreventedChange.parameters.foo === 'baz', 'source parameters are passed')
-		t.ok(destinationState.name === 'start', 'destination state is passed')
-		t.ok(destinationState.parameters.foo === 'bar', 'destination parameters are passed')
-		t.end()
-	})
+	await new Promise(resolve => {
+		stateRouter.on('stateChangePrevented', (stateThatPreventedChange, destinationState) => {
+			assert.strictEqual(stateThatPreventedChange.name, 'start', 'source state is passed')
+			assert.strictEqual(stateThatPreventedChange.parameters.foo, 'baz', 'source parameters are passed')
+			assert.strictEqual(destinationState.name, 'start', 'destination state is passed')
+			assert.strictEqual(destinationState.parameters.foo, 'bar', 'destination parameters are passed')
+			resolve()
+		})
 
-	let started = false
-	stateRouter.on('stateChangeEnd', () => {
-		if (!started) {
-			started = true
-			stateRouter.go(null, { foo: 'bar' })
-		}
-	})
+		let started = false
+		stateRouter.on('stateChangeEnd', () => {
+			if (!started) {
+				started = true
+				stateRouter.go(null, { foo: 'bar' })
+			}
+		})
 
-	stateRouter.go(`start`, { foo: 'baz' })
+		stateRouter.go(`start`, { foo: 'baz' })
+	})
 })

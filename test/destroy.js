@@ -1,8 +1,9 @@
-import test from 'tape-catch'
+import { test } from 'node:test'
+import assert from 'node:assert'
 import assertingRendererFactory from './helpers/asserting-renderer-factory.js'
 import getTestState from './helpers/test-state-factory.js'
 
-test(`moving from x.y.z to x destroys z then y`, t => {
+test(`moving from x.y.z to x destroys z then y`, async t => {
 	function basicTest(t) {
 		const grandparentTemplate = {}
 		const parentTemplate = {}
@@ -11,10 +12,6 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 		const renderer = assertingRendererFactory(t, [ grandparentTemplate, parentTemplate, childTemplate ])
 		const state = getTestState(t, renderer)
 		const stateRouter = state.stateRouter
-		const assertsBelow = 2
-		const renderAsserts = renderer.expectedAssertions
-
-		t.plan(assertsBelow + renderAsserts)
 
 		let childDestroyed = false
 		let parentDestroyed = false
@@ -28,7 +25,7 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 			},
 			activate(context) {
 				context.on(`destroy`, () => {
-					t.fail(`grandparent should not be destroyed`)
+					assert.fail(`grandparent should not be destroyed`)
 				})
 			},
 		})
@@ -44,7 +41,7 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 			activate(context) {
 				context.on(`destroy`, () => {
 					parentDestroyed = true
-					t.ok(childDestroyed, `parent gets destroyed after child`)
+					assert.ok(childDestroyed, `parent gets destroyed after child`)
 				})
 			},
 		})
@@ -58,7 +55,7 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 			},
 			activate(context) {
 				context.on(`destroy`, () => {
-					t.notOk(parentDestroyed, `child gets destroyed before parent`)
+					assert.strictEqual(parentDestroyed, false, `child gets destroyed before parent`)
 					childDestroyed = true
 				})
 			},
@@ -67,39 +64,43 @@ test(`moving from x.y.z to x destroys z then y`, t => {
 		return state
 	}
 
-	t.test(`triggered with go()`, t => {
+	await t.test(`triggered with go()`, async t => {
 		const stateRouter = basicTest(t).stateRouter
-		stateRouter.go(`hey.rofl.copter`, { wat: `wut` })
-		stateRouter.once(`stateChangeEnd`, () => {
-			stateRouter.go(`hey`)
+
+		await new Promise(resolve => {
+			stateRouter.go(`hey.rofl.copter`, { wat: `wut` })
 			stateRouter.once(`stateChangeEnd`, () => {
-				t.end()
+				stateRouter.go(`hey`)
+				stateRouter.once(`stateChangeEnd`, () => {
+					resolve()
+				})
 			})
 		})
 	})
 
-	t.test(`triggered by the router`, t => {
+	await t.test(`triggered by the router`, async t => {
 		const testState = basicTest(t)
 		const hashRouter = testState.hashRouter
-		hashRouter.go(`/hay/routeButt/lolcopter?wat=wut`)
-		testState.stateRouter.once(`stateChangeEnd`, () => {
-			hashRouter.go(`/hay`)
+
+		await new Promise(resolve => {
+			hashRouter.go(`/hay/routeButt/lolcopter?wat=wut`)
 			testState.stateRouter.once(`stateChangeEnd`, () => {
-				t.end()
+				hashRouter.go(`/hay`)
+				testState.stateRouter.once(`stateChangeEnd`, () => {
+					resolve()
+				})
 			})
 		})
 	})
 })
 
-test(`a state with changing querystring gets destroyed`, t => {
+test(`a state with changing querystring gets destroyed`, async t => {
 	const state = getTestState(t)
 	const stateRouter = state.stateRouter
 	let parentResolveCalled = 0
 	let parentActivated = 0
 	let parentDestroyed = 0
 	let child1Destroyed = 0
-
-	t.plan(5)
 
 	stateRouter.addState({
 		name: `parent`,
@@ -110,7 +111,7 @@ test(`a state with changing querystring gets destroyed`, t => {
 			return new Promise(resolve => {
 				parentResolveCalled++
 				if (parentResolveCalled === 2) {
-					t.equal(parameters.aParam, `3`, `parameter was set correctly in second resolve`)
+					assert.strictEqual(parameters.aParam, `3`, `parameter was set correctly in second resolve`)
 				}
 
 				resolve({})
@@ -139,53 +140,55 @@ test(`a state with changing querystring gets destroyed`, t => {
 		},
 	})
 
-	stateRouter.addState({
-		name: `parent.child2`,
-		route: `/child2`,
-		template: null,
-		activate(context) {
-			t.equal(parentResolveCalled, 2, `parent resolve called twice`)
-			t.equal(parentActivated, 2, `parent activated twice`)
-			t.equal(child1Destroyed, 1, `child1 destroyed once`)
-			t.equal(parentDestroyed, 1, `parent destroyed once`)
-			t.end()
-		},
-	})
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `parent.child2`,
+			route: `/child2`,
+			template: null,
+			activate(context) {
+				assert.strictEqual(parentResolveCalled, 2, `parent resolve called twice`)
+				assert.strictEqual(parentActivated, 2, `parent activated twice`)
+				assert.strictEqual(child1Destroyed, 1, `child1 destroyed once`)
+				assert.strictEqual(parentDestroyed, 1, `parent destroyed once`)
+				resolve()
+			},
+		})
 
-	stateRouter.go(`parent.child1`)
+		stateRouter.go(`parent.child1`)
+	})
 })
 
-test(`When navigating to the same state as before, make sure the data from the child's resolve gets passed along`, t => {
+test(`When navigating to the same state as before, make sure the data from the child's resolve gets passed along`, async t => {
 	const state = getTestState(t)
 	const stateRouter = state.stateRouter
 
 	let activations = 0
 
-	t.plan(2)
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `parent`,
+			route: `/parent`,
+			template: null,
+			querystringParameters: [ `aParam` ],
+			// eslint-disable-next-line require-await
+			async resolve() {
+				return {
+					legit: true,
+				}
+			},
+			activate({ content }) {
+				activations++
 
-	stateRouter.addState({
-		name: `parent`,
-		route: `/parent`,
-		template: null,
-		querystringParameters: [ `aParam` ],
-		// eslint-disable-next-line require-await
-		async resolve() {
-			return {
-				legit: true,
-			}
-		},
-		activate({ content }) {
-			activations++
+				assert.strictEqual(content.legit, true)
 
-			t.equal(content.legit, true)
+				if (activations === 2) {
+					resolve()
+				} else {
+					stateRouter.go(`parent`, { aParam: `something different` })
+				}
+			},
+		})
 
-			if (activations === 2) {
-				t.end()
-			} else {
-				stateRouter.go(`parent`, { aParam: `something different` })
-			}
-		},
+		stateRouter.go(`parent`)
 	})
-
-	stateRouter.go(`parent`)
 })
