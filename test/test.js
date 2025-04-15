@@ -323,7 +323,7 @@ test(`resolve that returns a promise`, async t => {
 test(`render fn receives parameters`, async t => {
 	const stateRouter = getTestState(t, () => ({
 		render(context) {
-			assert.deepEqual(context.parameters, { foo: `abc` })
+			assert.deepStrictEqual(context.parameters, { foo: `abc` })
 		},
 	})).stateRouter
 
@@ -371,7 +371,7 @@ test(`go uses current state when no stateName is provided`, async t => {
 			querystringParameters: [ `poop` ],
 			activate(context) {
 				if (firstActivateDidHappen) {
-					assert.deepEqual(context.parameters, { poop: `wet` })
+					assert.deepStrictEqual(context.parameters, { poop: `wet` })
 					resolve()
 				} else {
 					firstActivateDidHappen = true
@@ -399,7 +399,7 @@ test(`go uses current state when no stateName is provided with 2 parameters`, as
 			querystringParameters: [ `poop` ],
 			activate(context) {
 				if (firstActivateDidHappen) {
-					assert.deepEqual(context.parameters, { poop: `wet` })
+					assert.deepStrictEqual(context.parameters, { poop: `wet` })
 					resolve()
 				} else {
 					firstActivateDidHappen = true

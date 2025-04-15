@@ -1,4 +1,5 @@
-import test from 'tape-catch'
+import { test } from 'node:test'
+import assert from 'node:assert'
 import qs from 'querystring'
 import getTestState from './helpers/test-state-factory.js'
 
@@ -28,17 +29,13 @@ function basicRouterSetup(t, options) {
 }
 
 test(`makePath builds a path and throws on non-existant state`, t => {
-	t.plan(2)
-
 	const stateRouter = basicRouterSetup(t)
 
-	t.equal(stateRouter.makePath(`parent.child1`, { param: `value` }), `#/parent/child1?param=value`)
+	assert.strictEqual(stateRouter.makePath(`parent.child1`, { param: `value` }), `#/parent/child1?param=value`)
 
-	t.throws(() => {
+	assert.throws(() => {
 		stateRouter.makePath(`parent.doesnotexist`)
 	}, /doesnotexist/)
-
-	t.end()
 })
 
 test(`makePath respects the prefix option`, t => {
@@ -46,13 +43,11 @@ test(`makePath respects the prefix option`, t => {
 		pathPrefix: ``,
 	})
 
-	t.equal(stateRouter.makePath(`parent.child1`, { thingy: `value` }), `/parent/child1?thingy=value`)
-	t.equal(stateRouter.makePath(`parent`, { thingy: `value` }), `/parent?thingy=value`)
-
-	t.end()
+	assert.strictEqual(stateRouter.makePath(`parent.child1`, { thingy: `value` }), `/parent/child1?thingy=value`)
+	assert.strictEqual(stateRouter.makePath(`parent`, { thingy: `value` }), `/parent?thingy=value`)
 })
 
-test(`makePath respects the inherit option`, t => {
+test(`makePath respects the inherit option`, async t => {
 	const stateRouter = basicRouterSetup(t)
 
 	function justTheQuerystring(str) {
@@ -60,25 +55,27 @@ test(`makePath respects the inherit option`, t => {
 		return qs.parse(match[1])
 	}
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		let output = justTheQuerystring(stateRouter.makePath(`parent.child2`, { otherParameter: `other value` }, { inherit: true }))
-		t.equal(output.originalParameter, `original value`)
-		t.equal(output.otherParameter, `other value`)
-		t.equal(Object.keys(output).length, 2)
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			let output = justTheQuerystring(stateRouter.makePath(`parent.child2`, { otherParameter: `other value` }, { inherit: true }))
+			assert.strictEqual(output.originalParameter, `original value`)
+			assert.strictEqual(output.otherParameter, `other value`)
+			assert.strictEqual(Object.keys(output).length, 2)
 
-		output = justTheQuerystring(stateRouter.makePath(`parent.child2`, { originalParameter: `new value` }, { inherit: true }))
-		t.equal(output.originalParameter, `new value`)
-		t.equal(Object.keys(output).length, 1)
+			output = justTheQuerystring(stateRouter.makePath(`parent.child2`, { originalParameter: `new value` }, { inherit: true }))
+			assert.strictEqual(output.originalParameter, `new value`)
+			assert.strictEqual(Object.keys(output).length, 1)
 
-		t.end()
-	})
+			resolve()
+		})
 
-	stateRouter.go(`parent.child1`, {
-		originalParameter: `original value`,
+		stateRouter.go(`parent.child1`, {
+			originalParameter: `original value`,
+		})
 	})
 })
 
-test(`makePath inheriting parameters from the route by the time the activate function is called`, t => {
+test(`makePath inheriting parameters from the route by the time the activate function is called`, async t => {
 	const stateRouter = getTestState(t, null, {
 		pathPrefix: ``,
 	}).stateRouter
@@ -89,28 +86,30 @@ test(`makePath inheriting parameters from the route by the time the activate fun
 		route: `/parent/:someParam/yarp`,
 	})
 
-	stateRouter.addState({
-		name: `parent.child1`,
-		template: ``,
-		route: `/child1`,
-		activate(context) {
-			t.equal(context.parameters.someParam, `totally`)
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `parent.child1`,
+			template: ``,
+			route: `/child1`,
+			activate(context) {
+				assert.strictEqual(context.parameters.someParam, `totally`)
 
-			const path = stateRouter.makePath(`parent.child2`, {}, {
-				inherit: true,
-			})
+				const path = stateRouter.makePath(`parent.child2`, {}, {
+					inherit: true,
+				})
 
-			t.equal(path, `/parent/totally/yarp/child2`, `Output path contains the route parameter`)
-			t.end()
-		},
+				assert.strictEqual(path, `/parent/totally/yarp/child2`, `Output path contains the route parameter`)
+				resolve()
+			},
+		})
+		stateRouter.addState({
+			name: `parent.child2`,
+			template: ``,
+			route: `/child2`,
+		})
+
+		stateRouter.go(`parent.child1`, { someParam: `totally` })
 	})
-	stateRouter.addState({
-		name: `parent.child2`,
-		template: ``,
-		route: `/child2`,
-	})
-
-	stateRouter.go(`parent.child1`, { someParam: `totally` })
 })
 
 test(`makePath with falsey parameters`, t => {
@@ -129,28 +128,27 @@ test(`makePath with falsey parameters`, t => {
 		day: 0,
 	})
 
-	t.equal(output, `/timer/0/0`)
-	t.end()
+	assert.strictEqual(output, `/timer/0/0`)
 })
 
-test(`makePath with null state name goes to the current state`, t => {
+test(`makePath with null state name goes to the current state`, async t => {
 	const stateRouter = basicRouterSetup(t)
 
-	stateRouter.go(`parent.child2`, { thinger: `whatsit` })
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			const output = stateRouter.makePath(null, { thinger: `eh` })
+			assert.strictEqual(output, `#/parent/child2?thinger=eh`)
+			resolve()
+		})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		const output = stateRouter.makePath(null, { thinger: `eh` })
-		t.equal(output, `#/parent/child2?thinger=eh`)
-		t.end()
+		stateRouter.go(`parent.child2`, { thinger: `whatsit` })
 	})
 })
 
 test(`makePath with null state name throws an error if there is no current state`, t => {
 	const stateRouter = basicRouterSetup(t)
 
-	t.throws(() => {
+	assert.throws(() => {
 		stateRouter.makePath(null, { thinger: `eh` })
 	}, /previous state/)
-
-	t.end()
 })

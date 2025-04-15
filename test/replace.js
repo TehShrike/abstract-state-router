@@ -39,20 +39,20 @@ test(`a normal replace call against the state router itself`, async t => {
 		},
 	})
 
-	//await new Promise(resolve => {
-	stateRouter.addState({
-		name: `valid1.valid2`,
-		route: `/valid2`,
-		template: child2Template,
-		activate(context) {
-			assert.strictEqual(child2Activated, false, `child2 activated once`)
-			child2Activated = true
+	await new Promise(resolvePromise => {
+		stateRouter.addState({
+			name: `valid1.valid2`,
+			route: `/valid2`,
+			template: child2Template,
+			activate(context) {
+				assert.strictEqual(child2Activated, false, `child2 activated once`)
+				child2Activated = true
 
-			assert.strictEqual(state.location.get(), `/valid1/valid2`)
-			resolve()
-		},
+				assert.strictEqual(state.location.get(), `/valid1/valid2`)
+				resolvePromise()
+			},
+		})
+
+		stateRouter.go(`valid1.valid`)
 	})
-
-	stateRouter.go(`valid1.valid`)
-	//})
 })

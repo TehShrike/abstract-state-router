@@ -1,4 +1,5 @@
-import test from 'tape-catch'
+import { test } from 'node:test'
+import assert from 'node:assert'
 import StateState from '../lib/state-state.js'
 
 /*
@@ -18,7 +19,7 @@ const addGetTests = (() => {
 		return function ag(set) {
 			ss.add(set.name, set.state)
 
-			t.equal(ss.get(set.name), set.state, set.message)
+			assert.strictEqual(ss.get(set.name), set.state, set.message)
 		}
 	}
 
@@ -50,7 +51,7 @@ const parentTests = (() => {
 			const apparently = ss.getParentName(set.child)
 
 			const msg = `parent of "${ set.child }" is "${ set.parent }"`
-			t.equal(apparently, set.parent, msg)
+			assert.strictEqual(apparently, set.parent, msg)
 		}
 	}
 	return {
@@ -130,7 +131,7 @@ const buildTests = (() => {
 				ss.add(add.name, add.state)
 			})
 			const route = ss.buildFullStateRoute(set.route)
-			t.equal(route, set.expect, set.message)
+			assert.strictEqual(route, set.expect, set.message)
 		}
 	}
 
@@ -193,7 +194,7 @@ const defaultChildTests = (() => {
 				ss.add(add.name, add.state)
 			})
 			const applied = ss.applyDefaultChildStates(rootStateName)
-			t.equal(applied, set.expect, set.message)
+			assert.strictEqual(applied, set.expect, set.message)
 		}
 	}
 
@@ -214,16 +215,13 @@ const allTests = [].concat(
 	defaultChildTests,
 )
 
-test(`test state-state`, tt => {
-	allTests.forEach(thisTest => {
-		tt.test(thisTest.name, t => {
+test(`test state-state`, async t => {
+	for (const thisTest of allTests) {
+		await t.test(thisTest.name, t => {
 			const fn = thisTest.fn(t, StateState())
 			thisTest.sets.forEach(fn)
-
-			t.end()
 		})
-	})
-	tt.end()
+	}
 })
 
 /*
@@ -231,22 +229,19 @@ stateState.guaranteeAllStatesExist
 */
 test(`guaranteeAllStatesExist`, t => {
 	let ss = null
-	t.plan(2)
 
 	ss = StateState()
 	ss.add(`a`, `hahaha`)
 	ss.add(`a.b`, `rofl`)
 	ss.add(`a.b.c`, `um`)
-	t.doesNotThrow(() => {
+	assert.doesNotThrow(() => {
 		ss.guaranteeAllStatesExist(`a.b.c`)
 	}, /lolz/, `doesn\t throw when state exists`)
 
 	ss = StateState()
 	ss.add(`a`, `hahaha`)
 	ss.add(`a.b.c`, `um`)
-	t.throws(() => {
+	assert.throws(() => {
 		ss.guaranteeAllStatesExist(`a.b.c`)
 	}, /a\.b.+exist/, `Throws when an intermediate state doesn't exist`)
-
-	t.end()
 })

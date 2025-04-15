@@ -1,11 +1,11 @@
-import test from 'tape-catch'
+import { test } from 'node:test'
+import assert from 'node:assert'
 import getTestState from './helpers/test-state-factory.js'
 
-test(`test redirecting activating the correct states`, t => {
+test(`test redirecting activating the correct states`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(3)
 
 		let parentActivated = false
 		let cancelEvents = 0
@@ -18,7 +18,7 @@ test(`test redirecting activating the correct states`, t => {
 				return new Promise(resolve => setTimeout(resolve, 50))
 			},
 			activate() {
-				t.notOk(parentActivated, `The parent should only activate once`)
+				assert.ok(!parentActivated, `The parent should only activate once`)
 				parentActivated = true
 			},
 		})
@@ -31,7 +31,7 @@ test(`test redirecting activating the correct states`, t => {
 				return new Promise((_resolve, reject) => setTimeout(reject, 100, { redirectTo: { name: `valid.valid2` } }))
 			},
 			activate() {
-				t.fail(`should not activate`)
+				assert.fail(`should not activate`)
 			},
 		})
 
@@ -43,7 +43,7 @@ test(`test redirecting activating the correct states`, t => {
 				return new Promise((_resolve, reject) => setTimeout(reject, 100, { redirectTo: { name: `valid.valid3` } }))
 			},
 			activate() {
-				t.fail(`should not activate`)
+				assert.fail(`should not activate`)
 			},
 		})
 
@@ -55,9 +55,8 @@ test(`test redirecting activating the correct states`, t => {
 				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
-				t.pass(`valid.valid3 activated`)
-				t.equal(cancelEvents, 2, `Two cancel events emitted`)
-				t.end()
+				assert.ok(true, `valid.valid3 activated`)
+				assert.strictEqual(cancelEvents, 2, `Two cancel events emitted`)
 			},
 		})
 
@@ -68,24 +67,37 @@ test(`test redirecting activating the correct states`, t => {
 		return state
 	}
 
-	t.test(`with state.go`, t => {
-		const stateRouter = startTest(t).stateRouter
-		stateRouter.go(`valid.valid1`)
+	await t.test(`with state.go`, async t => {
+		const state = startTest(t)
+		const stateRouter = state.stateRouter
+
+		await new Promise(resolve => {
+			stateRouter.once('stateChangeEnd', () => {
+				resolve()
+			})
+
+			stateRouter.go(`valid.valid1`)
+		})
 	})
 
-	t.test(`by changing the url`, t => {
-		const hashRouter = startTest(t).hashRouter
-		hashRouter.go(`/valid/valid1`)
-	})
+	await t.test(`by changing the url`, async t => {
+		const state = startTest(t)
+		const hashRouter = state.hashRouter
 
-	t.end()
+		await new Promise(resolve => {
+			state.stateRouter.once('stateChangeEnd', () => {
+				resolve()
+			})
+
+			hashRouter.go(`/valid/valid1`)
+		})
+	})
 })
 
-test(`only one cancel happens if multiple redirects are called`, t => {
+test(`only one cancel happens if multiple redirects are called`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(2)
 
 		let cancelEvents = 0
 
@@ -110,7 +122,7 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 				})
 			},
 			activate() {
-				t.fail(`should not activate`)
+				assert.fail(`should not activate`)
 			},
 		})
 
@@ -119,7 +131,7 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 			route: `/valid2`,
 			template: {},
 			activate() {
-				t.fail(`should not activate`)
+				assert.fail(`should not activate`)
 			},
 		})
 
@@ -131,9 +143,8 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
-				t.pass(`valid.valid3 activated`)
-				t.equal(cancelEvents, 1, `One cancel event emitted`)
-				t.end()
+				assert.ok(true, `valid.valid3 activated`)
+				assert.strictEqual(cancelEvents, 1, `One cancel event emitted`)
 			},
 		})
 
@@ -144,15 +155,29 @@ test(`only one cancel happens if multiple redirects are called`, t => {
 		return state
 	}
 
-	t.test(`with state.go`, t => {
-		const stateRouter = startTest(t).stateRouter
-		stateRouter.go(`valid.valid1`)
+	await t.test(`with state.go`, async t => {
+		const state = startTest(t)
+		const stateRouter = state.stateRouter
+
+		await new Promise(resolve => {
+			stateRouter.once('stateChangeEnd', () => {
+				resolve()
+			})
+
+			stateRouter.go(`valid.valid1`)
+		})
 	})
 
-	t.test(`by changing the url`, t => {
-		const hashRouter = startTest(t).hashRouter
-		hashRouter.go(`/valid/valid1`)
-	})
+	await t.test(`by changing the url`, async t => {
+		const state = startTest(t)
+		const hashRouter = state.hashRouter
 
-	t.end()
+		await new Promise(resolve => {
+			state.stateRouter.once('stateChangeEnd', () => {
+				resolve()
+			})
+
+			hashRouter.go(`/valid/valid1`)
+		})
+	})
 })

@@ -102,45 +102,45 @@ test(`Emitting stateChangeStart and stateChangeEnd`, async t => {
 	await new Promise(resolve => {
 		stateRouter.once(`stateChangeStart`, (state, properties, states) => {
 			assert.strictEqual(state.name, `valid1.valid`)
-			assert.deepEqual(properties, firstProperties)
+			assert.deepStrictEqual(properties, firstProperties)
 			assert.strictEqual(firstParentActivate, false)
 			assert.strictEqual(firstChildActivate, false)
 			assert.strictEqual(secondParentActivate, false)
 			assert.strictEqual(secondChildActivate, false)
 
-			assert.deepEqual(states, [ valid1, valid1valid ])
+			assert.deepStrictEqual(states, [ valid1, valid1valid ])
 		})
 
 		stateRouter.once(`stateChangeEnd`, (state, properties, states) => {
 			assert.strictEqual(state.name, `valid1.valid`)
-			assert.deepEqual(properties, firstProperties)
+			assert.deepStrictEqual(properties, firstProperties)
 			assert.strictEqual(firstParentActivate, true)
 			assert.strictEqual(firstChildActivate, true)
 			assert.strictEqual(secondParentActivate, false)
 			assert.strictEqual(secondChildActivate, false)
 
-			assert.deepEqual(states, [ valid1, valid1valid ])
+			assert.deepStrictEqual(states, [ valid1, valid1valid ])
 
 			stateRouter.once(`stateChangeStart`, (state, properties, states) => {
 				assert.strictEqual(state.name, `valid2.valid`)
-				assert.deepEqual(properties, secondProperties)
+				assert.deepStrictEqual(properties, secondProperties)
 				assert.strictEqual(firstParentActivate, true)
 				assert.strictEqual(firstChildActivate, true)
 				assert.strictEqual(secondParentActivate, false)
 				assert.strictEqual(secondChildActivate, false)
 
-				assert.deepEqual(states, [ valid2, valid2valid ])
+				assert.deepStrictEqual(states, [ valid2, valid2valid ])
 			})
 
 			stateRouter.once(`stateChangeEnd`, (state, properties, states) => {
 				assert.strictEqual(state.name, `valid2.valid`)
-				assert.deepEqual(properties, secondProperties)
+				assert.deepStrictEqual(properties, secondProperties)
 				assert.strictEqual(firstParentActivate, true)
 				assert.strictEqual(firstChildActivate, true)
 				assert.strictEqual(secondParentActivate, true)
 				assert.strictEqual(secondChildActivate, true)
 
-				assert.deepEqual(states, [ valid2, valid2valid ])
+				assert.deepStrictEqual(states, [ valid2, valid2valid ])
 
 				resolve()
 			})

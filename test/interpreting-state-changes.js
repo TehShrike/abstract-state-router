@@ -1,12 +1,12 @@
-import test from 'tape-catch'
-
+import { test } from 'node:test'
+import assert from 'node:assert'
 import interpretStateChange from '../lib/state-change-logic.js'
 
 test(`State change logic`, t => {
 	function check(description, input, expected) {
 		const output = interpretStateChange(input)
 
-		t.deepEqual(output, expected, description)
+		assert.deepStrictEqual(output, expected, description)
 	}
 
 	check(`only changing the grandchild`, [ {
@@ -128,6 +128,4 @@ test(`State change logic`, t => {
 		destroy: [ `app`, `app.main`, `app.main.tab1` ],
 		create: [ `app`, `app.main`, `app.main.tab1` ],
 	})
-
-	t.end()
 })
