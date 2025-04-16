@@ -1,11 +1,11 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`test queue with a basic activate-in-order test`, t => {
+test(`test queue with a basic activate-in-order test`, async t => {
 	function startTest(t) {
 		const state = getTestState(t)
 		const stateRouter = state.stateRouter
-		t.plan(3)
 
 		let parentActivated = false
 		let cancelEvents = 0
@@ -14,11 +14,11 @@ test(`test queue with a basic activate-in-order test`, t => {
 			name: `valid`,
 			route: `/valid`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
-				t.notOk(parentActivated, `Should only activate once`)
+				assert.ok(!parentActivated, `Should only activate once`)
 				parentActivated = true
 			},
 		})
@@ -27,11 +27,11 @@ test(`test queue with a basic activate-in-order test`, t => {
 			name: `valid.valid1`,
 			route: `/valid1`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
-				t.fail(`should not activate`)
+				assert.fail(`should not activate`)
 			},
 		})
 
@@ -40,7 +40,7 @@ test(`test queue with a basic activate-in-order test`, t => {
 			route: `/valid2`,
 			template: {},
 			activate() {
-				t.fail(`should not activate`)
+				assert.fail(`should not activate`)
 			},
 		})
 
@@ -48,13 +48,12 @@ test(`test queue with a basic activate-in-order test`, t => {
 			name: `valid.valid3`,
 			route: `/valid3`,
 			template: {},
-			resolve(data, params, cb) {
-				setTimeout(cb, 100)
+			resolve(data, params) {
+				return new Promise(resolve => setTimeout(resolve, 100))
 			},
 			activate() {
-				t.pass(`valid.valid3 activated`)
-				t.equal(cancelEvents, 2, `Two cancel events emitted`)
-				t.end()
+				assert.ok(true, `valid.valid3 activated`)
+				assert.strictEqual(cancelEvents, 2, `Two cancel events emitted`)
 			},
 		})
 
@@ -65,28 +64,40 @@ test(`test queue with a basic activate-in-order test`, t => {
 		return state
 	}
 
-	t.test(`with state.go`, t => {
-		const stateRouter = startTest(t).stateRouter
-		stateRouter.go(`valid.valid1`)
-		stateRouter.go(`valid.valid2`)
-		stateRouter.go(`valid.valid3`)
+	await t.test(`with state.go`, async t => {
+		const stateRouter = (await startTest(t)).stateRouter
+
+		await new Promise(resolve => {
+			stateRouter.once('stateChangeEnd', () => {
+				resolve()
+			})
+
+			stateRouter.go(`valid.valid1`)
+			stateRouter.go(`valid.valid2`)
+			stateRouter.go(`valid.valid3`)
+		})
 	})
 
-	t.test(`by changing the url`, t => {
-		const hashRouter = startTest(t).hashRouter
-		hashRouter.go(`/valid/valid1`)
-		hashRouter.go(`/valid/valid2`)
-		hashRouter.go(`/valid/valid3`)
-	})
+	await t.test(`by changing the url`, async t => {
+		const state = startTest(t)
+		const stateRouter = state.stateRouter
+		const hashRouter = state.hashRouter
 
-	t.end()
+		await new Promise(resolve => {
+			state.stateRouter.once('stateChangeEnd', () => {
+				resolve()
+			})
+
+			hashRouter.go(`/valid/valid1`)
+			hashRouter.go(`/valid/valid2`)
+			hashRouter.go(`/valid/valid3`)
+		})
+	})
 })
 
-test(`test queue a state.go happening during a render`, t => {
+test(`test queue a state.go happening during a render`, async t => {
 	const state = getTestState(t)
 	const stateRouter = state.stateRouter
-	t.plan(3)
-	t.timeoutAfter(1000)
 
 	let parentActivated = false
 
@@ -94,11 +105,11 @@ test(`test queue a state.go happening during a render`, t => {
 		name: `valid`,
 		route: `/valid`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 100)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
-			t.notOk(parentActivated, `Should only activate once`)
+			assert.ok(!parentActivated, `Should only activate once`)
 			parentActivated = true
 		},
 	})
@@ -107,15 +118,17 @@ test(`test queue a state.go happening during a render`, t => {
 		name: `valid.valid1`,
 		route: `/valid1`,
 		template: {},
-		resolve(data, params, cb) {
-			t.pass(`valid.valid1 resolve called`)
-			setTimeout(cb, 100)
-			process.nextTick(() => {
-				stateRouter.go(`valid.valid2`)
+		resolve(data, params) {
+			assert.ok(true, `valid.valid1 resolve called`)
+			return new Promise(resolve => {
+				setTimeout(resolve, 100)
+				process.nextTick(() => {
+					stateRouter.go(`valid.valid2`)
+				})
 			})
 		},
 		activate() {
-			t.fail(`should not activate`)
+			assert.fail(`should not activate`)
 		},
 	})
 
@@ -123,32 +136,37 @@ test(`test queue a state.go happening during a render`, t => {
 		name: `valid.valid2`,
 		route: `/valid2`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 100)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
-			t.pass(`valid.valid2 activated`)
-			t.end()
+			assert.ok(true, `valid.valid2 activated`)
 		},
 	})
 
-	stateRouter.go(`valid.valid1`)
+	await new Promise(resolve => {
+		stateRouter.once('stateChangeEnd', () => {
+			resolve()
+		})
+
+		stateRouter.go(`valid.valid1`)
+	})
 })
 
-test(`test queue a state.go when the last transition is in the middle of activating`, t => {
+test(`test queue a state.go when the last transition is in the middle of activating`, async t => {
 	const state = getTestState(t)
 	const stateRouter = state.stateRouter
-	t.plan(4)
 
 	let firstTimeParentHasBeenActivated = true
 	let valid2Activated = false
+	let valid1Activated = false
 
 	stateRouter.addState({
 		name: `valid`,
 		route: `/valid`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 100)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
 			if (firstTimeParentHasBeenActivated) {
@@ -162,13 +180,14 @@ test(`test queue a state.go when the last transition is in the middle of activat
 		name: `valid.valid1`,
 		route: `/valid1`,
 		template: {},
-		resolve(data, params, cb) {
-			t.pass(`valid.valid1 resolve called`)
-			setTimeout(cb, 100)
+		resolve(data, params) {
+			assert.ok(true, `valid.valid1 resolve called`)
+			return new Promise(resolve => setTimeout(resolve, 100))
 		},
 		activate() {
-			t.notOk(valid2Activated, `valid2 should not be activated yet`)
-			t.pass(`valid.valid1 should activate`)
+			valid1Activated = true
+			assert.ok(!valid2Activated, `valid2 should not be activated yet`)
+			assert.ok(true, `valid.valid1 should activate`)
 		},
 	})
 
@@ -176,15 +195,35 @@ test(`test queue a state.go when the last transition is in the middle of activat
 		name: `valid.valid2`,
 		route: `/valid2`,
 		template: {},
-		resolve(data, params, cb) {
-			setTimeout(cb, 50)
+		resolve(data, params) {
+			return new Promise(resolve => setTimeout(resolve, 50))
 		},
 		activate() {
 			valid2Activated = true
-			t.pass(`valid.valid2 activated`)
-			t.end()
+			assert.ok(true, `valid.valid2 activated`)
 		},
 	})
 
+	// First go to valid.valid1
 	stateRouter.go(`valid.valid1`)
+
+	// Wait for valid1 to be activated
+	await new Promise(resolve => {
+		const checkInterval = setInterval(() => {
+			if (valid1Activated) {
+				clearInterval(checkInterval)
+				resolve()
+			}
+		}, 50)
+	})
+
+	// Then wait for valid2 to be activated
+	await new Promise(resolve => {
+		const checkInterval = setInterval(() => {
+			if (valid2Activated) {
+				clearInterval(checkInterval)
+				resolve()
+			}
+		}, 50)
+	})
 })

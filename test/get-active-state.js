@@ -1,7 +1,8 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`getActiveState with no parameters`, t => {
+test(`getActiveState with no parameters`, async t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	stateRouter.addState({
@@ -22,20 +23,21 @@ test(`getActiveState with no parameters`, t => {
 		route: `/grandchild`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.deepEqual(stateRouter.getActiveState(), {
-			name: `parent.child`,
-			parameters: {},
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.deepStrictEqual(stateRouter.getActiveState(), {
+				name: `parent.child`,
+				parameters: {},
+			})
+
+			resolve()
 		})
 
-		t.end()
+		stateRouter.go(`parent.child`)
 	})
-
-	stateRouter.go(`parent.child`)
 })
 
-
-test(`getActiveState returns parameters`, t => {
+test(`getActiveState returns parameters`, async t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	stateRouter.addState({
@@ -50,11 +52,13 @@ test(`getActiveState returns parameters`, t => {
 		route: `/child`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.equal(stateRouter.getActiveState().parameters.butts, `yes`)
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.strictEqual(stateRouter.getActiveState().parameters.butts, `yes`)
 
-		t.end()
+			resolve()
+		})
+
+		stateRouter.go(`parent.child`, { butts: `yes` })
 	})
-
-	stateRouter.go(`parent.child`, { butts: `yes` })
 })

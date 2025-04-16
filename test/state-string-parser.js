@@ -1,8 +1,9 @@
-const test = require(`tape-catch`)
-const parse = require(`../lib/state-string-parser`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import parse from '../lib/state-string-parser.js'
 
 function testParsing(t, input, output) {
-	t.deepEqual(parse(input), output, `${ input } produces ${ output.length } results`)
+	assert.deepStrictEqual(parse(input), output, `${ input } produces ${ output.length } results`)
 }
 
 const TESTS = [
@@ -12,6 +13,5 @@ const TESTS = [
 ]
 
 test(`state string parser`, t => {
-	t.plan(TESTS.length)
 	TESTS.forEach(ary => testParsing(t, ary[0], ary[1]))
 })

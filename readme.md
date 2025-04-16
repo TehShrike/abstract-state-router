@@ -4,29 +4,17 @@
 
 abstract-state-router lets you build single-page webapps using nested routes/states.  Your code doesn't reference routes directly, like `/app/users/josh`, but by name and properties, like `app.user` + `{ name: 'josh' }`.
 
-To find out why you should be using this kind of router, read [Why Your Webapp Needs a State-Based Router](https://joshduff.com/2015-06-why-you-need-a-state-router.html).
+Nested routes were a novelty when abstract-state-router released in 2014!  If you're interested in the motivation, check out [Why Your Webapp Needs a State-Based Router](https://joshduff.com/2015-06-why-you-need-a-state-router.html).
 
-abstract-state-router is heavily inspired by the [original ui-router](https://github.com/angular-ui/ui-router/wiki).  The biggest difference is: you can use abstract-state-router with whatever templating/component library you like.
-
-It is similar in that way to the [new ui-router](https://github.com/ui-router/core), except that abstract-state-router is smaller, its documentation is more readable, and it is easier to create [new renderers for arbitrary view libraries](./renderer.md).
-
-To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](https://tehshrike.github.io/state-router-example).
+abstract-state-router has another huge advantage: you can use it with any templating/component library you like, and transition your app from one component library to another gradually when the day comes.
 
 # Project status
 
 This project is stable and has been used in production for years.
 
-The last major version bump change was in July of 2021 when the project started shipping modern JS instead of ES5.  There have been no breaking changes to the library's function APIs since 2015.
+The last major version bump was in April of 2025 when the project was finally converted from CommonJS to ES Modules and support for callbacks was dropped (nearly 10 years after Promises were added to the language spec).
 
 abstract-state-router is extensible without much work, so very few feature additions have been necessary.
-
-I occasionally have dreams of [a rewrite](https://github.com/TehShrike/abstract-state-router/wiki), but it's hard to justify when the current version works so well for my main target use case (business software).
-
-# Browser compatibility
-
-This project is currently published as CommonJS with modern JS syntax.  If you're targeting browsers more than 2-3 years old, I assume you're already compiling your code for your target environments.
-
-If you're supporting really old browsers pre-ES2015 browsers, you'll need polyfills for `Promise` and `Object.assign`.  Check out [polyfill-fastly.net](https://polyfill-fastly.net/) for automatic polyfills, it makes life super-easy.
 
 # Current renderer implementations
 
@@ -50,8 +38,8 @@ Your CommonJS-supporting bundler should be able to `import make_state_router fro
 
 - [Instantiate](#instantiate)
 	- [`options`](#options)
-- [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters-canleavestate)
-	- [`resolve`](#resolvedata-parameters-callbackerr-contentredirectstatename-stateparameters)
+- [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
+	- [`resolve`](#resolvedata-parameters)
 	- [`activate`](#activatecontext)
 	- [Examples](#addstate-examples)
 - [`go`](#stateroutergostatename-stateparameters-options)
@@ -66,9 +54,9 @@ Your CommonJS-supporting bundler should be able to `import make_state_router fro
 ## Instantiate
 
 ```js
-var createStateRouter = require('abstract-state-router')
+import createStateRouter from 'abstract-state-router'
 
-var stateRouter = createStateRouter(makeRenderer, rootElement, options)
+const stateRouter = createStateRouter(makeRenderer, rootElement, options)
 ```
 
 The `makeRenderer` should be a function that returns an object with these properties: render, destroy, and getChildElement.  Documentation is [here](https://github.com/TehShrike/abstract-state-router/blob/master/renderer.md) - see [test/support/renderer-mock.js](https://github.com/TehShrike/abstract-state-router/blob/master/test/helpers/renderer-mock.js) for an example implementation.
@@ -111,15 +99,13 @@ For backwards compatibility reasons, `defaultQuerystringParameters` will work as
 
 `canLeaveState` is an optional function that takes two arguments: the state's domApi, and an object with the `name` and `parameters` of the state that the user is attempting to navigate to.  It can return either a boolean, or a promise that resolves to a boolean.  If `canLeaveState` returns `false`, navigation from the current state will be prevented. If the function returns `true` the state change will continue.
 
-### resolve(data, parameters, callback(err, content).redirect(stateName, [stateParameters]))
+### resolve(data, parameters)
 
 `data` is the data object you passed to the addState call.  `parameters` is an object containing the parameters that were parsed out of the route and the query string.
 
 #### Returning values
 
-Your `resolve` function can either return a promise, or call the callback.
-
-Properties on the returned object will be set as attributes on the state's component.
+Your `resolve` function must return a promise. Properties on the resolved object will be set as attributes on the state's component.
 
 ```js
 async function resolve(data, parameters) {
@@ -137,22 +123,20 @@ async function resolve(data, parameters) {
 
 #### Errors/redirecting
 
-If you return a rejected promise or call `callback(err, content)` with a truthy `err` value, the state change will be cancelled and the previous state will remain active.
+If you return a rejected promise the state change will be cancelled and the previous state will remain active.
 
-If you call `callback.redirect(stateName, [stateParameters])`, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history.
-
-To cause a redirect with promises, return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values for the state to redirect to:
+If you return a rejected promise with an object containing a `redirectTo` property with `name` and `params` values, the state router will begin transitioning to that state instead.  The current destination will never become active, and will not show up in the browser history:
 
 ```js
-function resolve(data, parameters) {
-	return Promise.reject({
+async function resolve(data, parameters) {
+	throw {
 		redirectTo: {
 			name: 'otherCoolState',
 			params: {
 				extraCool: true
 			}
 		}
-	})
+	}
 }
 ```
 
@@ -163,7 +147,7 @@ The activate function is called when the state becomes active.  It is passed an 
 - `domApi`: the DOM API returned by the renderer
 - `data`: the data object given to the addState call
 - `parameters`: the route/querystring parameters
-- `content`: the object passed into the resolveFunction's callback
+- `content`: the object returned by the resolve function
 
 The `context` object is also an event emitter that emits a `'destroy'` event when the state is being transitioned away from.  You should listen to this event to clean up any workers that may be ongoing.
 
@@ -347,11 +331,11 @@ To run the unit tests:
 pushState routing is technically supported.  To use it, pass in an options object with a `router` hash-brown-router constructed with a [sausage-router](https://github.com/TehShrike/sausage-router), and then set the `pathPrefix` option to an empty string.
 
 ```js
-var makeStateRouter = require('abstract-state-router')
-var sausage = require('sausage-router')
-var makeRouter = require('hash-brown-router')
+import makeStateRouter from 'abstract-state-router'
+import sausage from 'sausage-router'
+import makeRouter from 'hash-brown-router'
 
-var stateRouter = makeStateRouter(makeRenderer, rootElement, {
+const stateRouter = makeStateRouter(makeRenderer, rootElement, {
 	pathPrefix: '',
 	router: makeRouter(sausage())
 })

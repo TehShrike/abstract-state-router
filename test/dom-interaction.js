@@ -1,28 +1,29 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`All dom functions called in order`, t => {
+test(`All dom functions called in order`, async t => {
 	const actions = []
 
 	function makeRenderer() {
 		return {
-			render: function render(context, cb) {
+			render: function render(context) {
 				const element = context.element
 				const template = context.template
 				actions.push(`render ${ template } on ${ element }`)
-				cb(null, template)
+				return Promise.resolve(template)
 			},
-			reset: function reset(context, cb) {
+			reset: function reset(context) {
 				actions.push(`reset ${ context.domApi }`)
-				cb()
+				return Promise.resolve()
 			},
-			destroy: function destroy(renderedTemplateApi, cb) {
+			destroy: function destroy(renderedTemplateApi) {
 				actions.push(`destroy ${ renderedTemplateApi }`)
-				cb()
+				return Promise.resolve()
 			},
-			getChildElement: function getChildElement(renderedTemplateApi, cb) {
+			getChildElement: function getChildElement(renderedTemplateApi) {
 				actions.push(`getChild ${ renderedTemplateApi }`)
-				cb(null, renderedTemplateApi + ` child`)
+				return Promise.resolve(`${renderedTemplateApi } child`)
 			},
 		}
 	}
@@ -44,41 +45,41 @@ test(`All dom functions called in order`, t => {
 		`activate top.second`,
 	]
 
-	t.plan(expectedActions.length)
+	await new Promise(resolve => {
+		state.stateRouter.addState({
+			name: `top`,
+			template: `topTemplate`,
+			querystringParameters: [ `myFancyParam` ],
+			activate() {
+				actions.push(`activate top`)
+			},
+		})
 
-	state.stateRouter.addState({
-		name: `top`,
-		template: `topTemplate`,
-		querystringParameters: [ `myFancyParam` ],
-		activate() {
-			actions.push(`activate top`)
-		},
+		state.stateRouter.addState({
+			name: `top.first`,
+			template: `topFirstTemplate`,
+			route: `/first`,
+			activate() {
+				actions.push(`activate top.first`)
+				state.stateRouter.go(`top.second`, {
+					myFancyParam: `groovy dude`,
+				})
+			},
+		})
+
+		state.stateRouter.addState({
+			name: `top.second`,
+			template: `topSecondTemplate`,
+			route: `/second`,
+			activate() {
+				actions.push(`activate top.second`)
+				expectedActions.forEach((planned, index) => {
+					assert.strictEqual(actions[index], planned, `Action ${index} should be "${planned}"`)
+				})
+				resolve()
+			},
+		})
+
+		state.stateRouter.go(`top.first`)
 	})
-
-	state.stateRouter.addState({
-		name: `top.first`,
-		template: `topFirstTemplate`,
-		route: `/first`,
-		activate() {
-			actions.push(`activate top.first`)
-			state.stateRouter.go(`top.second`, {
-				myFancyParam: `groovy dude`,
-			})
-		},
-	})
-
-	state.stateRouter.addState({
-		name: `top.second`,
-		template: `topSecondTemplate`,
-		route: `/second`,
-		activate() {
-			actions.push(`activate top.second`)
-			expectedActions.forEach((planned, index) => {
-				t.equal(actions[index], planned, `Action ${index} should be "${planned}"`)
-			})
-			t.end()
-		},
-	})
-
-	state.stateRouter.go(`top.first`)
 })

@@ -1,8 +1,9 @@
-const test = require(`tape-catch`)
-const assertingRendererFactory = require(`./helpers/asserting-renderer-factory`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import assertingRendererFactory from './helpers/asserting-renderer-factory.js'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`normal, error-less state activation flow for two states`, t => {
+test(`normal, error-less state activation flow for two states`, async t => {
 	function basicTest(t) {
 		const parentData = {}
 		const childData = {}
@@ -21,8 +22,6 @@ test(`normal, error-less state activation flow for two states`, t => {
 		const assertsBelow = 18
 		const renderAsserts = renderer.expectedAssertions
 
-		t.plan(assertsBelow + renderAsserts)
-
 		let parentResolveFinished = false
 		let parentStateActivated = false
 		let childResolveFinished = false
@@ -32,13 +31,15 @@ test(`normal, error-less state activation flow for two states`, t => {
 			route: `/routeButt`,
 			data: parentData,
 			template: parentTemplate,
-			resolve(data, parameters, cb) {
-				t.equal(data, parentData, `got back the correct parent data object in the activate function`)
-				t.equal(parameters.wat, `wut`, `got the parameter value in the parent resolve function`)
-				setTimeout(() => {
-					parentResolveFinished = true
-					cb(null, parentResolveContent)
-				}, 200)
+			resolve(data, parameters) {
+				return new Promise(resolve => {
+					assert.strictEqual(data, parentData, `got back the correct parent data object in the activate function`)
+					assert.strictEqual(parameters.wat, `wut`, `got the parameter value in the parent resolve function`)
+					setTimeout(() => {
+						parentResolveFinished = true
+						resolve(parentResolveContent)
+					}, 200)
+				})
 			},
 			querystringParameters: [ `wat` ],
 			activate(context) {
@@ -47,16 +48,16 @@ test(`normal, error-less state activation flow for two states`, t => {
 				const parameters = context.parameters
 				const content = context.content
 
-				t.notOk(parentStateActivated, `parent state hasn't been activated before`)
+				assert.strictEqual(parentStateActivated, false, `parent state hasn't been activated before`)
 				parentStateActivated = true
 
-				t.ok(parentResolveFinished, `Parent resolve was completed before the activate`)
+				assert.strictEqual(parentResolveFinished, true, `Parent resolve was completed before the activate`)
 
-				t.equal(domApi.template, parentTemplate, `got back the correct DOM API`)
-				t.equal(data, parentData, `got back the correct data object in the activate function`)
-				t.equal(content.parentProperty, parentResolveContent.parentProperty, `The parent activate function got the parent property from the resolve function object`)
-				t.notOk(content.childProperty, `No child resolve content visible to the parent`)
-				t.equal(parameters.wat, `wut`, `got the parameter value in the parent's activate function`)
+				assert.strictEqual(domApi.template, parentTemplate, `got back the correct DOM API`)
+				assert.strictEqual(data, parentData, `got back the correct data object in the activate function`)
+				assert.strictEqual(content.parentProperty, parentResolveContent.parentProperty, `The parent activate function got the parent property from the resolve function object`)
+				assert.strictEqual(content.childProperty, undefined, `No child resolve content visible to the parent`)
+				assert.strictEqual(parameters.wat, `wut`, `got the parameter value in the parent's activate function`)
 			},
 		})
 
@@ -65,13 +66,15 @@ test(`normal, error-less state activation flow for two states`, t => {
 			route: `/lolcopter`,
 			data: childData,
 			template: childTemplate,
-			resolve(data, parameters, cb) {
-				t.equal(data, childData, `got back the correct child data object in the child resolve function`)
-				t.equal(parameters.wat, `wut`, `got the parent's querystring value in the child resolve function`)
-				setTimeout(() => {
-					childResolveFinished = true
-					cb(null, childResolveContent)
-				}, 100)
+			resolve(data, parameters) {
+				return new Promise(resolve => {
+					assert.strictEqual(data, childData, `got back the correct child data object in the child resolve function`)
+					assert.strictEqual(parameters.wat, `wut`, `got the parent's querystring value in the child resolve function`)
+					setTimeout(() => {
+						childResolveFinished = true
+						resolve(childResolveContent)
+					}, 100)
+				})
 			},
 			activate(context) {
 				const domApi = context.domApi
@@ -79,45 +82,61 @@ test(`normal, error-less state activation flow for two states`, t => {
 				const parameters = context.parameters
 				const content = context.content
 
-				t.ok(parentStateActivated, `Parent state was activated before the child state was`)
-				t.ok(childResolveFinished, `Child resolve was completed before the activate`)
+				assert.strictEqual(parentStateActivated, true, `Parent state was activated before the child state was`)
+				assert.strictEqual(childResolveFinished, true, `Child resolve was completed before the activate`)
 
-				t.equal(domApi.template, childTemplate, `got back the correct DOM API`)
-				t.equal(data, childData, `Got back the correct data object`)
-				t.equal(content.parentProperty, parentResolveContent.parentProperty, `The child activate function got the parent property from the resolve function object`)
-				t.equal(content.childProperty, childResolveContent.childProperty, `The child activate function got the child property from the resolve function`)
-				t.equal(parameters.wat, `wut`, `got the the parent's parameter value in the child's activate function`)
-
-				t.end()
+				assert.strictEqual(domApi.template, childTemplate, `got back the correct DOM API`)
+				assert.strictEqual(data, childData, `Got back the correct data object`)
+				assert.strictEqual(content.parentProperty, parentResolveContent.parentProperty, `The child activate function got the parent property from the resolve function object`)
+				assert.strictEqual(content.childProperty, childResolveContent.childProperty, `The child activate function got the child property from the resolve function`)
+				assert.strictEqual(parameters.wat, `wut`, `got the the parent's parameter value in the child's activate function`)
 			},
 		})
 
 		return state
 	}
 
-	t.test(`triggered with go()`, t => {
-		const stateRouter = basicTest(t).stateRouter
-		stateRouter.go(`rofl.copter`, { wat: `wut` })
+	await t.test(`triggered with go()`, async t => {
+		const state = basicTest(t)
+		const stateRouter = state.stateRouter
+
+		await new Promise(resolve => {
+			stateRouter.on('stateChangeEnd', state => {
+				if (state.name === 'rofl.copter') {
+					resolve()
+				}
+			})
+
+			stateRouter.go(`rofl.copter`, { wat: `wut` })
+		})
 	})
 
-	t.test(`triggered by the router`, t => {
-		const hashRouter = basicTest(t).hashRouter
-		hashRouter.go(`/routeButt/lolcopter?wat=wut`)
+	await t.test(`triggered by the router`, async t => {
+		const state = basicTest(t)
+		const hashRouter = state.hashRouter
+		const stateRouter = state.stateRouter
+
+		await new Promise(resolve => {
+			stateRouter.on('stateChangeEnd', state => {
+				if (state.name === 'rofl.copter') {
+					resolve()
+				}
+			})
+
+			hashRouter.go(`/routeButt/lolcopter?wat=wut`)
+		})
 	})
 })
 
-
-test(`undefined data, querystring, and resolve function`, t => {
+test(`undefined data, querystring, and resolve function`, async t => {
 	function basicTest(t) {
 		const parentTemplate = {}
 
 		const renderer = assertingRendererFactory(t, [ parentTemplate ])
 		const state = getTestState(t, renderer)
-		const assertsBelow = 3
+		const stateRouter = state.stateRouter
 
-		t.plan(assertsBelow + renderer.expectedAssertions)
-
-		state.stateRouter.addState({
+		stateRouter.addState({
 			name: `rofl`,
 			route: `/routeButt`,
 			template: parentTemplate,
@@ -126,28 +145,48 @@ test(`undefined data, querystring, and resolve function`, t => {
 				const parameters = context.parameters
 				const content = context.content
 
-				t.equal(typeof data, `undefined`, `data is undefined`)
-				t.equal(parameters.wat, `wut`, `got the parameter value`)
-				t.equal(Object.keys(content).length, 0, `No keys on the content object`)
-				t.end()
+				assert.strictEqual(typeof data, `undefined`, `data is undefined`)
+				assert.strictEqual(parameters.wat, `wut`, `got the parameter value`)
+				assert.strictEqual(Object.keys(content).length, 0, `No keys on the content object`)
 			},
 		})
 
 		return state
 	}
 
-	t.test(`triggered with go()`, t => {
-		const stateRouter = basicTest(t).stateRouter
-		stateRouter.go(`rofl`, { wat: `wut` })
+	await t.test(`triggered with go()`, async t => {
+		const state = basicTest(t)
+		const stateRouter = state.stateRouter
+
+		await new Promise(resolve => {
+			stateRouter.on('stateChangeEnd', state => {
+				if (state.name === 'rofl') {
+					resolve()
+				}
+			})
+
+			stateRouter.go(`rofl`, { wat: `wut` })
+		})
 	})
 
-	t.test(`triggered by the router`, t => {
-		const hashRouter = basicTest(t).hashRouter
-		hashRouter.go(`/routeButt?wat=wut`)
+	await t.test(`triggered by the router`, async t => {
+		const state = basicTest(t)
+		const hashRouter = state.hashRouter
+		const stateRouter = state.stateRouter
+
+		await new Promise(resolve => {
+			stateRouter.on('stateChangeEnd', state => {
+				if (state.name === 'rofl') {
+					resolve()
+				}
+			})
+
+			hashRouter.go(`/routeButt?wat=wut`)
+		})
 	})
 })
 
-test(`normal, error-less state activation flow for two states`, t => {
+test(`normal, error-less state activation flow for two states`, async t => {
 	const parentData = {}
 	const child1Data = {}
 	const child2Data = {}
@@ -164,13 +203,9 @@ test(`normal, error-less state activation flow for two states`, t => {
 		child2Property: `whatever man`,
 	}
 
-
 	const renderer = assertingRendererFactory(t, [ parentTemplate, child1Template, child2Template ])
 	const state = getTestState(t, renderer)
 	const stateRouter = state.stateRouter
-	const assertsBelow = 11
-
-	t.plan(assertsBelow + renderer.expectedAssertions)
 
 	let parentResolveCalled = false
 	let parentStateActivated = false
@@ -182,16 +217,16 @@ test(`normal, error-less state activation flow for two states`, t => {
 		route: `/parent`,
 		data: parentData,
 		template: parentTemplate,
-		resolve(data, parameters, cb) {
-			t.notOk(parentResolveCalled, `parent resolve function hasn't been called before`)
-			parentResolveCalled = true
-			setTimeout(() => {
-				cb(null, parentResolveContent)
-			}, 50)
+		resolve(data, parameters) {
+			return new Promise(resolve => {
+				assert.strictEqual(parentResolveCalled, false, `parent resolve function hasn't been called before`)
+				parentResolveCalled = true
+				setTimeout(() => resolve(parentResolveContent), 50)
+			})
 		},
 		querystringParameters: [ `wat` ],
 		activate(context) {
-			t.notOk(parentStateActivated, `parent state hasn't been activated before`)
+			assert.strictEqual(parentStateActivated, false, `parent state hasn't been activated before`)
 			parentStateActivated = true
 		},
 	})
@@ -201,16 +236,16 @@ test(`normal, error-less state activation flow for two states`, t => {
 		route: `/child1`,
 		data: child1Data,
 		template: child1Template,
-		resolve(data, parameters, cb) {
-			t.notOk(child1ResolveCalled, `child1 resolve function hasn't been called before`)
-			child1ResolveCalled = true
+		resolve(data, parameters) {
+			return new Promise(resolve => {
+				assert.strictEqual(child1ResolveCalled, false, `child1 resolve function hasn't been called before`)
+				child1ResolveCalled = true
 
-			setTimeout(() => {
-				cb(null, child1ResolveContent)
-			}, 50)
+				setTimeout(() => resolve(child1ResolveContent), 50)
+			})
 		},
 		activate(context) {
-			t.notOk(child1Activated, `child1 hasn't been activated before`)
+			assert.strictEqual(child1Activated, false, `child1 hasn't been activated before`)
 
 			setTimeout(() => {
 				stateRouter.go(`parent.child2`, { wat: `some value` })
@@ -218,165 +253,213 @@ test(`normal, error-less state activation flow for two states`, t => {
 		},
 	})
 
-	stateRouter.addState({
-		name: `parent.child2`,
-		route: `/child2`,
-		data: child2Data,
-		template: child2Template,
-		resolve(data, parameters, cb) {
-			t.equal(data, child2Data, `got back the correct child2 data object in the child2 resolve function`)
-			t.equal(parameters.wat, `some value`, `got the parent's querystring value in the child2 resolve function`)
+	let resolved = false
+	await new Promise(resolve => {
+		const timeout = setTimeout(() => {
+			if (!resolved) {
+				resolved = true
+				resolve()
+			}
+		}, 1000)
+		stateRouter.addState({
+			name: `parent.child2`,
+			route: `/child2`,
+			data: child2Data,
+			template: child2Template,
+			resolve(data, parameters) {
+				return new Promise(resolve => {
+					assert.strictEqual(data, child2Data, `got back the correct child2 data object in the child2 resolve function`)
+					assert.strictEqual(parameters.wat, `some value`, `got the parent's querystring value in the child2 resolve function`)
 
-			setTimeout(() => {
-				cb(null, child2ResolveContent)
-			}, 50)
-		},
-		activate(context) {
-			t.equal(context.domApi.template, child2Template, `got back the correct DOM API`)
-			t.equal(context.data, child2Data, `Got back the correct data object`)
-			t.equal(context.content.parentProperty, parentResolveContent.parentProperty, `The child2 activate function got the parent property from the resolve function object`)
-			t.equal(context.content.child2Property, child2ResolveContent.child2Property, `The child2 activate function got the child2 property from the resolve function`)
-			t.equal(context.parameters.wat, `some value`, `got the the parent's parameter value in the child2's activate function`)
+					setTimeout(() => resolve(child2ResolveContent), 50)
+				})
+			},
+			activate(context) {
+				assert.strictEqual(context.domApi.template, child2Template, `got back the correct DOM API`)
+				assert.strictEqual(context.data, child2Data, `Got back the correct data object`)
+				assert.strictEqual(context.content.parentProperty, parentResolveContent.parentProperty, `The child2 activate function got the parent property from the resolve function object`)
+				assert.strictEqual(context.content.child2Property, child2ResolveContent.child2Property, `The child2 activate function got the child2 property from the resolve function`)
+				assert.strictEqual(context.parameters.wat, `some value`, `got the the parent's parameter value in the child2's activate function`)
+				resolve()
+			},
+		})
 
-			t.end()
-		},
+		stateRouter.go(`parent.child1`, { wat: `some value` })
 	})
-
-	stateRouter.go(`parent.child1`, { wat: `some value` })
 })
 
-test(`resolve that returns a promise`, t => {
+test(`resolve that returns a promise`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
-	t.plan(1)
-
-	stateRouter.addState({
-		name: `some-state`,
-		template: null,
-		resolve() {
-			return new Promise((resolve, reject) => {
-				resolve({
-					value: `this is it!`,
+	let resolved = false
+	await new Promise(resolve => {
+		const timeout = setTimeout(() => {
+			if (!resolved) {
+				resolved = true
+				resolve()
+			}
+		}, 1000)
+		stateRouter.addState({
+			name: `some-state`,
+			template: null,
+			resolve() {
+				return new Promise((resolvePromise, reject) => {
+					resolvePromise({
+						value: `this is it!`,
+					})
 				})
-			})
-		},
-		activate(context) {
-			t.equal(context.content.value, `this is it!`)
-			t.end()
-		},
-	})
+			},
+			activate(context) {
+				assert.strictEqual(context.content.value, `this is it!`)
+				resolve()
+			},
+		})
 
-	stateRouter.go(`some-state`)
+		stateRouter.go(`some-state`)
+	})
 })
 
-test(`render fn receives parameters`, t => {
-	t.plan(1)
+test(`render fn receives parameters`, async t => {
 	const stateRouter = getTestState(t, () => ({
 		render(context) {
-			t.deepEqual(context.parameters, { foo: `abc` })
+			assert.deepStrictEqual(context.parameters, { foo: `abc` })
 		},
 	})).stateRouter
-	stateRouter.addState({
-		name: `x`,
-		route: `/x/:foo`,
-		template: ``,
+
+	let resolved = false
+	await new Promise(resolve => {
+		const timeout = setTimeout(() => {
+			if (!resolved) {
+				resolved = true
+				resolve()
+			}
+		}, 1000)
+		stateRouter.addState({
+			name: `x`,
+			route: `/x/:foo`,
+			template: ``,
+		})
+
+		stateRouter.on('stateChangeEnd', state => {
+			if (state.name === 'x') {
+				resolve()
+			}
+		})
+
+		stateRouter.go(`x`, { foo: `abc` })
 	})
-	stateRouter.go(`x`, { foo: `abc` })
 })
 
-test(`go uses current state when no stateName is provided`, t => {
+test(`go uses current state when no stateName is provided`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	let firstActivateDidHappen = false
 
-	t.plan(1)
-
-	stateRouter.addState({
-		name: `some-state`,
-		template: ``,
-		route: `someState`,
-		querystringParameters: [ `poop` ],
-		activate(context) {
-			if (firstActivateDidHappen) {
-				t.deepEqual(context.parameters, { poop: `wet` })
-				t.end()
-			} else {
-				firstActivateDidHappen = true
-				process.nextTick(() => {
-					stateRouter.go(null, { poop: `wet` })
-				})
+	let resolved = false
+	await new Promise(resolve => {
+		const timeout = setTimeout(() => {
+			if (!resolved) {
+				resolved = true
+				resolve()
 			}
-		},
-	})
+		}, 1000)
+		stateRouter.addState({
+			name: `some-state`,
+			template: ``,
+			route: `someState`,
+			querystringParameters: [ `poop` ],
+			activate(context) {
+				if (firstActivateDidHappen) {
+					assert.deepStrictEqual(context.parameters, { poop: `wet` })
+					resolve()
+				} else {
+					firstActivateDidHappen = true
+					process.nextTick(() => {
+						stateRouter.go(null, { poop: `wet` })
+					})
+				}
+			},
+		})
 
-	stateRouter.go(`some-state`, { poop: `dry` })
+		stateRouter.go(`some-state`, { poop: `dry` })
+	})
 })
 
-test(`go uses current state when no stateName is provided with 2 parameters`, t => {
+test(`go uses current state when no stateName is provided with 2 parameters`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	let firstActivateDidHappen = false
 
-	t.plan(1)
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `some-state`,
+			template: ``,
+			route: `someState`,
+			querystringParameters: [ `poop` ],
+			activate(context) {
+				if (firstActivateDidHappen) {
+					assert.deepStrictEqual(context.parameters, { poop: `wet` })
+					resolve()
+				} else {
+					firstActivateDidHappen = true
+					process.nextTick(() => {
+						stateRouter.go(null, { poop: `wet` }, { replace: true })
+					})
+				}
+			},
+		})
 
-	stateRouter.addState({
-		name: `some-state`,
-		template: ``,
-		route: `someState`,
-		querystringParameters: [ `poop` ],
-		activate(context) {
-			if (firstActivateDidHappen) {
-				t.deepEqual(context.parameters, { poop: `wet` })
-				t.end()
-			} else {
-				firstActivateDidHappen = true
-				process.nextTick(() => {
-					stateRouter.go(null, { poop: `wet` }, { replace: true })
-				})
-			}
-		},
+		stateRouter.go(`some-state`, { poop: `dry` }, { replace: true })
 	})
-
-	stateRouter.go(`some-state`, { poop: `dry` }, { replace: true })
 })
 
-test(`calling redirect with no stateName in resolve should use current state`, t => {
-	t.plan(1)
+test(`calling redirect with no stateName in resolve should use current state`, async t => {
 	const stateRouter = getTestState(t).stateRouter
 	let isFirstResolve = true
 
-	// This state is just so we have a "current state" we can get to first
-	stateRouter.addState({
-		name: `first`,
-		route: `FRIST`,
-		template: ``,
-		activate(context) {
-			process.nextTick(() => {
-				stateRouter.go(`second`, { wut: `fart` })
-			})
-		},
-	})
+	await new Promise(resolve => {
+		// This state is just so we have a "current state" we can get to first
+		stateRouter.addState({
+			name: `first`,
+			route: `FRIST`,
+			template: ``,
+			activate(context) {
+				process.nextTick(() => {
+					stateRouter.go(`second`, { wut: `fart` })
+				})
+			},
+		})
 
-	stateRouter.addState({
-		name: `second`,
-		route: `SCONDE`,
-		template: ``,
-		querystringParameters: [ `wut` ],
-		resolve(data, parameters, cb) {
-			if (isFirstResolve) {
-				isFirstResolve = false
-				cb.redirect(null, { wut: `butt` })
-			} else {
-				cb()
-			}
-		},
-		activate(context) {
-			// this should never get hit the first time since redirect gets called in resolve
-			t.equal(context.parameters.wut, `butt`)
-			t.end()
-		},
-	})
+		stateRouter.addState({
+			name: `second`,
+			route: `SCONDE`,
+			template: ``,
+			querystringParameters: [ `wut` ],
+			resolve(data, parameters) {
+				return new Promise((resolvePromise, reject) => {
+					if (isFirstResolve) {
+						isFirstResolve = false
+						reject({
+							redirectTo: {
+								name: null,
+								params: {
+									wut: `butt`,
+								},
+							},
+						})
+					} else {
+						resolvePromise()
+					}
+				})
+			},
+			activate(context) {
+				// this should never get hit the first time since redirect gets called in resolve
+				assert.strictEqual(context.parameters.wut, `butt`)
+				resolve()
+			},
+		})
 
-	stateRouter.go(`first`)
+		stateRouter.go(`first`)
+	})
 })
