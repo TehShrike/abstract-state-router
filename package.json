@@ -1,6 +1,6 @@
 {
 	"name": "abstract-state-router",
-	"version": "7.6.0",
+	"version": "7.7.1",
 	"description": "Like ui-router, but without all the Angular. The best way to structure a single-page webapp.",
 	"main": "bundle.js",
 	"type": "module",
