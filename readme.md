@@ -49,19 +49,19 @@ Your CommonJS-supporting bundler should be able to `import make_state_router fro
 # API
 
 - [Instantiate](#instantiate)
- 	- [`options`](#options)
+	- [`options`](#options)
 - [`addState`](#staterouteraddstatename-route-defaultchild-data-template-resolve-activate-querystringparameters-defaultparameters)
- 	- [`resolve`](#resolvedata-parameters)
- 	- [`activate`](#activatecontext)
- 	- [Examples](#addstate-examples)
+	- [`resolve`](#resolvedata-parameters)
+	- [`activate`](#activatecontext)
+	- [Examples](#addstate-examples)
 - [`go`](#stateroutergostatename-stateparameters-options)
 - [`evaluateCurrentRoute`](#staterouterevaluatecurrentroutefallbackstatename-fallbackstateparameters)
 - [`stateIsActive`](#staterouterstateisactivestatename-stateparameters)
 - [`makePath`](#stateroutermakepathstatename-stateparameters-options)
 - [`getActiveState`](#stateroutergetactivestate)
 - [Events](#events)
- 	- [State change](#state-change)
- 	- [DOM API interactions](#dom-api-interactions)
+	- [State change](#state-change)
+	- [DOM API interactions](#dom-api-interactions)
 
 ## Instantiate
 
