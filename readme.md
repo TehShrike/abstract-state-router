@@ -4,29 +4,17 @@
 
 abstract-state-router lets you build single-page webapps using nested routes/states.  Your code doesn't reference routes directly, like `/app/users/josh`, but by name and properties, like `app.user` + `{ name: 'josh' }`.
 
-To find out why you should be using this kind of router, read [Why Your Webapp Needs a State-Based Router](https://joshduff.com/2015-06-why-you-need-a-state-router.html).
+Nested routes were a novelty when abstract-state-router released in 2014!  If you're interested in the motivation, check out [Why Your Webapp Needs a State-Based Router](https://joshduff.com/2015-06-why-you-need-a-state-router.html).
 
-abstract-state-router is heavily inspired by the [original ui-router](https://github.com/angular-ui/ui-router/wiki).  The biggest difference is: you can use abstract-state-router with whatever templating/component library you like.
-
-It is similar in that way to the [new ui-router](https://github.com/ui-router/core), except that abstract-state-router is smaller, its documentation is more readable, and it is easier to create [new renderers for arbitrary view libraries](./renderer.md).
-
-To see an example app implemented with a couple of different browser rendering libraries, [click here to visit the state-router-example on Github Pages](https://tehshrike.github.io/state-router-example).
+abstract-state-router has another huge advantage: you can use it with any templating/component library you like, and transition your app from one component library to another gradually when the day comes.
 
 # Project status
 
 This project is stable and has been used in production for years.
 
-The last major version bump change was in July of 2021 when the project started shipping modern JS instead of ES5.  There have been no breaking changes to the library's function APIs since 2015.
+The last major version bump was in April of 2025 when the project was finally converted from CommonJS to ES Modules and support for callbacks was dropped (nearly 10 years after Promises were added to the language spec).
 
 abstract-state-router is extensible without much work, so very few feature additions have been necessary.
-
-I occasionally have dreams of [a rewrite](https://github.com/TehShrike/abstract-state-router/wiki), but it's hard to justify when the current version works so well for my main target use case (business software).
-
-# Browser compatibility
-
-This project is currently published as CommonJS with modern JS syntax.  If you're targeting browsers more than 2-3 years old, I assume you're already compiling your code for your target environments.
-
-If you're supporting really old browsers pre-ES2015 browsers, you'll need polyfills for `Promise` and `Object.assign`.  Check out [polyfill-fastly.net](https://polyfill-fastly.net/) for automatic polyfills, it makes life super-easy.
 
 # Current renderer implementations
 

@@ -1,3 +1,9 @@
+# [8.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.8.0)
+
+- drop callbacks, everything is promises now [#162](https://github.com/TehShrike/abstract-state-router/pull/162)
+- drop CJS, use ESM everywhere [#166](https://github.com/TehShrike/abstract-state-router/pull/166)
+- added TypeScript types
+
 # [7.7.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.7.1)
 
 - Fixed lying changelog
