@@ -1,14 +1,13 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`evaluateCurrentRoute with url set`, t => {
+test(`evaluateCurrentRoute with url set`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	const hashRouter = testState.hashRouter
 
 	let correctRouteCalled = false
-
-	t.plan(3)
 
 	hashRouter.go(`/theUrlWhenThePageIsFirstOpened`)
 
@@ -17,86 +16,88 @@ test(`evaluateCurrentRoute with url set`, t => {
 		route: `/ignored`,
 		template: null,
 		activate() {
-			t.fail()
+			assert.fail()
 		},
 	})
 
-	stateRouter.addState({
-		name: `correct`,
-		route: `/theUrlWhenThePageIsFirstOpened`,
-		template: null,
-		activate(context) {
-			t.notOk(correctRouteCalled)
-			correctRouteCalled = true
-			t.notOk(context.parameters.parameterName)
-			t.end()
-		},
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `correct`,
+			route: `/theUrlWhenThePageIsFirstOpened`,
+			template: null,
+			activate(context) {
+				assert.ok(!correctRouteCalled)
+				correctRouteCalled = true
+				assert.ok(!context.parameters.parameterName)
+				resolve()
+			},
+		})
+
+		assert.ok(!correctRouteCalled)
+
+		stateRouter.evaluateCurrentRoute(`whatever`, { parameterName: `wrong` })
 	})
-
-	t.notOk(correctRouteCalled)
-
-	stateRouter.evaluateCurrentRoute(`whatever`, { parameterName: `wrong` })
 })
 
-test(`evaluateCurrentRoute with slash url`, t => {
+test(`evaluateCurrentRoute with slash url`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	const hashRouter = testState.hashRouter
 
 	let correctRouteCalled = false
 
-	t.plan(3)
-
 	hashRouter.go(`/`)
 
-	stateRouter.addState({
-		name: `correct`,
-		route: `/`,
-		template: null,
-		activate(context) {
-			t.notOk(correctRouteCalled)
-			correctRouteCalled = true
-			t.notOk(context.parameters.parameterName)
-			t.end()
-		},
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `correct`,
+			route: `/`,
+			template: null,
+			activate(context) {
+				assert.ok(!correctRouteCalled)
+				correctRouteCalled = true
+				assert.ok(!context.parameters.parameterName)
+				resolve()
+			},
+		})
+
+		assert.ok(!correctRouteCalled)
+
+		stateRouter.evaluateCurrentRoute(`correct`)
 	})
-
-	t.notOk(correctRouteCalled)
-
-	stateRouter.evaluateCurrentRoute(`correct`)
 })
 
-test(`evaluateCurrentRoute with no current route should go to the default`, t => {
+test(`evaluateCurrentRoute with no current route should go to the default`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
 	let correctRouteCalled = false
-
-	t.plan(3)
 
 	stateRouter.addState({
 		name: `whatever`,
 		route: `/ignored`,
 		template: null,
 		activate() {
-			t.fail()
+			assert.fail()
 		},
 	})
 
-	stateRouter.addState({
-		name: `correct`,
-		route: `/default`,
-		template: null,
-		activate(context) {
-			t.notOk(correctRouteCalled)
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `correct`,
+			route: `/default`,
+			template: null,
+			activate(context) {
+				assert.ok(!correctRouteCalled)
 
-			t.equal(context.parameters.parameterName, `wrong`)
-			correctRouteCalled = true
-			t.end()
-		},
+				assert.strictEqual(context.parameters.parameterName, `wrong`)
+				correctRouteCalled = true
+				resolve()
+			},
+		})
+
+		assert.ok(!correctRouteCalled)
+
+		stateRouter.evaluateCurrentRoute(`correct`, { parameterName: `wrong` })
 	})
-
-	t.notOk(correctRouteCalled)
-
-	stateRouter.evaluateCurrentRoute(`correct`, { parameterName: `wrong` })
 })

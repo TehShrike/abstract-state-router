@@ -1,12 +1,14 @@
-module.exports = function assertingRendererFactory(t, expectedTemplates) {
+import assert from 'node:assert'
+
+export default function assertingRendererFactory(t, expectedTemplates) {
 	const makeRenderer = function makeRenderer() {
 		return {
 			render: function render(context) {
 				return new Promise(resolve => {
 					const template = context.template
-					t.ok(expectedTemplates.length, `The render function hasn't been called too many times yet`)
+					assert.ok(expectedTemplates.length, `The render function hasn't been called too many times yet`)
 					const expected = expectedTemplates.shift()
-					t.equal(expected, template, `The expected template was sent to the render function`)
+					assert.equal(expected, template, `The expected template was sent to the render function`)
 
 					process.nextTick(() => {
 						resolve({ template })

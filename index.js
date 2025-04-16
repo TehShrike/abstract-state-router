@@ -1,19 +1,19 @@
-const StateState = require(`./lib/state-state`)
-const StateComparison = require(`./lib/state-comparison`)
-const CurrentState = require(`./lib/current-state`)
-const stateChangeLogic = require(`./lib/state-change-logic`)
-const parse = require(`./lib/state-string-parser`)
-const StateTransitionManager = require(`./lib/state-transition-manager`)
-const defaultRouterOptions = require(`./default-router-options.js`)
+import StateState from './lib/state-state.js'
+import StateComparison from './lib/state-comparison.js'
+import CurrentState from './lib/current-state.js'
+import stateChangeLogic from './lib/state-change-logic.js'
+import parse from './lib/state-string-parser.js'
+import StateTransitionManager from './lib/state-transition-manager.js'
+import defaultRouterOptions from './default-router-options.js'
 
-const series = require(`./lib/promise-map-series`)
+import series from './lib/promise-map-series.js'
 
-const denodeify = require(`then-denodeify`)
-const EventEmitter = require(`eventemitter3`)
-const newHashBrownRouter = require(`hash-brown-router`)
-const combine = require(`combine-arrays`)
-const buildPath = require(`page-path-builder`)
-const nextTick = require(`iso-next-tick`)
+import denodeify from 'then-denodeify'
+import EventEmitter from 'eventemitter3'
+import newHashBrownRouter from 'hash-brown-router'
+import combine from 'combine-arrays'
+import buildPath from 'page-path-builder'
+import nextTick from 'iso-next-tick'
 
 const getProperty = name => obj => obj[name]
 const reverse = ary => ary.slice().reverse()
@@ -21,7 +21,7 @@ const isFunction = property => obj => typeof obj[property] === `function`
 
 const expectedPropertiesOfAddState = [ `name`, `route`, `defaultChild`, `data`, `template`, `resolve`, `activate`, `querystringParameters`, `defaultQuerystringParameters`, `defaultParameters`, `canLeaveState` ]
 
-module.exports = function StateProvider(makeRenderer, rootElement, stateRouterOptions = {}) {
+export default function StateProvider(makeRenderer, rootElement, stateRouterOptions = {}) {
 	const prototypalStateHolder = StateState()
 	const lastCompletelyLoadedState = CurrentState()
 	const lastStateStartedActivating = CurrentState()

@@ -7,9 +7,8 @@ export default {
 	output: [
 		{
 			file: `./bundle.js`,
-			format: `cjs`,
+			format: `es`,
 			sourcemap: true,
-			exports: `default`,
 		},
 	],
 	plugins: [

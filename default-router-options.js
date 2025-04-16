@@ -1,1 +1,1 @@
-module.exports = { reverse: false }
+export default { reverse: false }

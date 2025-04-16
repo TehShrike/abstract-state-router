@@ -1,6 +1,7 @@
-const test = require(`tape-catch`)
-const StateState = require(`../lib/state-state.js`)
-const stateComparison = require(`../lib/state-comparison.js`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import StateState from '../lib/state-state.js'
+import stateComparison from '../lib/state-comparison.js'
 
 function simpleState(name, querystringParameters, route = ``) {
 	return {
@@ -27,10 +28,10 @@ function setup() {
 }
 
 function compareAllElements(t, expected, result) {
-	t.equal(result.length, expected.length, `Correct number of items in the result array`)
+	assert.strictEqual(result.length, expected.length, `Correct number of items in the result array`)
 
 	expected.forEach((obj, index) => {
-		t.deepEqual(obj, result[index], `element ` + index + ` is correct`)
+		assert.deepStrictEqual(obj, result[index], `element ${ index } is correct`)
 	})
 }
 
@@ -46,7 +47,7 @@ test(`only changing the grandchild`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: false,
 		stateParametersChanged: false,
 		nameBefore: `app`,
@@ -61,10 +62,7 @@ test(`only changing the grandchild`, t => {
 		stateParametersChanged: false,
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab2`,
-	}], results)
-
-
-	t.end()
+	} ], results)
 })
 
 test(`login to a nested state`, t => {
@@ -79,7 +77,7 @@ test(`login to a nested state`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: true,
 		stateParametersChanged: false,
 		nameBefore: `login`,
@@ -94,9 +92,7 @@ test(`login to a nested state`, t => {
 		stateParametersChanged: false,
 		nameBefore: undefined,
 		nameAfter: `app.main.tab1`,
-	}], results)
-
-	t.end()
+	} ], results)
 })
 
 test(`a nested state to logout`, t => {
@@ -111,7 +107,7 @@ test(`a nested state to logout`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: true,
 		stateParametersChanged: false,
 		nameBefore: `app`,
@@ -126,9 +122,7 @@ test(`a nested state to logout`, t => {
 		stateParametersChanged: false,
 		nameBefore: `app.main.tab2`,
 		nameAfter: undefined,
-	}], results)
-
-	t.end()
+	} ], results)
 })
 
 test(`changing parameters but not the name`, t => {
@@ -143,7 +137,7 @@ test(`changing parameters but not the name`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: false,
 		stateParametersChanged: false,
 		nameBefore: `app`,
@@ -158,10 +152,7 @@ test(`changing parameters but not the name`, t => {
 		stateParametersChanged: true,
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab1`,
-	}], results)
-
-
-	t.end()
+	} ], results)
 })
 
 test(`changing name but not parameters`, t => {
@@ -176,7 +167,7 @@ test(`changing name but not parameters`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: false,
 		stateParametersChanged: false,
 		nameBefore: `app`,
@@ -191,9 +182,7 @@ test(`changing name but not parameters`, t => {
 		stateParametersChanged: false,
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab2`,
-	}], results)
-
-	t.end()
+	} ], results)
 })
 
 test(`changing mid-level parameter and low-level name`, t => {
@@ -208,7 +197,7 @@ test(`changing mid-level parameter and low-level name`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: false,
 		stateParametersChanged: false,
 		nameBefore: `app`,
@@ -223,9 +212,7 @@ test(`changing mid-level parameter and low-level name`, t => {
 		stateParametersChanged: false,
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab2`,
-	}], results)
-
-	t.end()
+	} ], results)
 })
 
 test(`changing highest-level parameter`, t => {
@@ -240,7 +227,7 @@ test(`changing highest-level parameter`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: false,
 		stateParametersChanged: true,
 		nameBefore: `app`,
@@ -255,9 +242,7 @@ test(`changing highest-level parameter`, t => {
 		stateParametersChanged: false,
 		nameBefore: `app.main.tab1`,
 		nameAfter: `app.main.tab1`,
-	}], results)
-
-	t.end()
+	} ], results)
 })
 
 test(`changing from app.main.tab1 to just main`, t => {
@@ -272,7 +257,7 @@ test(`changing from app.main.tab1 to just main`, t => {
 		},
 	})
 
-	compareAllElements(t, [{
+	compareAllElements(t, [ {
 		stateNameChanged: false,
 		stateParametersChanged: false,
 		nameBefore: `app`,
@@ -287,15 +272,13 @@ test(`changing from app.main.tab1 to just main`, t => {
 		stateParametersChanged: false,
 		nameBefore: `app.main.tab1`,
 		nameAfter: undefined,
-	}], results)
-
-	t.end()
+	} ], results)
 })
 
 test(`changing states by modifying only a route parameter`, t => {
 	const compare = setup()
 
-	const expected = [{
+	const expected = [ {
 		stateNameChanged: false,
 		stateParametersChanged: false,
 		nameBefore: `app`,
@@ -305,7 +288,7 @@ test(`changing states by modifying only a route parameter`, t => {
 		stateParametersChanged: true,
 		nameBefore: `app.main`,
 		nameAfter: `app.main`,
-	}]
+	} ]
 
 	compareAllElements(t, expected, compare({
 		original: {
@@ -328,7 +311,4 @@ test(`changing states by modifying only a route parameter`, t => {
 			parameters: { routeParam: `something-new` },
 		},
 	}))
-
-
-	t.end()
 })

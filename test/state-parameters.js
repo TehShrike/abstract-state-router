@@ -1,12 +1,11 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`propertiesInRoute`, t => {
+test(`propertiesInRoute`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 	const hashRouter = testState.hashRouter
-
-	t.plan(2)
 
 	let timesActivatedCalled = 0
 	stateRouter.addState({
@@ -17,19 +16,29 @@ test(`propertiesInRoute`, t => {
 			timesActivatedCalled++
 
 			if (timesActivatedCalled === 1) {
-				t.equal(context.parameters.param, `firstTime`)
+				assert.strictEqual(context.parameters.param, `firstTime`)
 				hashRouter.go(`/something/secondTime/whatever`)
 			} else {
-				t.equal(context.parameters.param, `secondTime`)
-				t.end()
+				assert.strictEqual(context.parameters.param, `secondTime`)
+				return Promise.resolve()
 			}
 		},
 	})
 
-	stateRouter.go(`only`, { param: `firstTime` })
+	await new Promise(resolve => {
+		stateRouter.go(`only`, { param: `firstTime` })
+
+		// We need to wait for both activations to complete
+		const checkInterval = setInterval(() => {
+			if (timesActivatedCalled === 2) {
+				clearInterval(checkInterval)
+				resolve()
+			}
+		}, 50)
+	})
 })
 
-test(`inherit parent's parameters`, t => {
+test(`inherit parent's parameters`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
@@ -54,21 +63,23 @@ test(`inherit parent's parameters`, t => {
 		},
 	})
 
-	stateRouter.addState({
-		name: `parent.child2`,
-		route: `/child2`,
-		template: `child2Template`,
-		activate(context) {
-			t.equal(context.parameters.parent, `initial parent`)
-			t.equal(context.parameters.moreSpecificArg, `yes`)
-			t.end()
-		},
-	})
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `parent.child2`,
+			route: `/child2`,
+			template: `child2Template`,
+			activate(context) {
+				assert.strictEqual(context.parameters.parent, `initial parent`)
+				assert.strictEqual(context.parameters.moreSpecificArg, `yes`)
+				resolve()
+			},
+		})
 
-	stateRouter.go(`parent.child1`, { parent: `initial parent` })
+		stateRouter.go(`parent.child1`, { parent: `initial parent` })
+	})
 })
 
-test(`inherit generic parameters`, t => {
+test(`inherit generic parameters`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
@@ -90,20 +101,22 @@ test(`inherit generic parameters`, t => {
 		},
 	})
 
-	stateRouter.addState({
-		name: `parent.child2`,
-		route: `/child2`,
-		template: `child2Template`,
-		activate(context) {
-			t.equal(context.parameters.parent, `initial parent`)
-			t.end()
-		},
-	})
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `parent.child2`,
+			route: `/child2`,
+			template: `child2Template`,
+			activate(context) {
+				assert.strictEqual(context.parameters.parent, `initial parent`)
+				resolve()
+			},
+		})
 
-	stateRouter.go(`parent.child1`, { parent: `initial parent` })
+		stateRouter.go(`parent.child1`, { parent: `initial parent` })
+	})
 })
 
-test(`can overwrite parameters when using inherit`, t => {
+test(`can overwrite parameters when using inherit`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
@@ -127,24 +140,26 @@ test(`can overwrite parameters when using inherit`, t => {
 		},
 	})
 
-	stateRouter.addState({
-		name: `parent.child2`,
-		route: `/child2`,
-		template: `child2Template`,
-		activate(context) {
-			t.equal(context.parameters.parent, `new value`)
-			t.equal(context.parameters.whatevs, `totally`)
-			t.end()
-		},
-	})
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `parent.child2`,
+			route: `/child2`,
+			template: `child2Template`,
+			activate(context) {
+				assert.strictEqual(context.parameters.parent, `new value`)
+				assert.strictEqual(context.parameters.whatevs, `totally`)
+				resolve()
+			},
+		})
 
-	stateRouter.go(`parent.child1`, {
-		parent: `initial parent`,
-		whatevs: `totally`,
+		stateRouter.go(`parent.child1`, {
+			parent: `initial parent`,
+			whatevs: `totally`,
+		})
 	})
 })
 
-test(`inherit works with replace`, t => {
+test(`inherit works with replace`, async t => {
 	const testState = getTestState(t)
 	const stateRouter = testState.stateRouter
 
@@ -168,20 +183,21 @@ test(`inherit works with replace`, t => {
 		},
 	})
 
-	stateRouter.addState({
-		name: `parent.child2`,
-		route: `/child2`,
-		template: `child2Template`,
-		activate(context) {
-			t.equal(context.parameters.parent, `new value`)
-			t.equal(context.parameters.whatevs, `totally`)
-			t.end()
-		},
-	})
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `parent.child2`,
+			route: `/child2`,
+			template: `child2Template`,
+			activate(context) {
+				assert.strictEqual(context.parameters.parent, `new value`)
+				assert.strictEqual(context.parameters.whatevs, `totally`)
+				resolve()
+			},
+		})
 
-	stateRouter.go(`parent.child1`, {
-		parent: `initial parent`,
-		whatevs: `totally`,
+		stateRouter.go(`parent.child1`, {
+			parent: `initial parent`,
+			whatevs: `totally`,
+		})
 	})
 })
-

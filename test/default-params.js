@@ -1,12 +1,12 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`default querystring parameters`, t => {
-	function basicTest(testName, params, expectParams, expectLocation, defaultParamsPropertyName) {
-		t.test(testName, tt => {
+test(`default querystring parameters`, async t => {
+	async function basicTest(testName, params, expectParams, expectLocation, defaultParamsPropertyName) {
+		await t.test(testName, async tt => {
 			const state = getTestState(tt)
 			const stateRouter = state.stateRouter
-			tt.plan(2)
 
 			const asrState = {
 				name: `state`,
@@ -14,40 +14,44 @@ test(`default querystring parameters`, t => {
 				template: {},
 				querystringParameters: [ `wat`, `much` ],
 				activate(context) {
-					tt.deepEqual(context.parameters, expectParams)
-					tt.equal(state.location.get(), expectLocation)
-					tt.end()
+					assert.deepStrictEqual(context.parameters, expectParams)
+					assert.strictEqual(state.location.get(), expectLocation)
 				},
 			}
 
-			asrState[defaultParamsPropertyName] = { wat: `lol`, much: `neat` },
+			asrState[defaultParamsPropertyName] = { wat: `lol`, much: `neat` }
 
 			stateRouter.addState(asrState)
 
-			stateRouter.go(`state`, params)
+			await new Promise(resolve => {
+				stateRouter.once('stateChangeEnd', () => {
+					resolve()
+				})
+				stateRouter.go(`state`, params)
+			})
 		})
 	}
 
-	function testWithBothPropertyNames(testName, params, expectParams, expectLocation) {
-		basicTest(testName, params, expectParams, expectLocation, `defaultQuerystringParameters`)
-		basicTest(testName, params, expectParams, expectLocation, `defaultParameters`)
+	async function testWithBothPropertyNames(testName, params, expectParams, expectLocation) {
+		await basicTest(testName, params, expectParams, expectLocation, `defaultQuerystringParameters`)
+		await basicTest(testName, params, expectParams, expectLocation, `defaultParameters`)
 	}
 
-	testWithBothPropertyNames(
+	await testWithBothPropertyNames(
 		`params override defaults`,
 		{ wat: `waycool`, much: `awesome`, hi: `world` },
 		{ wat: `waycool`, much: `awesome`, hi: `world` },
 		`/state?hi=world&much=awesome&wat=waycool`,
 	)
 
-	testWithBothPropertyNames(
+	await testWithBothPropertyNames(
 		`defaults and params are applied`,
 		{ wat: `roflol` },
 		{ wat: `roflol`, much: `neat` },
 		`/state?much=neat&wat=roflol`,
 	)
 
-	testWithBothPropertyNames(
+	await testWithBothPropertyNames(
 		`defaults are applied`,
 		{},
 		{ wat: `lol`, much: `neat` },
@@ -55,10 +59,9 @@ test(`default querystring parameters`, t => {
 	)
 })
 
-test(`race conditions on redirects`, t => {
+test(`race conditions on redirects`, async t => {
 	const state = getTestState(t)
 	const stateRouter = state.stateRouter
-	t.plan(4)
 
 	stateRouter.addState({
 		name: `state1`,
@@ -67,34 +70,34 @@ test(`race conditions on redirects`, t => {
 		querystringParameters: [ `wat`, `much` ],
 		defaultQuerystringParameters: { wat: `lol`, much: `neat` },
 		activate(context) {
-			t.deepEqual({ wat: `lol`, much: `neat` }, context.parameters)
-			t.equal(state.location.get(), `/state1?much=neat&wat=lol`)
+			assert.deepStrictEqual({ wat: `lol`, much: `neat` }, context.parameters)
+			assert.strictEqual(state.location.get(), `/state1?much=neat&wat=lol`)
 
 			stateRouter.go(`state2`, { wat: `waycool`, much: `awesome`, hi: `world` }) // does not redirect
 		},
 	})
 
-	stateRouter.addState({
-		name: `state2`,
-		route: `/state2`,
-		template: {},
-		querystringParameters: [ `wat`, `much` ],
-		defaultQuerystringParameters: { wat: `lol`, much: `neat` },
-		activate(context) {
-			t.deepEqual({ wat: `waycool`, much: `awesome`, hi: `world` }, context.parameters)
-			t.equal(state.location.get(), `/state2?hi=world&much=awesome&wat=waycool`)
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `state2`,
+			route: `/state2`,
+			template: {},
+			querystringParameters: [ `wat`, `much` ],
+			defaultQuerystringParameters: { wat: `lol`, much: `neat` },
+			activate(context) {
+				assert.deepStrictEqual({ wat: `waycool`, much: `awesome`, hi: `world` }, context.parameters)
+				assert.strictEqual(state.location.get(), `/state2?hi=world&much=awesome&wat=waycool`)
+				resolve()
+			},
+		})
 
-			t.end()
-		},
+		stateRouter.go(`state1`, {}) // redirects
 	})
-
-
-	stateRouter.go(`state1`, {}) // redirects
 })
 
-test(`default parameters should work for route params too`, t => {
-	function testWithPropertyName(property) {
-		t.test(property, tt => {
+test(`default parameters should work for route params too`, async t => {
+	async function testWithPropertyName(property) {
+		await t.test(property, async tt => {
 			const state = getTestState(tt)
 			const stateRouter = state.stateRouter
 
@@ -104,10 +107,8 @@ test(`default parameters should work for route params too`, t => {
 				template: {},
 				querystringParameters: [ `wat` ],
 				activate(context) {
-					tt.deepEqual({ wat: `lol`, yarp: `neat` }, context.parameters)
-					tt.equal(state.location.get(), `/state1/neat?wat=lol`)
-
-					tt.end()
+					assert.deepStrictEqual({ wat: `lol`, yarp: `neat` }, context.parameters)
+					assert.strictEqual(state.location.get(), `/state1/neat?wat=lol`)
 				},
 			}
 
@@ -115,17 +116,22 @@ test(`default parameters should work for route params too`, t => {
 
 			stateRouter.addState(asrState)
 
-			stateRouter.go(`state1`, {})
+			await new Promise(resolve => {
+				stateRouter.once('stateChangeEnd', () => {
+					resolve()
+				})
+				stateRouter.go(`state1`, {})
+			})
 		})
 	}
 
-	testWithPropertyName(`defaultParameters`)
-	testWithPropertyName(`defaultQuerystringParameters`)
+	await testWithPropertyName(`defaultParameters`)
+	await testWithPropertyName(`defaultQuerystringParameters`)
 })
 
-test(`default parameters should work for default child route params`, t => {
-	function testWithPropertyName(property) {
-		t.test(property, tt => {
+test(`default parameters should work for default child route params`, async t => {
+	async function testWithPropertyName(property) {
+		await t.test(property, async tt => {
 			const state = getTestState(tt)
 			const stateRouter = state.stateRouter
 
@@ -142,10 +148,8 @@ test(`default parameters should work for default child route params`, t => {
 				template: {},
 				querystringParameters: [ `wat` ],
 				activate(context) {
-					tt.deepEqual({ wat: `lol`, yarp: `neat` }, context.parameters)
-					tt.equal(state.location.get(), `/state1/neat?wat=lol`)
-
-					tt.end()
+					assert.deepStrictEqual({ wat: `lol`, yarp: `neat` }, context.parameters)
+					assert.strictEqual(state.location.get(), `/state1/neat?wat=lol`)
 				},
 			}
 
@@ -153,17 +157,22 @@ test(`default parameters should work for default child route params`, t => {
 
 			stateRouter.addState(asrState)
 
-			stateRouter.go(`state1`, {})
+			await new Promise(resolve => {
+				stateRouter.once('stateChangeEnd', () => {
+					resolve()
+				})
+				stateRouter.go(`state1`, {})
+			})
 		})
 	}
 
-	testWithPropertyName(`defaultParameters`)
-	testWithPropertyName(`defaultQuerystringParameters`)
+	await testWithPropertyName(`defaultParameters`)
+	await testWithPropertyName(`defaultQuerystringParameters`)
 })
 
-test(`default parameters on parent states should apply to child state routes`, t => {
-	function testWithPropertyName(property) {
-		t.test(property, tt => {
+test(`default parameters on parent states should apply to child state routes`, async t => {
+	async function testWithPropertyName(property) {
+		await t.test(property, async tt => {
 			const state = getTestState(tt)
 			const stateRouter = state.stateRouter
 
@@ -184,22 +193,25 @@ test(`default parameters on parent states should apply to child state routes`, t
 				template: {},
 				querystringParameters: [ `wat` ],
 				activate(context) {
-					tt.deepEqual({ wat: `lol`, yarp: `neat` }, context.parameters)
-					tt.equal(state.location.get(), `/state1/neat?wat=lol`)
-
-					tt.end()
+					assert.deepStrictEqual({ wat: `lol`, yarp: `neat` }, context.parameters)
+					assert.strictEqual(state.location.get(), `/state1/neat?wat=lol`)
 				},
 			})
 
-			stateRouter.go(`state1`, {})
+			await new Promise(resolve => {
+				stateRouter.once('stateChangeEnd', () => {
+					resolve()
+				})
+				stateRouter.go(`state1`, {})
+			})
 		})
 	}
 
-	testWithPropertyName(`defaultParameters`)
-	testWithPropertyName(`defaultQuerystringParameters`)
+	await testWithPropertyName(`defaultParameters`)
+	await testWithPropertyName(`defaultQuerystringParameters`)
 })
 
-test(`empty string is a valid default parameter`, t => {
+test(`empty string is a valid default parameter`, async t => {
 	const state = getTestState(t)
 	const stateRouter = state.stateRouter
 
@@ -212,19 +224,20 @@ test(`empty string is a valid default parameter`, t => {
 		},
 		querystringParameters: [ `someParam` ],
 		activate(context) {
-			t.equal(context.parameters.someParam, ``)
-			t.equal(state.location.get(), `/state?someParam=`)
-
-			t.end()
+			assert.strictEqual(context.parameters.someParam, ``)
+			assert.strictEqual(state.location.get(), `/state?someParam=`)
 		},
 	})
 
-	stateRouter.go(`state`)
-}, {
-	timeout: 1000,
+	await new Promise(resolve => {
+		stateRouter.once('stateChangeEnd', () => {
+			resolve()
+		})
+		stateRouter.go(`state`)
+	})
 })
 
-test(`function is a valid default parameter, which returns the default value`, t => {
+test(`function is a valid default parameter which returns the default value`, async t => {
 	const state = getTestState(t)
 	const stateRouter = state.stateRouter
 
@@ -238,13 +251,16 @@ test(`function is a valid default parameter, which returns the default value`, t
 		},
 		querystringParameters: [ `someParam`, `someOtherParam` ],
 		activate(context) {
-			t.equal(context.parameters.someParam, `foo`)
-			t.equal(context.parameters.someOtherParam, `barbaz`)
-			t.equal(state.location.get(), `/state?someOtherParam=barbaz&someParam=foo`)
-
-			t.end()
+			assert.strictEqual(context.parameters.someParam, `foo`)
+			assert.strictEqual(context.parameters.someOtherParam, `barbaz`)
+			assert.strictEqual(state.location.get(), `/state?someOtherParam=barbaz&someParam=foo`)
 		},
 	})
 
-	stateRouter.go(`state`)
+	await new Promise(resolve => {
+		stateRouter.once('stateChangeEnd', () => {
+			resolve()
+		})
+		stateRouter.go(`state`)
+	})
 })

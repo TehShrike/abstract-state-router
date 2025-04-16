@@ -1,10 +1,9 @@
-const test = require(`tape-catch`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`stateIsActive`, t => {
+test(`stateIsActive`, async t => {
 	const stateRouter = getTestState(t).stateRouter
-
-	t.plan(6)
 
 	stateRouter.addState({
 		name: `parent`,
@@ -24,25 +23,25 @@ test(`stateIsActive`, t => {
 		route: `/child2`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.ok(stateRouter.stateIsActive(`parent`), `parent is active`)
-		t.ok(stateRouter.stateIsActive(`parent.child1`), `parent.child1 is active`)
-		t.notOk(stateRouter.stateIsActive(`parent.child2`), `parent.child2 is not active`)
-		t.notOk(stateRouter.stateIsActive(`not a real state`), `non-existant state is not active`)
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.ok(stateRouter.stateIsActive(`parent`), `parent is active`)
+			assert.ok(stateRouter.stateIsActive(`parent.child1`), `parent.child1 is active`)
+			assert.ok(!stateRouter.stateIsActive(`parent.child2`), `parent.child2 is not active`)
+			assert.ok(!stateRouter.stateIsActive(`not a real state`), `non-existant state is not active`)
 
-		t.notOk(stateRouter.stateIsActive(`parent.child1`, { butts: `no` }), `shouldn't match wuth butts=no`)
-		t.ok(stateRouter.stateIsActive(`parent.child1`, { butts: `yes` }), `should match with butts=yes`)
+			assert.ok(!stateRouter.stateIsActive(`parent.child1`, { butts: `no` }), `shouldn't match wuth butts=no`)
+			assert.ok(stateRouter.stateIsActive(`parent.child1`, { butts: `yes` }), `should match with butts=yes`)
 
-		t.end()
+			resolve()
+		})
+
+		stateRouter.go(`parent.child1`, { butts: `yes` })
 	})
-
-	stateRouter.go(`parent.child1`, { butts: `yes` })
 })
 
-test(`stateIsActive but states with that substring are not`, t => {
+test(`stateIsActive but states with that substring are not`, async t => {
 	const stateRouter = getTestState(t).stateRouter
-
-	t.plan(4)
 
 	stateRouter.addState({
 		name: `parent`,
@@ -68,20 +67,22 @@ test(`stateIsActive but states with that substring are not`, t => {
 		route: `/child-thing`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.ok(stateRouter.stateIsActive(`parent`), `parent is active`)
-		t.notOk(stateRouter.stateIsActive(`parent-thing`), `parent-thing is not active`)
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.ok(stateRouter.stateIsActive(`parent`), `parent is active`)
+			assert.ok(!stateRouter.stateIsActive(`parent-thing`), `parent-thing is not active`)
 
-		t.notOk(stateRouter.stateIsActive(`parent.child`), `parent.child is active`)
-		t.ok(stateRouter.stateIsActive(`parent.child-thing`), `parent.child-thing is not active`)
+			assert.ok(stateRouter.stateIsActive(`parent.child-thing`), `parent.child is active`)
+			assert.ok(!stateRouter.stateIsActive(`parent.child`), `parent.child-thing is not active`)
 
-		t.end()
+			resolve()
+		})
+
+		stateRouter.go(`parent.child-thing`, { butts: `yes` })
 	})
-
-	stateRouter.go(`parent.child-thing`, { butts: `yes` })
 })
 
-test(`stateIsActive compares parameters`, t => {
+test(`stateIsActive compares parameters`, async t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	stateRouter.addState({
@@ -96,16 +97,18 @@ test(`stateIsActive compares parameters`, t => {
 		route: `/child`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.ok(stateRouter.stateIsActive(`parent.child`, { butts: `yes` }))
-		t.notOk(stateRouter.stateIsActive(`parent.child`, { butts: `no` }))
-		t.end()
-	})
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.ok(stateRouter.stateIsActive(`parent.child`, { butts: `yes` }))
+			assert.ok(!stateRouter.stateIsActive(`parent.child`, { butts: `no` }))
+			resolve()
+		})
 
-	stateRouter.go(`parent.child`, { butts: `yes` })
+		stateRouter.go(`parent.child`, { butts: `yes` })
+	})
 })
 
-test(`null parameters passed to stateIsActive are equivalent to passing in nothing`, t => {
+test(`null parameters passed to stateIsActive are equivalent to passing in nothing`, async t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	stateRouter.addState({
@@ -120,17 +123,19 @@ test(`null parameters passed to stateIsActive are equivalent to passing in nothi
 		route: `/child`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.ok(stateRouter.stateIsActive(`parent.child`, null))
-		t.ok(stateRouter.stateIsActive(`parent`, null))
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.ok(stateRouter.stateIsActive(`parent.child`, null))
+			assert.ok(stateRouter.stateIsActive(`parent`, null))
 
-		t.end()
+			resolve()
+		})
+
+		stateRouter.go(`parent.child`, { butts: `yes` })
 	})
-
-	stateRouter.go(`parent.child`, { butts: `yes` })
 })
 
-test(`stateIsActive coerces parameters to strings before comparing them to the querystring`, t => {
+test(`stateIsActive coerces parameters to strings before comparing them to the querystring`, async t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	stateRouter.addState({
@@ -145,17 +150,19 @@ test(`stateIsActive coerces parameters to strings before comparing them to the q
 		route: `/child`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.ok(stateRouter.stateIsActive(`parent.child`, { butts: `420` }))
-		t.ok(stateRouter.stateIsActive(`parent.child`, { butts: 420 }))
-		t.notOk(stateRouter.stateIsActive(`parent.child`, { butts: null }))
-		t.end()
-	})
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.ok(stateRouter.stateIsActive(`parent.child`, { butts: `420` }))
+			assert.ok(stateRouter.stateIsActive(`parent.child`, { butts: 420 }))
+			assert.ok(!stateRouter.stateIsActive(`parent.child`, { butts: null }))
+			resolve()
+		})
 
-	stateRouter.go(`parent.child`, { butts: 420 })
+		stateRouter.go(`parent.child`, { butts: 420 })
+	})
 })
 
-test(`null state name passed to stateIsActive is equivalent to passing in the current state name`, t => {
+test(`null state name passed to stateIsActive is equivalent to passing in the current state name`, async t => {
 	const stateRouter = getTestState(t).stateRouter
 
 	stateRouter.addState({
@@ -170,13 +177,15 @@ test(`null state name passed to stateIsActive is equivalent to passing in the cu
 		route: `/child`,
 	})
 
-	stateRouter.on(`stateChangeEnd`, () => {
-		t.notOk(stateRouter.stateIsActive(null, { butts: `no` }))
-		t.ok(stateRouter.stateIsActive(null, { butts: `yes` }))
-		t.ok(stateRouter.stateIsActive(null, null))
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeEnd`, () => {
+			assert.ok(!stateRouter.stateIsActive(null, { butts: `no` }))
+			assert.ok(stateRouter.stateIsActive(null, { butts: `yes` }))
+			assert.ok(stateRouter.stateIsActive(null, null))
 
-		t.end()
+			resolve()
+		})
+
+		stateRouter.go(`parent.child`, { butts: `yes` })
 	})
-
-	stateRouter.go(`parent.child`, { butts: `yes` })
 })

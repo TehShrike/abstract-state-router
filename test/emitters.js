@@ -1,24 +1,21 @@
-const test = require(`tape-catch`)
-const assertingRendererFactory = require(`./helpers/asserting-renderer-factory`)
-const getTestState = require(`./helpers/test-state-factory`)
+import { test } from 'node:test'
+import assert from 'node:assert'
+import assertingRendererFactory from './helpers/asserting-renderer-factory.js'
+import getTestState from './helpers/test-state-factory.js'
 
-test(`Emitting errors when attempting to navigate to invalid states`, t => {
-	function testGoingTo(description, invalidStateName) {
-		t.test(description, t => {
+test(`Emitting errors when attempting to navigate to invalid states`, async t => {
+	async function testGoingTo(description, invalidStateName) {
+		await t.test(description, async t => {
 			const renderer = assertingRendererFactory(t, [])
 			const state = getTestState(t, renderer)
 			const stateRouter = state.stateRouter
-			const assertsBelow = 1
-			const renderAsserts = renderer.expectedAssertions
-
-			t.plan(assertsBelow + renderAsserts)
 
 			stateRouter.addState({
 				name: `valid`,
 				route: `/valid`,
 				template: null,
 				activate(context) {
-					t.fail(`Should never activate the parent's state`)
+					assert.fail(`Should never activate the parent's state`)
 				},
 			})
 
@@ -27,24 +24,26 @@ test(`Emitting errors when attempting to navigate to invalid states`, t => {
 				route: `/valid`,
 				template: null,
 				activate(context) {
-					t.fail(`Should never activate the child's state`)
+					assert.fail(`Should never activate the child's state`)
 				},
 			})
 
-			stateRouter.on(`stateChangeError`, e => {
-				t.notEqual(e.message.indexOf(invalidStateName), -1, `invalid state name is in the error message`)
-				t.end()
-			})
+			await new Promise(resolve => {
+				stateRouter.on(`stateChangeError`, e => {
+					assert.notEqual(e.message.indexOf(invalidStateName), -1, `invalid state name is in the error message`)
+					resolve()
+				})
 
-			stateRouter.go(invalidStateName, {})
+				stateRouter.go(invalidStateName, {})
+			})
 		})
 	}
 
-	testGoingTo(`All states invalid`, `invalid.also-invalid`)
-	testGoingTo(`Only the child state invalid`, `valid.invalid`)
+	await testGoingTo(`All states invalid`, `invalid.also-invalid`)
+	await testGoingTo(`Only the child state invalid`, `valid.invalid`)
 })
 
-test(`Emitting stateChangeStart and stateChangeEnd`, t => {
+test(`Emitting stateChangeStart and stateChangeEnd`, async t => {
 	const parent1Template = {}
 	const child1Template = {}
 	const parent2Template = {}
@@ -54,10 +53,6 @@ test(`Emitting stateChangeStart and stateChangeEnd`, t => {
 	const renderer = assertingRendererFactory(t, [ parent1Template, child1Template, parent2Template, child2Template ])
 	const state = getTestState(t, renderer)
 	const stateRouter = state.stateRouter
-	const assertsBelow = 28
-	const renderAsserts = renderer.expectedAssertions
-
-	t.plan(assertsBelow + renderAsserts)
 
 	let firstParentActivate = false
 	let firstChildActivate = false
@@ -104,69 +99,67 @@ test(`Emitting stateChangeStart and stateChangeEnd`, t => {
 	stateRouter.addState(valid2)
 	stateRouter.addState(valid2valid)
 
-	stateRouter.once(`stateChangeStart`, (state, properties, states) => {
-		t.equal(state.name, `valid1.valid`)
-		t.deepEqual(properties, firstProperties)
-		t.notOk(firstParentActivate)
-		t.notOk(firstChildActivate)
-		t.notOk(secondParentActivate)
-		t.notOk(secondChildActivate)
-
-		t.deepEqual(states, [ valid1, valid1valid ])
-	})
-
-	stateRouter.once(`stateChangeEnd`, (state, properties, states) => {
-		t.equal(state.name, `valid1.valid`)
-		t.deepEqual(properties, firstProperties)
-		t.ok(firstParentActivate)
-		t.ok(firstChildActivate)
-		t.notOk(secondParentActivate)
-		t.notOk(secondChildActivate)
-
-		t.deepEqual(states, [ valid1, valid1valid ])
-
+	await new Promise(resolve => {
 		stateRouter.once(`stateChangeStart`, (state, properties, states) => {
-			t.equal(state.name, `valid2.valid`)
-			t.deepEqual(properties, secondProperties)
-			t.ok(firstParentActivate)
-			t.ok(firstChildActivate)
-			t.notOk(secondParentActivate)
-			t.notOk(secondChildActivate)
+			assert.strictEqual(state.name, `valid1.valid`)
+			assert.deepStrictEqual(properties, firstProperties)
+			assert.strictEqual(firstParentActivate, false)
+			assert.strictEqual(firstChildActivate, false)
+			assert.strictEqual(secondParentActivate, false)
+			assert.strictEqual(secondChildActivate, false)
 
-			t.deepEqual(states, [ valid2, valid2valid ])
+			assert.deepStrictEqual(states, [ valid1, valid1valid ])
 		})
 
 		stateRouter.once(`stateChangeEnd`, (state, properties, states) => {
-			t.equal(state.name, `valid2.valid`)
-			t.deepEqual(properties, secondProperties)
-			t.ok(firstParentActivate)
-			t.ok(firstChildActivate)
-			t.ok(secondParentActivate)
-			t.ok(secondChildActivate)
+			assert.strictEqual(state.name, `valid1.valid`)
+			assert.deepStrictEqual(properties, firstProperties)
+			assert.strictEqual(firstParentActivate, true)
+			assert.strictEqual(firstChildActivate, true)
+			assert.strictEqual(secondParentActivate, false)
+			assert.strictEqual(secondChildActivate, false)
 
-			t.deepEqual(states, [ valid2, valid2valid ])
+			assert.deepStrictEqual(states, [ valid1, valid1valid ])
 
-			t.end()
+			stateRouter.once(`stateChangeStart`, (state, properties, states) => {
+				assert.strictEqual(state.name, `valid2.valid`)
+				assert.deepStrictEqual(properties, secondProperties)
+				assert.strictEqual(firstParentActivate, true)
+				assert.strictEqual(firstChildActivate, true)
+				assert.strictEqual(secondParentActivate, false)
+				assert.strictEqual(secondChildActivate, false)
+
+				assert.deepStrictEqual(states, [ valid2, valid2valid ])
+			})
+
+			stateRouter.once(`stateChangeEnd`, (state, properties, states) => {
+				assert.strictEqual(state.name, `valid2.valid`)
+				assert.deepStrictEqual(properties, secondProperties)
+				assert.strictEqual(firstParentActivate, true)
+				assert.strictEqual(firstChildActivate, true)
+				assert.strictEqual(secondParentActivate, true)
+				assert.strictEqual(secondChildActivate, true)
+
+				assert.deepStrictEqual(states, [ valid2, valid2valid ])
+
+				resolve()
+			})
+
+			stateRouter.go(`valid2.valid`, secondProperties)
 		})
 
-		stateRouter.go(`valid2.valid`, secondProperties)
+		stateRouter.go(`valid1.valid`, firstProperties)
 	})
-
-	stateRouter.go(`valid1.valid`, firstProperties)
 })
 
-test(`emitting stateChangeError`, t => {
+test(`emitting stateChangeError`, async t => {
 	const parent1Template = {}
 	const child1Template = {}
 	const renderer = assertingRendererFactory(t, [ ])
 	const state = getTestState(t, renderer)
 	const stateRouter = state.stateRouter
-	const assertsBelow = 1
-	const renderAsserts = renderer.expectedAssertions
 	const error1 = new Error(`first`)
 	const error2 = new Error(`second`)
-
-	t.plan(assertsBelow + renderAsserts)
 
 	stateRouter.addState({
 		name: `valid1`,
@@ -176,7 +169,7 @@ test(`emitting stateChangeError`, t => {
 			throw error1
 		},
 		activate(context) {
-			t.fail(`should not activate`)
+			assert.fail(`should not activate`)
 		},
 	})
 
@@ -188,35 +181,35 @@ test(`emitting stateChangeError`, t => {
 			throw error2
 		},
 		activate(context) {
-			t.fail(`should not activate`)
+			assert.fail(`should not activate`)
 		},
 	})
 
-	stateRouter.on(`stateChangeError`, e => {
-		t.equal(e, error1)
-		t.end()
-	})
+	await new Promise(resolve => {
+		stateRouter.on(`stateChangeError`, e => {
+			assert.strictEqual(e, error1)
+			resolve()
+		})
 
-	stateRouter.go(`valid1.valid`)
+		stateRouter.go(`valid1.valid`)
+	})
 })
 
-test(`emitting dom api create`, t => {
+test(`emitting dom api create`, async t => {
 	const originalDomApi = {}
 	let renderCalled = false
 	let beforeEventFired = false
 	let afterEventFired = false
 
-	t.plan(16)
-
 	const state = getTestState(t, () => ({
 		render(context) {
-			t.ok(beforeEventFired)
+			assert.ok(beforeEventFired)
 			renderCalled = true
-			t.notOk(afterEventFired)
+			assert.strictEqual(afterEventFired, false)
 			return Promise.resolve(originalDomApi)
 		},
 		reset() {
-			t.fail(`Reset should not be called`)
+			assert.fail(`Reset should not be called`)
 			return Promise.resolve()
 		},
 		destroy(renderedTemplateApi) {
@@ -244,37 +237,40 @@ test(`emitting dom api create`, t => {
 
 	stateRouter.addState(originalStateObject)
 
-	stateRouter.on(`beforeCreateState`, context => {
-		t.notOk(renderCalled)
-		t.notOk(afterEventFired)
-		t.notOk(beforeEventFired)
-		beforeEventFired = true
+	await new Promise(resolve => {
+		stateRouter.on(`beforeCreateState`, context => {
+			assert.strictEqual(renderCalled, false)
+			assert.strictEqual(afterEventFired, false)
+			assert.strictEqual(beforeEventFired, false)
+			beforeEventFired = true
 
-		t.equal(context.state, originalStateObject)
-		t.equal(context.content.value, `legit`)
-		t.equal(context.parameters.thingy, `yes`)
-		t.notOk(context.domApi)
-	})
-	stateRouter.on(`afterCreateState`, context => {
-		t.ok(beforeEventFired)
-		t.ok(renderCalled)
-		t.notOk(afterEventFired)
-		afterEventFired = true
+			assert.strictEqual(context.state, originalStateObject)
+			assert.strictEqual(context.content.value, `legit`)
+			assert.strictEqual(context.parameters.thingy, `yes`)
+			assert.strictEqual(context.domApi, undefined)
+		})
 
-		t.equal(context.state, originalStateObject)
-		t.equal(context.content.value, `legit`)
-		t.equal(context.parameters.thingy, `yes`)
-		t.equal(context.domApi, originalDomApi)
+		stateRouter.on(`afterCreateState`, context => {
+			assert.ok(beforeEventFired)
+			assert.ok(renderCalled)
+			assert.strictEqual(afterEventFired, false)
+			afterEventFired = true
 
-		t.end()
-	})
+			assert.strictEqual(context.state, originalStateObject)
+			assert.strictEqual(context.content.value, `legit`)
+			assert.strictEqual(context.parameters.thingy, `yes`)
+			assert.strictEqual(context.domApi, originalDomApi)
 
-	stateRouter.go(`state`, {
-		thingy: `yes`,
+			resolve()
+		})
+
+		stateRouter.go(`state`, {
+			thingy: `yes`,
+		})
 	})
 })
 
-test(`emitting dom api destroy`, t => {
+test(`emitting dom api destroy`, async t => {
 	const originalDomApi = {}
 	let beforeEventFired = false
 	let afterEventFired = false
@@ -285,12 +281,12 @@ test(`emitting dom api destroy`, t => {
 			return Promise.resolve(originalDomApi)
 		},
 		reset() {
-			t.fail(`Reset should not be called`)
+			assert.fail(`Reset should not be called`)
 			return Promise.resolve()
 		},
 		destroy(renderedTemplateApi) {
-			t.ok(beforeEventFired)
-			t.notOk(afterEventFired)
+			assert.ok(beforeEventFired)
+			assert.strictEqual(afterEventFired, false)
 			destroyCalled = true
 
 			return Promise.resolve()
@@ -299,8 +295,8 @@ test(`emitting dom api destroy`, t => {
 			return Promise.resolve({})
 		},
 	}))
+
 	const stateRouter = state.stateRouter
-	t.plan(11)
 
 	const originalStateObject = {
 		name: `state`,
@@ -312,52 +308,51 @@ test(`emitting dom api destroy`, t => {
 	}
 
 	stateRouter.addState(originalStateObject)
-	stateRouter.addState({
-		name: `second-state`,
-		route: `/second`,
-		template: {},
-		activate(context) {
-			t.ok(afterEventFired)
-			t.end()
-		},
+
+	await new Promise(resolve => {
+		stateRouter.addState({
+			name: `second-state`,
+			route: `/second`,
+			template: {},
+			activate(context) {
+				assert.ok(afterEventFired)
+				resolve()
+			},
+		})
+
+		stateRouter.on(`beforeDestroyState`, context => {
+			assert.strictEqual(destroyCalled, false)
+			assert.strictEqual(afterEventFired, false)
+			beforeEventFired = true
+
+			assert.strictEqual(context.state, originalStateObject)
+			assert.strictEqual(context.domApi, originalDomApi)
+		})
+
+		stateRouter.on(`afterDestroyState`, context => {
+			assert.ok(beforeEventFired)
+			assert.ok(destroyCalled)
+			afterEventFired = true
+
+			assert.strictEqual(context.state, originalStateObject)
+			assert.strictEqual(context.domApi, undefined)
+		})
+
+		stateRouter.go(`state`, {})
 	})
-
-	stateRouter.on(`beforeDestroyState`, context => {
-		t.notOk(destroyCalled)
-		t.notOk(afterEventFired)
-		beforeEventFired = true
-
-		t.equal(context.state, originalStateObject)
-		t.equal(context.domApi, originalDomApi)
-	})
-
-	stateRouter.on(`afterDestroyState`, context => {
-		t.ok(beforeEventFired)
-		t.ok(destroyCalled)
-		afterEventFired = true
-
-		t.equal(context.state, originalStateObject)
-		t.notOk(context.domApi)
-	})
-
-	stateRouter.go(`state`, {})
 })
 
-test(`emitting routeNotFound`, t => {
+test(`emitting routeNotFound`, async t => {
 	const renderer = assertingRendererFactory(t, [])
 	const state = getTestState(t, renderer)
 	const stateRouter = state.stateRouter
-	const assertsBelow = 2
-	const renderAsserts = renderer.expectedAssertions
-
-	t.plan(assertsBelow + renderAsserts)
 
 	stateRouter.addState({
 		name: `valid`,
 		route: `/valid`,
 		template: null,
 		activate(context) {
-			t.fail(`Should never activate the parent's state`)
+			assert.fail(`Should never activate the parent's state`)
 		},
 	})
 
@@ -366,22 +361,25 @@ test(`emitting routeNotFound`, t => {
 		route: `/valid`,
 		template: null,
 		activate(context) {
-			t.fail(`Should never activate the child's state`)
+			assert.fail(`Should never activate the child's state`)
 		},
 	})
 
 	stateRouter.on(`stateChangeError`, e => {
-		t.fail(`Should not emit a normal error`)
+		assert.fail(`Should not emit a normal error`)
 	})
+
 	stateRouter.on(`stateError`, e => {
-		t.fail(`Should not emit a normal error`)
+		assert.fail(`Should not emit a normal error`)
 	})
 
-	stateRouter.on(`routeNotFound`, (route, parameters) => {
-		t.equal(route, `/nonexistent`)
-		t.equal(parameters.thingy, `stuff`)
-		t.end()
-	})
+	await new Promise(resolve => {
+		stateRouter.on(`routeNotFound`, (route, parameters) => {
+			assert.strictEqual(route, `/nonexistent`)
+			assert.strictEqual(parameters.thingy, `stuff`)
+			resolve()
+		})
 
-	state.hashRouter.location.go(`/nonexistent?thingy=stuff`)
+		state.hashRouter.location.go(`/nonexistent?thingy=stuff`)
+	})
 })
