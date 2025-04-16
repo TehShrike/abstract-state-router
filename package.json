@@ -4,6 +4,7 @@
 	"description": "Like ui-router, but without all the Angular. The best way to structure a single-page webapp.",
 	"main": "bundle.js",
 	"type": "module",
+	"types": "index.d.ts",
 	"scripts": {
 		"build": "rollup -c",
 		"test": "npm run build && node --test test/*.js"
