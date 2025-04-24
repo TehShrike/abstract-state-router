@@ -83,7 +83,7 @@ export default function StateProvider(makeRenderer, rootElement, stateRouterOpti
 	async function getChildElementForStateName(stateName) {
 		const parent = prototypalStateHolder.getParent(stateName)
 		if (parent) {
-			const childDomApi = await getDomChild(activeDomApis[parent.name], { name: stateName })
+			const childDomApi = await getDomChild(activeDomApis[parent.name], { name: parent.name })
 			if (!childDomApi) {
 				throw new Error(`getDomChild returned a falsey element, did you forget to add a place for a child state to go?`)
 			}
