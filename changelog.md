@@ -1,4 +1,8 @@
-# [8.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.8.0)
+# [8.0.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.1)
+
+- Fix: pass the correct state name into `getDomChild` [#167](https://github.com/TehShrike/abstract-state-router/pull/167)
+
+# [8.0.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.0)
 
 - drop callbacks, everything is promises now [#162](https://github.com/TehShrike/abstract-state-router/pull/162)
 - drop CJS, use ESM everywhere [#166](https://github.com/TehShrike/abstract-state-router/pull/166)
