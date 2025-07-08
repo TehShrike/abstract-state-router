@@ -53,7 +53,7 @@ Fixes an issue where when a state was destroyed and resolved during the same sta
 
 # [7.3.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.3.0)
 
-Removes the concept of resetting states.
+Removes the concept of resetting states.  [#152](https://github.com/TehShrike/abstract-state-router/pull/152)
 
 The concept of resetting breaks down if your component library doesn't support
 - slots
@@ -63,7 +63,7 @@ For renderers that "reset" states by destroying the existing component and re-co
 
 Existing renderers don't need to change to work with this version of ASR, it's just that their `reset` function won't get called any more.
 
-The `beforeResetState` and `afterResetState` should not be fired any more.
+The `beforeResetState` and `afterResetState` events should not be fired any more.
 
 # [7.2.0](https://github.com/TehShrike/abstract-state-router/releases/tag/v7.2.0)
 
