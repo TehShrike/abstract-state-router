@@ -227,7 +227,7 @@ test(`emitting dom api create`, async t => {
 		route: `/state`,
 		template: {},
 		querystringParameters: [ `wat`, `much` ],
-		defaultQuerystringParameters: { wat: `lol`, much: `neat` },
+		defaultParameters: { wat: `lol`, much: `neat` },
 		resolve(data, params) {
 			return Promise.resolve({
 				value: `legit`,
