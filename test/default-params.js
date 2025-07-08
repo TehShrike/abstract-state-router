@@ -259,3 +259,42 @@ test(`function is a valid default parameter which returns the default value`, as
 		stateRouter.go(`state`)
 	})
 })
+
+test(`default parameters should be present in the parent's resolve fn when not given and resolving a child state`, async t => {
+	const state = getTestState(t)
+	const stateRouter = state.stateRouter
+
+	await new Promise(resolve => {
+		const parentState = {
+			name: `state1`,
+			route: `/state1`,
+			template: {},
+			querystringParameters: [ `wat`, `yarp`, 'somethingElse' ],
+			defaultParameters: {
+				wat: 'lol',
+				yarp: 'neat',
+			},
+			resolve(_data, parameters) {
+				assert.strictEqual(parameters.wat, 'lol')
+				assert.strictEqual(parameters.yarp, 'neat')
+				resolve()
+			},
+		}
+
+		stateRouter.addState(parentState)
+		stateRouter.addState({
+			name: `state1.child1`,
+			route: `/child1`,
+			template: {},
+			querystringParameters: [ `somethingElse` ],
+			defaultParameters: {
+				somethingElse: 'sweetDefault',
+			},
+			resolve(_data, parameters) {
+				assert.strictEqual(parameters.somethingElse, 'else')
+			},
+		})
+
+		stateRouter.go(`state1.child1`, { somethingElse: 'else' })
+	})
+})
