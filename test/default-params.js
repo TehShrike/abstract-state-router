@@ -32,30 +32,28 @@ test(`default querystring parameters`, async t => {
 		})
 	}
 
-	async function testWithBothPropertyNames(testName, params, expectParams, expectLocation) {
-		await basicTest(testName, params, expectParams, expectLocation, `defaultQuerystringParameters`)
-		await basicTest(testName, params, expectParams, expectLocation, `defaultParameters`)
-	}
-
-	await testWithBothPropertyNames(
+	await basicTest(
 		`params override defaults`,
 		{ wat: `waycool`, much: `awesome`, hi: `world` },
 		{ wat: `waycool`, much: `awesome`, hi: `world` },
 		`/state?hi=world&much=awesome&wat=waycool`,
+		'defaultParameters',
 	)
 
-	await testWithBothPropertyNames(
+	await basicTest(
 		`defaults and params are applied`,
 		{ wat: `roflol` },
 		{ wat: `roflol`, much: `neat` },
 		`/state?much=neat&wat=roflol`,
+		'defaultParameters',
 	)
 
-	await testWithBothPropertyNames(
+	await basicTest(
 		`defaults are applied`,
 		{},
 		{ wat: `lol`, much: `neat` },
 		`/state?much=neat&wat=lol`,
+		'defaultParameters',
 	)
 })
 
@@ -68,7 +66,7 @@ test(`race conditions on redirects`, async t => {
 		route: `/state1`,
 		template: {},
 		querystringParameters: [ `wat`, `much` ],
-		defaultQuerystringParameters: { wat: `lol`, much: `neat` },
+		defaultParameters: { wat: `lol`, much: `neat` },
 		activate(context) {
 			assert.deepStrictEqual({ wat: `lol`, much: `neat` }, context.parameters)
 			assert.strictEqual(state.location.get(), `/state1?much=neat&wat=lol`)
@@ -83,7 +81,7 @@ test(`race conditions on redirects`, async t => {
 			route: `/state2`,
 			template: {},
 			querystringParameters: [ `wat`, `much` ],
-			defaultQuerystringParameters: { wat: `lol`, much: `neat` },
+			defaultParameters: { wat: `lol`, much: `neat` },
 			activate(context) {
 				assert.deepStrictEqual({ wat: `waycool`, much: `awesome`, hi: `world` }, context.parameters)
 				assert.strictEqual(state.location.get(), `/state2?hi=world&much=awesome&wat=waycool`)
@@ -126,7 +124,6 @@ test(`default parameters should work for route params too`, async t => {
 	}
 
 	await testWithPropertyName(`defaultParameters`)
-	await testWithPropertyName(`defaultQuerystringParameters`)
 })
 
 test(`default parameters should work for default child route params`, async t => {
@@ -167,7 +164,6 @@ test(`default parameters should work for default child route params`, async t =>
 	}
 
 	await testWithPropertyName(`defaultParameters`)
-	await testWithPropertyName(`defaultQuerystringParameters`)
 })
 
 test(`default parameters on parent states should apply to child state routes`, async t => {
@@ -208,7 +204,6 @@ test(`default parameters on parent states should apply to child state routes`, a
 	}
 
 	await testWithPropertyName(`defaultParameters`)
-	await testWithPropertyName(`defaultQuerystringParameters`)
 })
 
 test(`empty string is a valid default parameter`, async t => {

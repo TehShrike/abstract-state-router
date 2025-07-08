@@ -95,8 +95,6 @@ If the viewer navigates to a state that has a default child, the router will red
 
 `defaultParameters` is an object whose properties should correspond to parameters defined in the `querystringParameters` option or the route parameters.  Whatever values you supply here will be used as the defaults in case the url does not contain any value for that parameter. If you pass a function for a default parameter, the return of that function will be used as the default value.
 
-For backwards compatibility reasons, `defaultQuerystringParameters` will work as well (though it does not function any differently).
-
 `canLeaveState` is an optional function that takes two arguments: the state's domApi, and an object with the `name` and `parameters` of the state that the user is attempting to navigate to.  It can return either a boolean, or a promise that resolves to a boolean.  If `canLeaveState` returns `false`, navigation from the current state will be prevented. If the function returns `true` the state change will continue.
 
 ### resolve(data, parameters)
