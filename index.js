@@ -224,10 +224,10 @@ export default function StateProvider(makeRenderer, rootElement, stateRouterOpti
 		router.add(route, parameters => onRouteChange(state, parameters))
 	}
 
-	function computeDefaultParams(defaultParams) {
+	function computeDefaultParams(defaultParams, parameters) {
 		const computedDefaultParams = {}
 
-		Object.keys(defaultParams).forEach(key => {
+		parameters.forEach(key => {
 			computedDefaultParams[key] = typeof defaultParams[key] === `function` ? defaultParams[key]() : defaultParams[key]
 		})
 
@@ -370,7 +370,7 @@ export default function StateProvider(makeRenderer, rootElement, stateRouterOpti
 		const destinationState = prototypalStateHolder.get(destinationStateName) || {}
 		const defaultParams = destinationState.defaultParameters || {}
 
-		parameters = { ...computeDefaultParams(defaultParams), ...parameters }
+		parameters = { ...computeDefaultParams(defaultParams, Object.keys(defaultParams)), ...parameters }
 
 		prototypalStateHolder.guaranteeAllStatesExist(destinationStateName)
 		const route = prototypalStateHolder.buildFullStateRoute(destinationStateName)
