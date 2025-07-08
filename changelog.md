@@ -1,3 +1,13 @@
+# [8.0.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.2)
+
+- fix a bug where default parameters from parent states were being ignored [#169](https://github.com/TehShrike/abstract-state-router/pull/169)
+	- if you navigated to state1.child2.grandchild3, the only default parameters being used were the ones on grandchild3
+- remove support for `defaultQuerystringParameters` in state definitions [#168](https://github.com/TehShrike/abstract-state-router/pull/168)
+	- technically this should be a breaking change, and I wish we'd remembered to do it during the 8.0.0 release, but I don't feel too bad about doing it now because
+		- it was deprecated 8 years ago
+		- the type definition doesn't include it, so anyone using TS is already guaranteed to not be using it
+		- anyone continuing to use it will get a runtime warning in their console about it
+
 # [8.0.1](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.1)
 
 - Fix: pass the correct state name into `getDomChild` [#167](https://github.com/TehShrike/abstract-state-router/pull/167)
