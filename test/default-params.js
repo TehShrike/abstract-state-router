@@ -287,6 +287,12 @@ test(`default parameters should be present in the parent's resolve fn when not g
 			route: `/child1`,
 			template: {},
 			querystringParameters: [ `somethingElse` ],
+			defaultParameters: {
+				somethingElse: 'sweetDefault',
+			},
+			resolve(_data, parameters) {
+				assert.strictEqual(parameters.somethingElse, 'else')
+			},
 		})
 
 		stateRouter.go(`state1.child1`, { somethingElse: 'else' })
