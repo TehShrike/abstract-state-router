@@ -261,11 +261,13 @@ export default function StateProvider(makeRenderer, rootElement, stateRouterOpti
 			await prototypalStateHolder.guaranteeAllStatesExist(newStateName)
 
 			const state = prototypalStateHolder.get(newStateName)
-			const defaultParams = state.defaultParameters || {}
-			const needToApplyDefaults = Object.keys(defaultParams).some(param => typeof parameters[param] === 'undefined')
+			const defaultParams = prototypalStateHolder.getHierarchy(newStateName).reduce((acc, state) => {
+				return { ...acc, ...state.defaultParameters }
+			}, {})
+			const parametersThatNeedDefaultsApplied = Object.keys(defaultParams).filter(param => typeof parameters[param] === 'undefined')
 
-			if (needToApplyDefaults) {
-				throw redirector(newStateName, { ...computeDefaultParams(defaultParams), ...parameters })
+			if (parametersThatNeedDefaultsApplied.length > 0) {
+				throw redirector(newStateName, { ...parameters, ...computeDefaultParams(defaultParams, parametersThatNeedDefaultsApplied) })
 			}
 
 			await ifNotCancelled(() => {
