@@ -5,16 +5,13 @@ declare module 'abstract-state-router' {
 	type StateParams = {
 		[key: string]: string | null
 	}
-	type ObjectWithRedirect = {
-		redirect: (state_name: string, params?: StateParams) => void
-	}
 	export type State<TEMPLATE, DOM_API> = {
 		template: TEMPLATE
 		name: string
 		route: string
 		defaultChild?: string | undefined
 		data?: object
-		resolve?: undefined | ((data: any, params: { [key: string]: string }, cb: ObjectWithRedirect) => Promise<any>)
+		resolve?: undefined | ((data: any, params: { [key: string]: string }) => Promise<any>)
 		activate?: (context: any) => void
 		querystringParameters?: string[] | undefined
 		defaultParameters?: DefaultParams | undefined
