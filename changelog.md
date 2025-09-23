@@ -1,3 +1,7 @@
+# [8.0.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.3)
+
+- Update the types to reflect the fact that the `resolve` function doesn't get passed a callback function with a `redirect` property as of 8.0.0
+
 # [8.0.2](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.2)
 
 - fix a bug where default parameters from parent states were being ignored [#169](https://github.com/TehShrike/abstract-state-router/pull/169)
