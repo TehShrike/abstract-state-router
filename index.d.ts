@@ -65,6 +65,13 @@ declare module 'abstract-state-router' {
 		getChildElement(rendered_template_api: DOM_API): DOM_API
 	}
 
+	export type Redirect = {
+		redirectTo: {
+			name: string | null
+			params?: object
+		}
+	}
+
 	function createAbstractStateRouter<TEMPLATE, DOM_API>(
 		make_renderer: (asr: AbstractStateRouter<TEMPLATE, DOM_API>) => Renderer<TEMPLATE, DOM_API>,
 		root_element: HTMLElement | null,
