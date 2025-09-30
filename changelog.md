@@ -1,3 +1,7 @@
+# [8.0.4](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.4)
+
+- Export a `Redirect` type that you can throw from your `resolve` functions
+
 # [8.0.3](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.3)
 
 - Update the types to reflect the fact that the `resolve` function doesn't get passed a callback function with a `redirect` property as of 8.0.0
