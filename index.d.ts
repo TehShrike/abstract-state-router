@@ -27,6 +27,21 @@ declare module 'abstract-state-router' {
 		inherit?: boolean
 	}
 
+	type ErrorEventCallback = (err: Error) => void
+	type StateChangeEventCallback<TEMPLATE, DOM_API> = (
+		state: State<TEMPLATE, DOM_API>,
+		parameters: object,
+		states: State<TEMPLATE, DOM_API>[],
+	) => void
+	type RouteNotFoundCallback = (route: string, parameters: object) => void
+	type AfterCreateStateCallback<TEMPLATE, DOM_API> = (args: {
+		state: State<TEMPLATE, DOM_API>
+		domApi: DOM_API
+		content: unknown
+		parameters: object
+	}) => void
+	type StateChangePreventedCallback = (stateName: string) => void
+
 	export type AbstractStateRouter<TEMPLATE, DOM_API> = {
 		addState(options: State<TEMPLATE, DOM_API>): void
 		go(state_name: string | null, state_parameters?: object, options?: GoOptions): void
@@ -34,22 +49,21 @@ declare module 'abstract-state-router' {
 		stateIsActive(state_name?: string | null, state_parameters?: object | null): boolean
 		makePath(state_name: string | null, state_parameters?: object, options?: { inherit?: boolean }): string
 		getActiveState(): { name: string; parameters: Record<string, string | null> }
-		on(event: ErrorEvent, callback: (err: Error) => void): void
-		on(
-			event: StateChangeEvent,
-			callback: (state: State<TEMPLATE, DOM_API>, parameters: object, states: State<TEMPLATE, DOM_API>[]) => void,
-		): void
-		on(event: 'routeNotFound', callback: (route: string, parameters: object) => void): void
-		on(
-			event: 'afterCreateState',
-			callback: (args: {
-				state: State<TEMPLATE, DOM_API>
-				domApi: DOM_API
-				content: unknown
-				parameters: object
-			}) => void,
-		): void
-		on(event: 'stateChangePrevented', callback: (stateName: string) => void): void
+		on(event: ErrorEvent, callback: ErrorEventCallback): void
+		on(event: StateChangeEvent, callback: StateChangeEventCallback<TEMPLATE, DOM_API>): void
+		on(event: 'routeNotFound', callback: RouteNotFoundCallback): void
+		on(event: 'afterCreateState', callback: AfterCreateStateCallback<TEMPLATE, DOM_API>): void
+		on(event: 'stateChangePrevented', callback: StateChangePreventedCallback): void
+		once(event: ErrorEvent, callback: ErrorEventCallback): void
+		once(event: StateChangeEvent, callback: StateChangeEventCallback<TEMPLATE, DOM_API>): void
+		once(event: 'routeNotFound', callback: RouteNotFoundCallback): void
+		once(event: 'afterCreateState', callback: AfterCreateStateCallback<TEMPLATE, DOM_API>): void
+		once(event: 'stateChangePrevented', callback: StateChangePreventedCallback): void
+		removeListener(event: ErrorEvent, callback: ErrorEventCallback): void
+		removeListener(event: StateChangeEvent, callback: StateChangeEventCallback<TEMPLATE, DOM_API>): void
+		removeListener(event: 'routeNotFound', callback: RouteNotFoundCallback): void
+		removeListener(event: 'afterCreateState', callback: AfterCreateStateCallback<TEMPLATE, DOM_API>): void
+		removeListener(event: 'stateChangePrevented', callback: StateChangePreventedCallback): void
 	}
 
 	type RenderContext<TEMPLATE> = {

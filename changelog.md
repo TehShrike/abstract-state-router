@@ -1,3 +1,7 @@
+# [8.0.5](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.5)
+
+- added `once` and `removeEventListener` to the type definition
+
 # [8.0.4](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.4)
 
 - Export a `Redirect` type that you can throw from your `resolve` functions
