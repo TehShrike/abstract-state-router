@@ -1,3 +1,7 @@
+# [8.0.7](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.7)
+
+- Fix: the types for a state's `defaultChild` now correctly include a function [#174](https://github.com/TehShrike/abstract-state-router/pull/174)
+
 # [8.0.6](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.6)
 
 - well that didn't take long to regret.  The type definition file now exports all the types
