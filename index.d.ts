@@ -6,7 +6,7 @@ declare module 'abstract-state-router' {
 		template: TEMPLATE
 		name: string
 		route: string
-		defaultChild?: string | undefined
+		defaultChild?: string | undefined | (() => string | undefined)
 		data?: object
 		resolve?: undefined | ((data: any, params: { [key: string]: string }) => Promise<any>)
 		activate?: (context: any) => void
