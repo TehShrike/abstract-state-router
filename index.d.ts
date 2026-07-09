@@ -12,7 +12,7 @@ declare module 'abstract-state-router' {
 		activate?: (context: any) => void
 		querystringParameters?: string[] | undefined
 		defaultParameters?: DefaultParams | undefined
-		canLeaveState?: undefined | ((domApi: DOM_API) => boolean)
+		canLeaveState?: undefined | ((domApi: DOM_API, destination: { name: string; parameters: object }) => boolean)
 	}
 
 	export type ErrorEvent = 'stateChangeCancelled' | 'stateChangeError' | 'stateError'
