@@ -1,3 +1,7 @@
+# [8.0.8](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.8)
+
+- Fix: the types for a state's `canLeaveState` now correctly include the destination state details [#175](https://github.com/TehShrike/abstract-state-router/pull/175)
+
 # [8.0.7](https://github.com/TehShrike/abstract-state-router/releases/tag/v8.0.7)
 
 - Fix: the types for a state's `defaultChild` now correctly include a function [#174](https://github.com/TehShrike/abstract-state-router/pull/174)
